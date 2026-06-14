@@ -1,18 +1,23 @@
 @import "tailwindcss";
 
-/* House style: docs/design-system.md */
+/* House style: docs/design-system.md — palette extracted from brand logo */
 :root {
-  --kv-navy: #152238;
-  --kv-navy-light: #1f3354;
-  --kv-navy-muted: #2a4268;
-  --kv-yellow: #f5c518;
-  --kv-yellow-hover: #e3b506;
-  --kv-bg: #f3f0e8;
-  --kv-bg-alt: #eae6dc;
+  --kv-navy: #183878;
+  --kv-navy-light: #104878;
+  --kv-navy-muted: #086080;
+  --kv-teal: #008090;
+  --kv-teal-light: #08a8a0;
+  --kv-teal-hover: #40a8b0;
+  --kv-cyan: #48a8b0;
+  --kv-green: #4caf50;
+  --kv-yellow: var(--kv-teal);
+  --kv-yellow-hover: var(--kv-teal-light);
+  --kv-bg: #edf3f6;
+  --kv-bg-alt: #dce9ee;
   --kv-surface: #ffffff;
-  --kv-text: #152238;
-  --kv-muted: #5a6478;
-  --kv-border: #d9d2c4;
+  --kv-text: #183878;
+  --kv-muted: #5a7280;
+  --kv-border: #c5d8de;
   --kv-plate-border: #111111;
   --kv-plate-text: #111111;
   --kv-plate-yellow: #f7ca00;
@@ -26,6 +31,11 @@
   --color-kv-navy: var(--kv-navy);
   --color-kv-navy-light: var(--kv-navy-light);
   --color-kv-navy-muted: var(--kv-navy-muted);
+  --color-kv-teal: var(--kv-teal);
+  --color-kv-teal-light: var(--kv-teal-light);
+  --color-kv-teal-hover: var(--kv-teal-hover);
+  --color-kv-cyan: var(--kv-cyan);
+  --color-kv-green: var(--kv-green);
   --color-kv-yellow: var(--kv-yellow);
   --color-kv-yellow-hover: var(--kv-yellow-hover);
   --color-kv-bg: var(--kv-bg);
@@ -58,31 +68,38 @@ body {
   background: var(--kv-surface);
   border-radius: 1rem;
   box-shadow:
-    0 1px 2px rgb(21 34 56 / 4%),
-    0 12px 32px rgb(21 34 56 / 6%);
+    0 1px 2px rgb(24 56 120 / 4%),
+    0 12px 32px rgb(24 56 120 / 6%);
 }
 
 .kv-btn-primary {
   cursor: pointer;
-  background: var(--kv-navy);
+  background: linear-gradient(
+    135deg,
+    var(--kv-navy) 0%,
+    var(--kv-teal) 52%,
+    var(--kv-teal-light) 100%
+  );
   color: white;
   font-weight: 600;
-  transition: background-color 150ms ease;
+  transition:
+    filter 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .kv-btn-primary:hover {
-  background: var(--kv-navy-light);
+  filter: brightness(1.06);
 }
 
 .kv-btn-link {
   cursor: pointer;
   font-weight: 600;
-  color: var(--kv-navy-light);
+  color: var(--kv-teal);
   transition: color 150ms ease;
 }
 
 .kv-btn-link:hover {
-  color: var(--kv-navy);
+  color: var(--kv-teal-light);
 }
 
 .kv-btn-ghost {
@@ -106,8 +123,8 @@ body {
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
-  background: rgb(245 197 24 / 18%);
-  border: 1px solid rgb(245 197 24 / 35%);
+  background: rgb(0 128 144 / 12%);
+  border: 1px solid rgb(8 168 160 / 28%);
   color: var(--kv-navy);
   font-size: 0.875rem;
   font-weight: 600;
@@ -137,10 +154,10 @@ body {
 }
 
 .kv-plate:focus-within {
-  border-color: var(--kv-navy);
+  border-color: var(--kv-teal);
   box-shadow:
     0 1px 0 rgb(255 255 255 / 35%) inset,
-    0 0 0 3px rgb(21 34 56 / 15%),
+    0 0 0 3px rgb(0 128 144 / 18%),
     0 8px 20px rgb(17 17 17 / 10%);
 }
 

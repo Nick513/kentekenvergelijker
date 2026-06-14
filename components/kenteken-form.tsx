@@ -122,7 +122,7 @@ export function KentekenForm() {
 
       <button
         type="submit"
-        className="kv-btn-primary mt-6 w-full rounded-xl px-6 py-4 text-base shadow-lg shadow-kv-navy/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kv-navy"
+        className="kv-btn-primary mt-6 w-full rounded-xl px-6 py-4 text-base shadow-lg shadow-kv-teal/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kv-teal"
       >
         Vergelijk auto&apos;s
       </button>

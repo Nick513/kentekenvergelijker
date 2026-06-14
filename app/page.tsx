@@ -66,8 +66,8 @@ export default function Home() {
 
       <main>
         <section className="relative overflow-hidden bg-kv-bg">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(245_197_24_/_14%),transparent_42%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(21_34_56_/_8%),transparent_50%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(8_168_160_/_16%),transparent_42%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_10%),transparent_50%)]" />
 
           <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-24">
             <div className="space-y-6">
@@ -85,19 +85,19 @@ export default function Home() {
 
               <ul className="grid gap-3 text-sm text-kv-navy sm:grid-cols-2">
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-green">✓</span>
                   <span>2 tot 4 kentekens tegelijk vergelijken</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-green">✓</span>
                   <span>Opties zoals stoelverwarming & rijassistentie</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-green">✓</span>
                   <span>Gebouwd voor de Nederlandse markt</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-green">✓</span>
                   <span>Duidelijke vergelijkingstabel per voertuig</span>
                 </li>
               </ul>
@@ -141,7 +141,7 @@ export default function Home() {
             ].map((item) => (
               <article
                 key={item.title}
-                className="kv-card border-l-4 border-l-kv-yellow p-6"
+                className="kv-card border-l-4 border-l-kv-teal p-6"
               >
                 <h3 className="text-lg font-semibold text-kv-navy">{item.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-kv-muted">{item.description}</p>
@@ -165,7 +165,7 @@ export default function Home() {
               {faqItems.map((item) => (
                 <details
                   key={item.question}
-                  className="group kv-card p-6 open:border-kv-navy/20"
+                  className="group kv-card p-6 open:border-kv-teal/30"
                 >
                   <summary className="list-none text-lg font-medium text-kv-navy marker:content-none">
                     <span className="flex items-center justify-between gap-4">

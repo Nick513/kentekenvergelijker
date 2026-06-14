@@ -8,37 +8,46 @@ Read this file before adding or changing styles.
 
 ## Brand feel
 
-- Warm, trustworthy, Dutch automotive
-- Not flashy: clean cards, navy + kenteken yellow, warm off-white backgrounds
+- Professional, trustworthy, Dutch automotive
+- Teal-to-blue gradient from the brand logo: deep blue, teal, cyan
+- Clean cards, cool blue-tinted backgrounds, green check accents
+- Kenteken plate inputs keep authentic Dutch yellow (separate from brand UI accents)
 - Avoid generic Tailwind blues (`blue-700`, `slate-*`) for new UI; use `kv-*` tokens instead
 
 ---
 
 ## Colors
 
+Palette extracted from `public/logo.png`.
+
 | Token | Hex | Usage |
 | --- | --- | --- |
-| `--kv-navy` | `#152238` | Primary text, buttons, table headers, logo background |
-| `--kv-navy-light` | `#1f3354` | Button hover, secondary navy accents |
-| `--kv-navy-muted` | `#2a4268` | Optional deeper navy accents |
-| `--kv-yellow` | `#f5c518` | Kenteken plate background, badges, accent stripe |
-| `--kv-yellow-hover` | `#e3b506` | Small accent highlights (e.g. checkmarks) |
-| `--kv-bg` | `#f3f0e8` | Page background |
-| `--kv-bg-alt` | `#eae6dc` | Alternate sections (FAQ, stripes) |
+| `--kv-navy` | `#183878` | Primary text, table headers, footer |
+| `--kv-navy-light` | `#104878` | Deeper blue accents |
+| `--kv-navy-muted` | `#086080` | Mid teal-blue accents |
+| `--kv-teal` | `#008090` | Primary accent, links, feature stripes |
+| `--kv-teal-light` | `#08a8a0` | Hover highlights, badge borders |
+| `--kv-teal-hover` | `#40a8b0` | Lighter accent highlights |
+| `--kv-cyan` | `#48a8b0` | Gradient end / bright highlights |
+| `--kv-green` | `#4caf50` | Success, checkmarks (from logo) |
+| `--kv-bg` | `#edf3f6` | Page background |
+| `--kv-bg-alt` | `#dce9ee` | Alternate sections (FAQ, stripes) |
 | `--kv-surface` | `#ffffff` | Cards, header, table body |
-| `--kv-text` | `#152238` | Body text (same as navy) |
-| `--kv-muted` | `#5a6478` | Secondary / helper text |
-| `--kv-border` | `#d9d2c4` | Borders, dividers (warm, not grey) |
-| `--kv-plate-border` | `#1a1a1a` | Kenteken plate black border |
+| `--kv-text` | `#183878` | Body text (same as navy) |
+| `--kv-muted` | `#5a7280` | Secondary / helper text |
+| `--kv-border` | `#c5d8de` | Borders, dividers (cool blue-grey) |
+| `--kv-plate-border` | `#111111` | Kenteken plate black border |
 | `--kv-eu-blue` | `#003399` | EU strip on kenteken input (NL badge) |
+
+`--kv-yellow` and `--kv-yellow-hover` are legacy aliases mapped to `--kv-teal` and `--kv-teal-light` for backwards-compatible class names.
 
 ### Tailwind utilities (from `@theme inline`)
 
 Use these in JSX class names:
 
-- Backgrounds: `bg-kv-bg`, `bg-kv-bg-alt`, `bg-kv-surface`, `bg-kv-navy`, `bg-kv-yellow`
-- Text: `text-kv-navy`, `text-kv-muted`, `text-kv-navy-light`
-- Borders: `border-kv-border`, `border-kv-navy`, `border-l-kv-yellow`
+- Backgrounds: `bg-kv-bg`, `bg-kv-bg-alt`, `bg-kv-surface`, `bg-kv-navy`, `bg-kv-teal`
+- Text: `text-kv-navy`, `text-kv-muted`, `text-kv-teal`, `text-kv-green`
+- Borders: `border-kv-border`, `border-kv-navy`, `border-l-kv-teal`
 
 Raw CSS variable when needed: `bg-[var(--kv-eu-blue)]`, `border-[var(--kv-plate-border)]`
 
@@ -76,20 +85,20 @@ Prefer these over one-off styling.
 
 ### `.kv-card`
 
-White card with warm border and soft shadow. Use for forms, feature cards, FAQ items, comparison block.
+White card with cool border and soft shadow. Use for forms, feature cards, FAQ items, comparison block.
 
 ```html
 <div class="kv-card p-6 sm:p-8">...</div>
 ```
 
-Feature cards add a yellow accent: `kv-card border-l-4 border-l-kv-yellow p-6`
+Feature cards add a teal accent: `kv-card border-l-4 border-l-kv-teal p-6`
 
 ### `.kv-btn-primary`
 
-Navy primary button. Pair with rounded corners and shadow in JSX:
+Brand gradient button (navy → teal → cyan). Pair with rounded corners and shadow in JSX:
 
 ```html
-<button class="kv-btn-primary rounded-xl px-6 py-4 shadow-lg shadow-kv-navy/20">
+<button class="kv-btn-primary rounded-xl px-6 py-4 shadow-lg shadow-kv-teal/25">
   Vergelijk auto's
 </button>
 ```
@@ -140,7 +149,7 @@ Table chips use `.kv-plate-chip` + `.kv-plate-chip-text` (same EU strip, smaller
 - Mono font via `.kenteken-input` on the field/chip text
 - Wide letter-spacing on plate characters
 - Use the full `.kv-plate-eu` strip, not a floating NL badge inside the field
-- Focus state: `:focus-within` on `.kv-plate`
+- Focus state: `:focus-within` on `.kv-plate` uses teal ring
 
 ---
 
@@ -160,22 +169,24 @@ Table chips use `.kv-plate-chip` + `.kv-plate-chip-text` (same EU strip, smaller
 **Header** (`components/site-header.tsx`):
 
 - `border-b border-kv-border bg-kv-surface/95 backdrop-blur`
-- Logo: `bg-kv-navy text-kv-yellow` rounded square with "KV"
+- Logo: `public/logo.png` via `next/image`, 48×48 rounded
 
 **Footer** (`components/site-footer.tsx`):
 
 - `border-t border-kv-navy bg-kv-navy`
 - Text: `text-white/80` and `text-white/60` for secondary line
 
+**Favicon:** `app/favicon.ico`, `app/icon.png` (32×32), and `app/apple-icon.png` (180×180)
+
 ---
 
 ## Hero background
 
-Subtle warm gradients on `bg-kv-bg` (see `app/page.tsx`):
+Subtle brand gradients on `bg-kv-bg` (see `app/page.tsx`):
 
 ```html
-<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(245_197_24_/_14%),transparent_42%)]" />
-<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(21_34_56_/_8%),transparent_50%)]" />
+<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(8_168_160_/_16%),transparent_42%)]" />
+<div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_10%),transparent_50%)]" />
 ```
 
 ---
@@ -183,7 +194,8 @@ Subtle warm gradients on `bg-kv-bg` (see `app/page.tsx`):
 ## Errors & states
 
 - Error alert: `border border-red-200 bg-red-50 text-red-800`
-- FAQ open state: `open:border-kv-navy/20` on `.kv-card`
+- FAQ open state: `open:border-kv-teal/30` on `.kv-card`
+- Success / checkmarks: `text-kv-green`
 
 ---
 
@@ -200,7 +212,10 @@ Subtle warm gradients on `bg-kv-bg` (see `app/page.tsx`):
 | File | Role |
 | --- | --- |
 | `app/globals.css` | CSS variables, `@theme`, component classes |
+| `app/favicon.ico` | Browser favicon |
+| `app/icon.png` | PNG favicon |
 | `app/layout.tsx` | Geist fonts, body defaults |
+| `public/logo.png` | Brand logo |
 | `components/site-header.tsx` | Site header |
 | `components/site-footer.tsx` | Site footer |
 | `components/kenteken-form.tsx` | Form + `.kv-card` + `.kv-btn-primary` |

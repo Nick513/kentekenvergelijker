@@ -15,7 +15,7 @@ export default function ComparisonNotFound() {
         </p>
         <Link
           href="/#vergelijken"
-          className="kv-btn-primary mt-8 rounded-xl px-6 py-3 text-sm shadow-md shadow-kv-navy/20"
+          className="kv-btn-primary mt-8 rounded-xl px-6 py-3 text-sm shadow-md shadow-kv-teal/25"
         >
           Naar homepage
         </Link>
