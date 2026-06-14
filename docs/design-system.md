@@ -23,6 +23,7 @@ Palette extracted from `public/logo.png`.
 | Token | Hex | Usage |
 | --- | --- | --- |
 | `--kv-navy` | `#183878` | Primary text, table headers, footer |
+| `--kv-navy-bg` | `#183878` | Dark navy backgrounds (footer, table header, buttons) |
 | `--kv-navy-light` | `#104878` | Deeper blue accents |
 | `--kv-navy-muted` | `#086080` | Mid teal-blue accents |
 | `--kv-teal` | `#008090` | Primary accent, links, feature stripes |
@@ -45,7 +46,7 @@ Palette extracted from `public/logo.png`.
 
 Use these in JSX class names:
 
-- Backgrounds: `bg-kv-bg`, `bg-kv-bg-alt`, `bg-kv-surface`, `bg-kv-navy`, `bg-kv-teal`
+- Backgrounds: `bg-kv-bg`, `bg-kv-bg-alt`, `bg-kv-surface`, `bg-kv-navy-bg`, `bg-kv-teal`
 - Text: `text-kv-navy`, `text-kv-muted`, `text-kv-teal`, `text-kv-green`
 - Borders: `border-kv-border`, `border-kv-navy`, `border-l-kv-teal`
 
@@ -156,7 +157,7 @@ Table chips use `.kv-plate-chip` + `.kv-plate-chip-text` (same EU strip, smaller
 ## Comparison table
 
 - Wrapper: `overflow-x-auto rounded-xl border border-kv-border`
-- Header row: `bg-kv-navy text-white`
+- Header row: `bg-kv-navy-bg text-white`
 - Header label column: `text-white/70`
 - Body rows: alternate `bg-kv-surface` / `bg-kv-bg/60`
 - Row borders: `border-t border-kv-border`
@@ -173,7 +174,7 @@ Table chips use `.kv-plate-chip` + `.kv-plate-chip-text` (same EU strip, smaller
 
 **Footer** (`components/site-footer.tsx`):
 
-- `border-t border-kv-navy bg-kv-navy`
+- `border-t border-kv-navy-bg bg-kv-navy-bg`
 - Text: `text-white/80` and `text-white/60` for secondary line
 
 **Favicon:** `app/favicon.ico`, `app/icon.png` (32×32), and `app/apple-icon.png` (180×180)
@@ -193,9 +194,20 @@ Subtle brand gradients on `bg-kv-bg` (see `app/page.tsx`):
 
 ## Errors & states
 
-- Error alert: `border border-red-200 bg-red-50 text-red-800`
+- Error alert: `.kv-alert-error` (rounded container with padding)
 - FAQ open state: `open:border-kv-teal/30` on `.kv-card`
 - Success / checkmarks: `text-kv-green`
+
+---
+
+## Dark mode
+
+Dark mode toggles via a `dark` class on `<html>`. Semantic tokens in `app/globals.css` swap automatically; kenteken plate colors stay unchanged.
+
+- Toggle: moon/sun button in `components/site-header.tsx` (`ThemeToggle`)
+- Preference stored in `localStorage` under key `kv-theme`
+- Default follows `prefers-color-scheme` when no preference is saved
+- Use `bg-kv-navy-bg` for dark navy surfaces (footer, table header), not `bg-kv-navy` (that token becomes light text in dark mode)
 
 ---
 

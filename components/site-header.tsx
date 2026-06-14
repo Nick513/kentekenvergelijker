@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
   { href: "#vergelijken", label: "Vergelijken" },
@@ -26,23 +27,27 @@ export function SiteHeader() {
           </div>
         </Link>
 
-        <nav aria-label="Hoofdnavigatie" className="hidden items-center gap-1 sm:flex">
-          {navItems.map((item) => (
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+
+          <nav aria-label="Hoofdnavigatie" className="hidden items-center gap-1 sm:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="kv-btn-ghost text-kv-navy"
+              >
+                {item.label}
+              </Link>
+            ))}
             <Link
-              key={item.href}
-              href={item.href}
-              className="kv-btn-ghost text-kv-navy"
+              href="#vergelijken"
+              className="kv-btn-primary ml-2 rounded-lg px-4 py-2 text-sm shadow-md shadow-kv-teal/20"
             >
-              {item.label}
+              Start vergelijking
             </Link>
-          ))}
-          <Link
-            href="#vergelijken"
-            className="kv-btn-primary ml-2 rounded-lg px-4 py-2 text-sm shadow-md shadow-kv-teal/20"
-          >
-            Start vergelijking
-          </Link>
-        </nav>
+          </nav>
+        </div>
       </div>
     </header>
   );

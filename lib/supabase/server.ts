@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 export function createSupabaseServerClient() {
@@ -7,5 +8,6 @@ export function createSupabaseServerClient() {
       autoRefreshToken: false,
       persistSession: false,
     },
+    realtime: { transport: ws },
   });
 }

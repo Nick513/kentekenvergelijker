@@ -161,8 +161,8 @@ export default function Home() {
           aria-labelledby="hero-heading"
           className="relative overflow-hidden bg-kv-bg"
         >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(8_168_160_/_16%),transparent_42%)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_10%),transparent_50%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(8_168_160_/_16%),transparent_42%)] dark:bg-[radial-gradient(circle_at_80%_0%,rgb(40_184_200_/_12%),transparent_42%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_10%),transparent_50%)] dark:bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_18%),transparent_50%)]" />
 
           <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-24">
             <div className="space-y-6">

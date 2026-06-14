@@ -46,7 +46,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
-          <tr className="bg-kv-navy text-white">
+          <tr className="bg-kv-navy-bg text-white">
             <th scope="col" className="px-4 py-3.5 font-semibold text-white/70">
               Specificatie
             </th>

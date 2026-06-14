@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import {
   SITE_DESCRIPTION,
@@ -7,6 +8,7 @@ import {
   SITE_TITLE,
   SITE_URL,
 } from "@/lib/site";
+import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -81,8 +83,14 @@ export default function RootLayout({
     <html
       lang="nl"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full bg-kv-bg font-sans text-kv-navy">{children}</body>
+      <body className="min-h-full bg-kv-bg font-sans text-kv-navy">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }
