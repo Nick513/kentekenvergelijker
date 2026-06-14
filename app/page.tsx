@@ -65,40 +65,39 @@ export default function Home() {
       <SiteHeader />
 
       <main>
-        <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-blue-50/40">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(29,78,216,0.12),transparent_45%)]" />
+        <section className="relative overflow-hidden bg-kv-bg">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(245_197_24_/_14%),transparent_42%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(21_34_56_/_8%),transparent_50%)]" />
 
           <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-24">
             <div className="space-y-6">
-              <p className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
-                Vergelijk auto&apos;s op kenteken
-              </p>
+              <p className="kv-badge">Vergelijk auto&apos;s op kenteken</p>
 
-              <h1 className="max-w-xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl sm:leading-tight">
+              <h1 className="max-w-xl text-4xl font-bold tracking-tight text-kv-navy sm:text-5xl sm:leading-tight">
                 Ontdek precies welke auto&apos;s je vergelijkt, tot in de uitrusting
               </h1>
 
-              <p className="max-w-xl text-lg leading-8 text-slate-600">
+              <p className="max-w-xl text-lg leading-8 text-kv-muted">
                 Voer een paar Nederlandse kentekens in en krijg een overzichtelijke
                 vergelijking van model, uitvoering en specificaties. Geen algemene
                 brochure-informatie, maar de auto&apos;s achter de kentekens.
               </p>
 
-              <ul className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
+              <ul className="grid gap-3 text-sm text-kv-navy sm:grid-cols-2">
                 <li className="flex items-start gap-2">
-                  <span className="mt-1 text-blue-700">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
                   <span>2 tot 4 kentekens tegelijk vergelijken</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-1 text-blue-700">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
                   <span>Opties zoals stoelverwarming & rijassistentie</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-1 text-blue-700">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
                   <span>Gebouwd voor de Nederlandse markt</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-1 text-blue-700">✓</span>
+                  <span className="mt-0.5 font-bold text-kv-yellow-hover">✓</span>
                   <span>Duidelijke vergelijkingstabel per voertuig</span>
                 </li>
               </ul>
@@ -112,10 +111,10 @@ export default function Home() {
 
         <section className="mx-auto max-w-6xl px-6 py-16">
           <div className="mb-10 max-w-2xl">
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+            <h2 className="text-3xl font-semibold tracking-tight text-kv-navy">
               Waarom vergelijken op kenteken?
             </h2>
-            <p className="mt-4 text-lg leading-8 text-slate-600">
+            <p className="mt-4 text-lg leading-8 text-kv-muted">
               Twee auto&apos;s kunnen hetzelfde model hebben, maar totaal verschillend
               uitgerust zijn. Door te vergelijken op kenteken zie je welke pakketten,
               opties en uitrusting echt op het voertuig zitten.
@@ -142,22 +141,22 @@ export default function Home() {
             ].map((item) => (
               <article
                 key={item.title}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                className="kv-card border-l-4 border-l-kv-yellow p-6"
               >
-                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+                <h3 className="text-lg font-semibold text-kv-navy">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-kv-muted">{item.description}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="border-t border-slate-200 bg-slate-50">
+        <section className="border-t border-kv-border bg-kv-bg-alt">
           <div className="mx-auto max-w-6xl px-6 py-16">
             <div className="mb-10 max-w-2xl">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+              <h2 className="text-3xl font-semibold tracking-tight text-kv-navy">
                 Veelgestelde vragen
               </h2>
-              <p className="mt-4 text-slate-600">
+              <p className="mt-4 text-kv-muted">
                 Alles wat je moet weten over het vergelijken van auto&apos;s via kenteken.
               </p>
             </div>
@@ -166,15 +165,17 @@ export default function Home() {
               {faqItems.map((item) => (
                 <details
                   key={item.question}
-                  className="group rounded-2xl border border-slate-200 bg-white p-6"
+                  className="group kv-card p-6 open:border-kv-navy/20"
                 >
-                  <summary className="cursor-pointer list-none text-lg font-medium text-slate-900 marker:content-none">
+                  <summary className="cursor-pointer list-none text-lg font-medium text-kv-navy marker:content-none">
                     <span className="flex items-center justify-between gap-4">
                       {item.question}
-                      <span className="text-slate-400 transition group-open:rotate-45">+</span>
+                      <span className="text-kv-muted transition group-open:rotate-45">
+                        +
+                      </span>
                     </span>
                   </summary>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">{item.answer}</p>
+                  <p className="mt-4 text-sm leading-7 text-kv-muted">{item.answer}</p>
                 </details>
               ))}
             </div>

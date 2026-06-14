@@ -67,7 +67,7 @@ export default function RootLayout({
       lang="nl"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full bg-white font-sans text-slate-900">{children}</body>
+      <body className="min-h-full bg-kv-bg font-sans text-kv-navy">{children}</body>
     </html>
   );
 }

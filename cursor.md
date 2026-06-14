@@ -1,5 +1,11 @@
 # Cursor project notes
 
+## Design system
+
+Before changing UI, styling, colors, or components, read **`docs/design-system.md`**.
+
+Use `kv-*` design tokens and component classes from `app/globals.css`. Do not introduce generic `blue-*` or `slate-*` palette for new work.
+
 ## Typography
 
 Never use the em dash character (Unicode U+2014) anywhere in this project: code, UI copy, metadata, README, comments, or docs.

@@ -63,12 +63,12 @@ export function KentekenForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-900/5 sm:p-8"
+      className="kv-card w-full p-6 sm:p-8"
       aria-label="Kentekens vergelijken"
     >
       <div className="mb-6 space-y-2">
-        <h2 className="text-lg font-semibold text-slate-900">Voer kentekens in</h2>
-        <p className="text-sm text-slate-600">
+        <h2 className="text-lg font-semibold text-kv-navy">Voer kentekens in</h2>
+        <p className="text-sm text-kv-muted">
           Minimaal {MIN_COMPARISON_PLATES}, maximaal {MAX_COMPARISON_PLATES} kentekens. Met of
           zonder streepjes.
         </p>
@@ -92,7 +92,7 @@ export function KentekenForm() {
               <button
                 type="button"
                 onClick={() => removePlate(index)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-kv-muted transition hover:bg-kv-bg hover:text-kv-navy"
                 aria-label={`Kenteken ${index + 1} verwijderen`}
               >
                 Verwijder
@@ -106,21 +106,24 @@ export function KentekenForm() {
         <button
           type="button"
           onClick={addPlate}
-          className="mt-4 text-sm font-medium text-blue-700 transition hover:text-blue-900"
+          className="mt-4 text-sm font-semibold text-kv-navy-light transition hover:text-kv-navy"
         >
           + Kenteken toevoegen
         </button>
       )}
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p
+          className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
           {error}
         </p>
       )}
 
       <button
         type="submit"
-        className="mt-6 w-full rounded-xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-700/25 transition hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+        className="kv-btn-primary mt-6 w-full rounded-xl px-6 py-4 text-base shadow-lg shadow-kv-navy/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kv-navy"
       >
         Vergelijk auto&apos;s
       </button>
