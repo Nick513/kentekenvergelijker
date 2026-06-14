@@ -1,3 +1,5 @@
+import { KentekenPlateEuStrip } from "@/components/kenteken-plate-eu";
+
 type ComparisonPreviewProps = {
   kentekens: string[];
 };
@@ -16,10 +18,7 @@ const PLACEHOLDER_ROWS = [
 function KentekenPlateChip({ kenteken }: { kenteken: string }) {
   return (
     <span className="kv-plate-chip">
-      <span aria-hidden="true" className="kv-plate-eu">
-        <span className="kv-plate-eu-stars" />
-        <span className="kv-plate-eu-code">NL</span>
-      </span>
+      <KentekenPlateEuStrip size="chip" />
       <span className="kv-plate-chip-text">{kenteken}</span>
     </span>
   );

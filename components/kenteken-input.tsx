@@ -1,5 +1,6 @@
 "use client";
 
+import { KentekenPlateEuStrip } from "@/components/kenteken-plate-eu";
 import { formatKenteken, normalizeKenteken } from "@/lib/kenteken";
 
 type KentekenInputProps = {
@@ -19,10 +20,7 @@ export function KentekenInput({
 }: KentekenInputProps) {
   return (
     <div className="kv-plate min-w-0 flex-1">
-      <div aria-hidden="true" className="kv-plate-eu">
-        <span className="kv-plate-eu-stars" />
-        <span className="kv-plate-eu-code">NL</span>
-      </div>
+      <KentekenPlateEuStrip />
       <input
         id={id}
         name={name}
