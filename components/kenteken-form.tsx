@@ -88,16 +88,15 @@ export function KentekenForm() {
               onChange={(normalized) => updatePlate(index, normalized)}
             />
 
-            {plates.length > MIN_COMPARISON_PLATES && (
-              <button
-                type="button"
-                onClick={() => removePlate(index)}
-                className="kv-btn-ghost"
-                aria-label={`Kenteken ${index + 1} verwijderen`}
-              >
-                Verwijder
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => removePlate(index)}
+              className="kv-btn-ghost shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={plates.length <= MIN_COMPARISON_PLATES}
+              aria-label={`Kenteken ${index + 1} verwijderen`}
+            >
+              Verwijder
+            </button>
           </div>
         ))}
       </div>
