@@ -1,9 +1,15 @@
 import Link from "next/link";
 
+const navItems = [
+  { href: "#vergelijken", label: "Vergelijken" },
+  { href: "#voorbeeld", label: "Voorbeeld" },
+  { href: "#faq", label: "FAQ" },
+];
+
 export function SiteHeader() {
   return (
-    <header className="border-b border-kv-border bg-kv-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center px-6 py-4">
+    <header className="sticky top-0 z-50 border-b border-kv-border bg-kv-surface/95 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
         <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
           {/* Native img avoids Next/Image optimizer flattening transparent PNGs */}
           <img
@@ -19,6 +25,24 @@ export function SiteHeader() {
             <p className="text-xs text-kv-muted">kentekenvergelijker.nl</p>
           </div>
         </Link>
+
+        <nav aria-label="Hoofdnavigatie" className="hidden items-center gap-1 sm:flex">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="kv-btn-ghost text-kv-navy"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <Link
+            href="#vergelijken"
+            className="kv-btn-primary ml-2 rounded-lg px-4 py-2 text-sm shadow-md shadow-kv-teal/20"
+          >
+            Start vergelijking
+          </Link>
+        </nav>
       </div>
     </header>
   );

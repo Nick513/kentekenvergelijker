@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ComparisonPreview } from "@/components/comparison-preview";
+import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { buildComparisonPath, parseComparisonSlugs } from "@/lib/kenteken";
+import { buildComparisonStructuredData } from "@/lib/structured-data";
+import { absoluteUrl } from "@/lib/site";
 
 type ComparisonPageProps = {
   params: Promise<{ kentekens: string[] }>;
@@ -18,16 +21,30 @@ export async function generateMetadata({
   if (!parsed) {
     return {
       title: "Vergelijking niet gevonden",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
-  const title = `Vergelijk ${parsed.kentekens.join(", ")}`;
-  const description = `Vergelijk de auto's achter ${parsed.kentekens.join(", ")}. Zie model, uitrusting en opties naast elkaar.`;
+  const kentekenList = parsed.kentekens.join(", ");
+  const title = `Kenteken vergelijken: ${kentekenList}`;
+  const description = `Vergelijk de auto's achter ${kentekenList}. Bekijk model, uitvoering, opties en uitrusting naast elkaar in één tabel.`;
+  const canonicalPath = buildComparisonPath(parsed.kentekens);
 
   return {
     title,
     description,
+    alternates: {
+      canonical: absoluteUrl(canonicalPath),
+    },
     openGraph: {
+      title,
+      description,
+      url: absoluteUrl(canonicalPath),
+    },
+    twitter: {
       title,
       description,
     },
@@ -51,9 +68,23 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
 
   return (
     <>
+      <JsonLd
+        data={buildComparisonStructuredData(parsed.kentekens, canonicalPath)}
+      />
+
       <SiteHeader />
 
       <main className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+        <header className="mb-8 max-w-3xl space-y-3">
+          <h1 className="text-3xl font-bold tracking-tight text-kv-navy sm:text-4xl">
+            Kenteken vergelijken: {parsed.kentekens.join(", ")}
+          </h1>
+          <p className="text-lg leading-8 text-kv-muted">
+            Vergelijk de auto&apos;s achter deze kentekens. Zie model, uitvoering,
+            opties en uitrusting naast elkaar in één overzichtelijke tabel.
+          </p>
+        </header>
+
         <ComparisonPreview kentekens={parsed.kentekens} />
       </main>
 

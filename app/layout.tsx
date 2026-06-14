@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_TITLE,
+  SITE_URL,
+} from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,53 +19,55 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://kentekenvergelijker.nl";
-const siteTitle = "Kentekenvergelijker - Vergelijk auto's op kenteken";
-const siteDescription =
-  "Vergelijk 2 tot 4 Nederlandse kentekens side-by-side. Zie merk, model, uitvoering en uitrusting van de exacte auto's, van stoelverwarming tot rijassistentie.";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: siteTitle,
-    template: "%s | Kentekenvergelijker",
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: siteDescription,
-  keywords: [
-    "kenteken vergelijken",
-    "auto vergelijken",
-    "kenteken opzoeken",
-    "auto uitrusting vergelijken",
-    "Nederlandse kentekens",
-    "occasion vergelijken",
-    "auto specificaties",
-  ],
-  authors: [{ name: "Kentekenvergelijker" }],
-  creator: "Kentekenvergelijker",
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "automotive",
   openGraph: {
     type: "website",
     locale: "nl_NL",
-    url: siteUrl,
-    siteName: "Kentekenvergelijker",
-    title: siteTitle,
-    description: siteDescription,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/logo.png",
+        width: 512,
+        height: 512,
+        alt: SITE_NAME,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/logo.png"],
   },
   alternates: {
-    canonical: siteUrl,
+    canonical: SITE_URL,
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   icons: {
-    icon: [
-      { url: "/icon.png", type: "image/png", sizes: "32x32" },
-    ],
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "32x32" }],
     apple: "/apple-icon.png",
   },
 };
