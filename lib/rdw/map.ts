@@ -36,23 +36,93 @@ export function deriveConfigurationKey(
   return parts.join("|");
 }
 
-function pickPowerKw(fuelRecords: RdwFuelRecord[]): number | null {
+function isElectricFuel(description: string | undefined): boolean {
+  return /^elektriciteit$/i.test(description?.trim() ?? "");
+}
+
+function getHybridClass(fuelRecords: RdwFuelRecord[]): string | null {
   for (const fuel of fuelRecords) {
-    const electric = parseOptionalNumber(fuel.netto_max_vermogen_elektrisch);
-    if (electric !== null) return electric;
+    const hybridClass = fuel.klasse_hybride_elektrisch_voertuig?.trim();
+    if (hybridClass) {
+      return hybridClass;
+    }
+  }
+  return null;
+}
+
+function pickPowerKw(fuelRecords: RdwFuelRecord[]): number | null {
+  const hybridClass = getHybridClass(fuelRecords);
+
+  if (hybridClass) {
+    for (const fuel of fuelRecords) {
+      if (!isElectricFuel(fuel.brandstof_omschrijving)) {
+        const combustion = parseOptionalNumber(fuel.nettomaximumvermogen);
+        if (combustion !== null) {
+          return combustion;
+        }
+      }
+    }
+  }
+
+  const hasCombustionPower = fuelRecords.some(
+    (fuel) =>
+      fuel.brandstof_omschrijving &&
+      !isElectricFuel(fuel.brandstof_omschrijving) &&
+      fuel.nettomaximumvermogen,
+  );
+
+  if (hasCombustionPower) {
+    for (const fuel of fuelRecords) {
+      const combustion = parseOptionalNumber(fuel.nettomaximumvermogen);
+      if (combustion !== null) {
+        return combustion;
+      }
+    }
   }
 
   for (const fuel of fuelRecords) {
-    const combustion = parseOptionalNumber(fuel.nettomaximumvermogen);
-    if (combustion !== null) return combustion;
+    const electric = parseOptionalNumber(fuel.netto_max_vermogen_elektrisch);
+    if (electric !== null) {
+      return electric;
+    }
   }
 
   return null;
 }
 
 function pickFuelType(fuelRecords: RdwFuelRecord[]): string | null {
-  const primary = fuelRecords[0]?.brandstof_omschrijving;
-  return primary ? titleCaseWords(primary) : null;
+  if (fuelRecords.length === 0) {
+    return null;
+  }
+
+  const hybridClass = getHybridClass(fuelRecords);
+  const fuelDescriptions = fuelRecords
+    .map((fuel) => fuel.brandstof_omschrijving?.trim())
+    .filter((value): value is string => Boolean(value));
+
+  const uniqueFuels = [
+    ...new Set(fuelDescriptions.map((description) => titleCaseWords(description))),
+  ];
+
+  if (hybridClass) {
+    const combustion = fuelDescriptions.find(
+      (description) => !isElectricFuel(description),
+    );
+
+    if (combustion) {
+      const combustionLabel = titleCaseWords(combustion).toLowerCase();
+      if (hybridClass.startsWith("OVC")) {
+        return `Plug-in hybride (${combustionLabel})`;
+      }
+      return `Hybride ${combustionLabel}`;
+    }
+  }
+
+  if (uniqueFuels.length > 1) {
+    return uniqueFuels.join(" + ");
+  }
+
+  return uniqueFuels[0] ?? null;
 }
 
 function pickElectricRangeKm(fuelRecords: RdwFuelRecord[]): number | null {

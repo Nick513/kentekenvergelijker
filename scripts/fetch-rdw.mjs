@@ -38,15 +38,71 @@ async function fetchDataset(dataset, licensePlate) {
   return Array.isArray(data) ? data : [];
 }
 
-function pickPowerKw(fuelRecords) {
+function isElectricFuel(description) {
+  return /^elektriciteit$/i.test(description?.trim() ?? "");
+}
+
+function getHybridClass(fuelRecords) {
   for (const fuel of fuelRecords) {
-    const electric = Number.parseFloat(fuel.netto_max_vermogen_elektrisch ?? "");
-    if (Number.isFinite(electric)) return electric;
+    const hybridClass = fuel.klasse_hybride_elektrisch_voertuig?.trim();
+    if (hybridClass) {
+      return hybridClass;
+    }
+  }
+  return null;
+}
+
+function pickFuelType(fuelRecords) {
+  const hybridClass = getHybridClass(fuelRecords);
+  const descriptions = fuelRecords
+    .map((fuel) => fuel.brandstof_omschrijving?.trim())
+    .filter(Boolean);
+
+  if (hybridClass) {
+    const combustion = descriptions.find((description) => !isElectricFuel(description));
+    if (combustion) {
+      const combustionLabel = titleCaseWords(combustion).toLowerCase();
+      if (hybridClass.startsWith("OVC")) {
+        return `Plug-in hybride (${combustionLabel})`;
+      }
+      return `Hybride ${combustionLabel}`;
+    }
+  }
+
+  const unique = [...new Set(descriptions.map((description) => titleCaseWords(description)))];
+  if (unique.length > 1) {
+    return unique.join(" + ");
+  }
+
+  return unique[0] ?? null;
+}
+
+function pickPowerKw(fuelRecords) {
+  const hybridClass = getHybridClass(fuelRecords);
+
+  if (hybridClass) {
+    for (const fuel of fuelRecords) {
+      if (!isElectricFuel(fuel.brandstof_omschrijving)) {
+        const combustion = Number.parseFloat(fuel.nettomaximumvermogen ?? "");
+        if (Number.isFinite(combustion)) {
+          return combustion;
+        }
+      }
+    }
   }
 
   for (const fuel of fuelRecords) {
     const combustion = Number.parseFloat(fuel.nettomaximumvermogen ?? "");
-    if (Number.isFinite(combustion)) return combustion;
+    if (Number.isFinite(combustion)) {
+      return combustion;
+    }
+  }
+
+  for (const fuel of fuelRecords) {
+    const electric = Number.parseFloat(fuel.netto_max_vermogen_elektrisch ?? "");
+    if (Number.isFinite(electric)) {
+      return electric;
+    }
   }
 
   return null;
@@ -79,9 +135,7 @@ async function main() {
   }
 
   const vehicle = vehicleRecords[0];
-  const fuelType = fuelRecords[0]?.brandstof_omschrijving
-    ? titleCaseWords(fuelRecords[0].brandstof_omschrijving)
-    : null;
+  const fuelType = pickFuelType(fuelRecords);
   const powerKw = pickPowerKw(fuelRecords);
 
   const summary = {

@@ -40,6 +40,7 @@ export type RdwFuelRecord = {
   actie_radius_enkel_elektrisch_wltp?: string;
   co2_uitstoot_gecombineerd?: string;
   uitlaatemissieniveau?: string;
+  klasse_hybride_elektrisch_voertuig?: string;
   [key: string]: string | undefined;
 };
 
