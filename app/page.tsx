@@ -167,7 +167,7 @@ export default function Home() {
                   key={item.question}
                   className="group kv-card p-6 open:border-kv-navy/20"
                 >
-                  <summary className="cursor-pointer list-none text-lg font-medium text-kv-navy marker:content-none">
+                  <summary className="list-none text-lg font-medium text-kv-navy marker:content-none">
                     <span className="flex items-center justify-between gap-4">
                       {item.question}
                       <span className="text-kv-muted transition group-open:rotate-45">

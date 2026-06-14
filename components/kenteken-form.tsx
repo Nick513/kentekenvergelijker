@@ -92,7 +92,7 @@ export function KentekenForm() {
               <button
                 type="button"
                 onClick={() => removePlate(index)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-kv-muted transition hover:bg-kv-bg hover:text-kv-navy"
+                className="kv-btn-ghost"
                 aria-label={`Kenteken ${index + 1} verwijderen`}
               >
                 Verwijder
@@ -106,7 +106,7 @@ export function KentekenForm() {
         <button
           type="button"
           onClick={addPlate}
-          className="mt-4 text-sm font-semibold text-kv-navy-light transition hover:text-kv-navy"
+          className="kv-btn-link mt-4 text-sm"
         >
           + Kenteken toevoegen
         </button>

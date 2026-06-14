@@ -37,20 +37,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@layer base {
+  :where(button:not(:disabled), a[href], summary, [role="button"]:not([aria-disabled="true"])) {
+    cursor: pointer;
+  }
+
+  :where(button:disabled, [aria-disabled="true"]) {
+    cursor: not-allowed;
+  }
+}
+
 body {
   background: var(--kv-bg);
   color: var(--kv-text);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-}
-
-button:not(:disabled),
-a,
-summary {
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: not-allowed;
 }
 
 .kv-card {
@@ -63,6 +63,7 @@ button:disabled {
 }
 
 .kv-btn-primary {
+  cursor: pointer;
   background: var(--kv-navy);
   color: white;
   font-weight: 600;
@@ -71,6 +72,34 @@ button:disabled {
 
 .kv-btn-primary:hover {
   background: var(--kv-navy-light);
+}
+
+.kv-btn-link {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--kv-navy-light);
+  transition: color 150ms ease;
+}
+
+.kv-btn-link:hover {
+  color: var(--kv-navy);
+}
+
+.kv-btn-ghost {
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--kv-muted);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.kv-btn-ghost:hover {
+  background: var(--kv-bg);
+  color: var(--kv-navy);
 }
 
 .kv-badge {
