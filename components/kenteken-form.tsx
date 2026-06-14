@@ -68,9 +68,8 @@ export function KentekenForm() {
     >
       <div className="mb-6 space-y-2">
         <h2 className="text-lg font-semibold text-kv-navy">Voer kentekens in</h2>
-        <p className="text-sm text-kv-muted">
-          Minimaal {MIN_COMPARISON_PLATES}, maximaal {MAX_COMPARISON_PLATES} kentekens. Met of
-          zonder streepjes.
+        <p className="text-sm leading-6 text-kv-muted">
+          {`Voer minimaal ${MIN_COMPARISON_PLATES} en maximaal ${MAX_COMPARISON_PLATES} Nederlandse kentekens in van de auto's die je wilt vergelijken. Je krijgt direct een overzicht van model, uitvoering en opties naast elkaar.`}
         </p>
       </div>
 

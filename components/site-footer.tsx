@@ -3,13 +3,8 @@ import Link from "next/link";
 export function SiteFooter() {
   return (
     <footer className="border-t border-kv-navy bg-kv-navy text-white/80">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8 text-sm sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-2">
-          <p>&copy; {new Date().getFullYear()} Kentekenvergelijker</p>
-          <p className="max-w-sm text-white/60">
-            Vergelijk Nederlandse auto&apos;s op kenteken: model, uitrusting en opties.
-          </p>
-        </div>
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <p>&copy; {new Date().getFullYear()} Kentekenvergelijker</p>
 
         <nav aria-label="Footer navigatie" className="flex flex-wrap gap-x-6 gap-y-2">
           <Link href="/#vergelijken" className="text-white/80 transition hover:text-white">
