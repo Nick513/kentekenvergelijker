@@ -2,9 +2,19 @@ import { KentekenPlateChip } from "@/components/kenteken-plate-chip";
 
 export type ComparisonCellValue = string | boolean;
 
+export type ComparisonRow = {
+  label: string;
+  values: ComparisonCellValue[];
+};
+
+export type ComparisonGroup = {
+  title: string;
+  rows: ComparisonRow[];
+};
+
 type ComparisonTableProps = {
   kentekens: string[];
-  rows: { label: string; values: ComparisonCellValue[] }[];
+  groups: ComparisonGroup[];
   caption?: string;
 };
 
@@ -21,10 +31,16 @@ function ComparisonCell({ value }: { value: ComparisonCellValue }) {
     );
   }
 
+  if (value === "-") {
+    return <span className="text-kv-muted">-</span>;
+  }
+
   return <span className="text-kv-navy">{value}</span>;
 }
 
-export function ComparisonTable({ kentekens, rows, caption }: ComparisonTableProps) {
+export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableProps) {
+  const columnCount = kentekens.length + 1;
+
   return (
     <div className="overflow-x-auto rounded-xl border border-kv-border">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">
@@ -41,30 +57,54 @@ export function ComparisonTable({ kentekens, rows, caption }: ComparisonTablePro
             ))}
           </tr>
         </thead>
-        <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr
-              key={row.label}
-              className={rowIndex % 2 === 0 ? "bg-kv-surface" : "bg-kv-bg/60"}
-            >
+        {groups.map((group) => (
+          <tbody key={group.title}>
+            <tr className="bg-kv-bg-alt">
               <th
-                scope="row"
-                className="border-t border-kv-border px-4 py-3 font-medium text-kv-navy"
+                colSpan={columnCount}
+                scope="colgroup"
+                className="border-t border-kv-border px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-kv-teal"
               >
-                {row.label}
+                {group.title}
               </th>
-              {row.values.map((value, valueIndex) => (
-                <td
-                  key={`${row.label}-${kentekens[valueIndex]}`}
-                  className="border-t border-kv-border px-4 py-3"
-                >
-                  <ComparisonCell value={value} />
-                </td>
-              ))}
             </tr>
-          ))}
-        </tbody>
+            {group.rows.map((row, rowIndex) => (
+              <tr
+                key={row.label}
+                className={rowIndex % 2 === 0 ? "bg-kv-surface" : "bg-kv-bg/60"}
+              >
+                <th
+                  scope="row"
+                  className="border-t border-kv-border px-4 py-3 pl-6 font-medium text-kv-navy"
+                >
+                  {row.label}
+                </th>
+                {row.values.map((value, valueIndex) => (
+                  <td
+                    key={`${row.label}-${kentekens[valueIndex]}`}
+                    className="border-t border-kv-border px-4 py-3"
+                  >
+                    <ComparisonCell value={value} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        ))}
       </table>
     </div>
   );
+}
+
+export function sliceComparisonGroups(
+  groups: ComparisonGroup[],
+  kentekenCount: number,
+): ComparisonGroup[] {
+  return groups.map((group) => ({
+    title: group.title,
+    rows: group.rows.map((row) => ({
+      label: row.label,
+      values: row.values.slice(0, kentekenCount),
+    })),
+  }));
 }

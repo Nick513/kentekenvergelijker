@@ -1,25 +1,41 @@
-import { ComparisonTable } from "@/components/comparison-table";
+import {
+  ComparisonTable,
+  sliceComparisonGroups,
+  type ComparisonGroup,
+} from "@/components/comparison-table";
 
 type ComparisonPreviewProps = {
   kentekens: string[];
 };
 
-const PLACEHOLDER_ROWS = [
-  { label: "Merk & model", values: ["-", "-", "-", "-"] as const },
-  { label: "Uitvoering / pakket", values: ["-", "-", "-", "-"] as const },
-  { label: "Brandstof", values: ["-", "-", "-", "-"] as const },
-  { label: "Vermogen", values: ["-", "-", "-", "-"] as const },
-  { label: "Stoelverwarming", values: ["-", "-", "-", "-"] as const },
-  { label: "Rijassistentie", values: ["-", "-", "-", "-"] as const },
-  { label: "Navigatie", values: ["-", "-", "-", "-"] as const },
-  { label: "LED verlichting", values: ["-", "-", "-", "-"] as const },
+const PLACEHOLDER_GROUPS: ComparisonGroup[] = [
+  {
+    title: "Algemeen",
+    rows: [
+      { label: "Merk & model", values: ["-", "-", "-", "-"] },
+      { label: "Uitvoering / pakket", values: ["-", "-", "-", "-"] },
+    ],
+  },
+  {
+    title: "Motor & aandrijving",
+    rows: [
+      { label: "Brandstof", values: ["-", "-", "-", "-"] },
+      { label: "Vermogen", values: ["-", "-", "-", "-"] },
+    ],
+  },
+  {
+    title: "Uitrusting & opties",
+    rows: [
+      { label: "Stoelverwarming", values: ["-", "-", "-", "-"] },
+      { label: "Rijassistentie", values: ["-", "-", "-", "-"] },
+      { label: "Navigatie", values: ["-", "-", "-", "-"] },
+      { label: "LED verlichting", values: ["-", "-", "-", "-"] },
+    ],
+  },
 ];
 
 export function ComparisonPreview({ kentekens }: ComparisonPreviewProps) {
-  const rows = PLACEHOLDER_ROWS.map((row) => ({
-    label: row.label,
-    values: row.values.slice(0, kentekens.length),
-  }));
+  const groups = sliceComparisonGroups(PLACEHOLDER_GROUPS, kentekens.length);
 
   return (
     <section
@@ -45,7 +61,7 @@ export function ComparisonPreview({ kentekens }: ComparisonPreviewProps) {
 
       <ComparisonTable
         kentekens={kentekens}
-        rows={rows}
+        groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
       />
     </section>
