@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/site-header";
 import { buildComparisonPath, parseComparisonSlugs } from "@/lib/kenteken";
 import { buildComparisonStructuredData } from "@/lib/structured-data";
 import { absoluteUrl } from "@/lib/site";
+import { buildComparison } from "@/lib/vehicles/compare";
 
 type ComparisonPageProps = {
   params: Promise<{ kentekens: string[] }>;
@@ -66,6 +67,8 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
     redirect(canonicalPath);
   }
 
+  const comparison = await buildComparison(parsed.kentekens);
+
   return (
     <>
       <JsonLd
@@ -85,7 +88,12 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
           </p>
         </header>
 
-        <ComparisonPreview kentekens={parsed.kentekens} />
+        <ComparisonPreview
+          kentekens={parsed.kentekens}
+          groups={comparison.groups}
+          hasNotFound={comparison.hasNotFound}
+          hasErrors={comparison.hasErrors}
+        />
       </main>
 
       <SiteFooter />

@@ -1,42 +1,21 @@
 import {
   ComparisonTable,
-  sliceComparisonGroups,
   type ComparisonGroup,
 } from "@/components/comparison-table";
 
 type ComparisonPreviewProps = {
   kentekens: string[];
+  groups: ComparisonGroup[];
+  hasNotFound?: boolean;
+  hasErrors?: boolean;
 };
 
-const PLACEHOLDER_GROUPS: ComparisonGroup[] = [
-  {
-    title: "Algemeen",
-    rows: [
-      { label: "Merk & model", values: ["-", "-", "-", "-"] },
-      { label: "Uitvoering / pakket", values: ["-", "-", "-", "-"] },
-    ],
-  },
-  {
-    title: "Motor & aandrijving",
-    rows: [
-      { label: "Brandstof", values: ["-", "-", "-", "-"] },
-      { label: "Vermogen", values: ["-", "-", "-", "-"] },
-    ],
-  },
-  {
-    title: "Uitrusting & opties",
-    rows: [
-      { label: "Stoelverwarming", values: ["-", "-", "-", "-"] },
-      { label: "Rijassistentie", values: ["-", "-", "-", "-"] },
-      { label: "Navigatie", values: ["-", "-", "-", "-"] },
-      { label: "LED verlichting", values: ["-", "-", "-", "-"] },
-    ],
-  },
-];
-
-export function ComparisonPreview({ kentekens }: ComparisonPreviewProps) {
-  const groups = sliceComparisonGroups(PLACEHOLDER_GROUPS, kentekens.length);
-
+export function ComparisonPreview({
+  kentekens,
+  groups,
+  hasNotFound = false,
+  hasErrors = false,
+}: ComparisonPreviewProps) {
   return (
     <section
       id="vergelijking"
@@ -55,8 +34,19 @@ export function ComparisonPreview({ kentekens }: ComparisonPreviewProps) {
               {index < kentekens.length - 1 ? ", " : ""}
             </span>
           ))}{" "}
-          worden binnenkort opgehaald. Onderstaande tabel toont alvast de opbouw.
+          opgehaald via het RDW-register.
         </p>
+        {hasNotFound ? (
+          <p className="text-sm text-kv-muted" role="status">
+            Een of meer kentekens zijn niet gevonden in het RDW-register.
+          </p>
+        ) : null}
+        {hasErrors ? (
+          <p className="text-sm text-kv-muted" role="status">
+            Sommige gegevens zijn tijdelijk niet beschikbaar. Probeer het later
+            opnieuw.
+          </p>
+        ) : null}
       </div>
 
       <ComparisonTable
@@ -64,6 +54,11 @@ export function ComparisonPreview({ kentekens }: ComparisonPreviewProps) {
         groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
       />
+
+      <p className="mt-4 text-sm text-kv-muted">
+        Uitrusting en uitvoering volgen in een latere versie. Technische gegevens
+        komen uit RDW Open Data.
+      </p>
     </section>
   );
 }
