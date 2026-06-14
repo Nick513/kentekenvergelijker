@@ -1,4 +1,6 @@
-import { HeroWithForm } from "@/components/hero-with-form";
+import { KentekenForm } from "@/components/kenteken-form";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
 
 const faqItems = [
   {
@@ -60,25 +62,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <header className="border-b border-slate-200/70 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white">
-              KV
-            </div>
-            <div>
-              <p className="font-semibold text-slate-900">Kentekenvergelijker</p>
-              <p className="text-xs text-slate-500">kentekenvergelijker.nl</p>
-            </div>
-          </div>
-          <a
-            href="#vergelijken"
-            className="hidden rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 sm:inline-flex"
-          >
-            Start vergelijking
-          </a>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main>
         <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-blue-50/40">
@@ -121,7 +105,7 @@ export default function Home() {
             </div>
 
             <div id="vergelijken" className="scroll-mt-24">
-              <HeroWithForm />
+              <KentekenForm />
             </div>
           </div>
         </section>
@@ -198,12 +182,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Kentekenvergelijker</p>
-          <p>Vergelijk Nederlandse auto&apos;s op kenteken: model, uitrusting & opties.</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

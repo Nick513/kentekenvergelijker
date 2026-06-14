@@ -1,34 +1,36 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { KentekenInput } from "@/components/kenteken-input";
-import { formatKenteken, isValidKenteken, normalizeKenteken } from "@/lib/kenteken";
+import {
+  buildComparisonPath,
+  formatKenteken,
+  isValidKenteken,
+  MAX_COMPARISON_PLATES,
+  MIN_COMPARISON_PLATES,
+  normalizeKenteken,
+} from "@/lib/kenteken";
 
-const MIN_PLATES = 2;
-const MAX_PLATES = 4;
-
-type KentekenFormProps = {
-  onCompare: (kentekens: string[]) => void;
-};
-
-export function KentekenForm({ onCompare }: KentekenFormProps) {
+export function KentekenForm() {
+  const router = useRouter();
   const [plates, setPlates] = useState(["", ""]);
   const [error, setError] = useState<string | null>(null);
 
-  function updatePlate(index: number, value: string) {
+  function updatePlate(index: number, normalized: string) {
     setPlates((current) =>
-      current.map((plate, i) => (i === index ? value : plate)),
+      current.map((plate, i) => (i === index ? normalized : plate)),
     );
     setError(null);
   }
 
   function addPlate() {
-    if (plates.length >= MAX_PLATES) return;
+    if (plates.length >= MAX_COMPARISON_PLATES) return;
     setPlates((current) => [...current, ""]);
   }
 
   function removePlate(index: number) {
-    if (plates.length <= MIN_PLATES) return;
+    if (plates.length <= MIN_COMPARISON_PLATES) return;
     setPlates((current) => current.filter((_, i) => i !== index));
     setError(null);
   }
@@ -36,28 +38,26 @@ export function KentekenForm({ onCompare }: KentekenFormProps) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const formatted = plates
-      .map((plate) => formatKenteken(plate))
-      .filter((plate) => normalizeKenteken(plate).length > 0);
+    const kentekens = plates.filter((plate) => plate.length > 0);
 
-    if (formatted.length < MIN_PLATES) {
-      setError(`Voer minimaal ${MIN_PLATES} kentekens in om te vergelijken.`);
+    if (kentekens.length < MIN_COMPARISON_PLATES) {
+      setError(`Voer minimaal ${MIN_COMPARISON_PLATES} kentekens in om te vergelijken.`);
       return;
     }
 
-    const invalid = formatted.find((plate) => !isValidKenteken(plate));
+    const invalid = kentekens.find((plate) => !isValidKenteken(plate));
     if (invalid) {
-      setError(`"${invalid}" is geen geldig kenteken. Een Nederlands kenteken heeft 6 tekens.`);
+      setError(`"${formatKenteken(invalid)}" is geen geldig kenteken. Een kenteken heeft 6 tekens.`);
       return;
     }
 
-    const unique = new Set(formatted.map(normalizeKenteken));
-    if (unique.size !== formatted.length) {
+    const unique = new Set(kentekens);
+    if (unique.size !== kentekens.length) {
       setError("Elk kenteken mag maar één keer voorkomen.");
       return;
     }
 
-    onCompare(formatted);
+    router.push(buildComparisonPath(kentekens.map(formatKenteken)));
   }
 
   return (
@@ -69,7 +69,8 @@ export function KentekenForm({ onCompare }: KentekenFormProps) {
       <div className="mb-6 space-y-2">
         <h2 className="text-lg font-semibold text-slate-900">Voer kentekens in</h2>
         <p className="text-sm text-slate-600">
-          Minimaal {MIN_PLATES}, maximaal {MAX_PLATES} Nederlandse kentekens. Met of zonder streepjes.
+          Minimaal {MIN_COMPARISON_PLATES}, maximaal {MAX_COMPARISON_PLATES} kentekens. Met of
+          zonder streepjes.
         </p>
       </div>
 
@@ -84,10 +85,10 @@ export function KentekenForm({ onCompare }: KentekenFormProps) {
               name={`kenteken-${index}`}
               placeholder="AB-123-C"
               value={plate}
-              onChange={(value) => updatePlate(index, value)}
+              onChange={(normalized) => updatePlate(index, normalized)}
             />
 
-            {plates.length > MIN_PLATES && (
+            {plates.length > MIN_COMPARISON_PLATES && (
               <button
                 type="button"
                 onClick={() => removePlate(index)}
@@ -101,7 +102,7 @@ export function KentekenForm({ onCompare }: KentekenFormProps) {
         ))}
       </div>
 
-      {plates.length < MAX_PLATES && (
+      {plates.length < MAX_COMPARISON_PLATES && (
         <button
           type="button"
           onClick={addPlate}

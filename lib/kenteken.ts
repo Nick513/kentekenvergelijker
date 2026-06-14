@@ -13,6 +13,9 @@ const KENTEKEN_FORMATS: { pattern: CharType[]; groups: number[] }[] = [
 
 const DEFAULT_GROUPS = [2, 2, 2];
 
+export const MIN_COMPARISON_PLATES = 2;
+export const MAX_COMPARISON_PLATES = 4;
+
 export function normalizeKenteken(input: string): string {
   return input.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 6);
 }
@@ -91,4 +94,42 @@ export function formatKenteken(input: string): string {
 
 export function isValidKenteken(input: string): boolean {
   return normalizeKenteken(input).length === 6;
+}
+
+export function toKentekenSlug(kenteken: string): string {
+  return normalizeKenteken(kenteken).toLowerCase();
+}
+
+export function slugToKenteken(slug: string): string {
+  return formatKenteken(slug);
+}
+
+export function buildComparisonPath(kentekens: string[]): string {
+  return `/${kentekens.map(toKentekenSlug).join("/")}`;
+}
+
+export function parseComparisonSlugs(
+  slugs: string[],
+): { kentekens: string[]; slugs: string[] } | null {
+  if (
+    slugs.length < MIN_COMPARISON_PLATES ||
+    slugs.length > MAX_COMPARISON_PLATES
+  ) {
+    return null;
+  }
+
+  const kentekens = slugs.map(slugToKenteken);
+
+  if (kentekens.some((kenteken) => !isValidKenteken(kenteken))) {
+    return null;
+  }
+
+  const unique = new Set(kentekens.map(normalizeKenteken));
+  if (unique.size !== kentekens.length) {
+    return null;
+  }
+
+  const normalizedSlugs = kentekens.map(toKentekenSlug);
+
+  return { kentekens, slugs: normalizedSlugs };
 }
