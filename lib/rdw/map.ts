@@ -63,6 +63,51 @@ function pickElectricRangeKm(fuelRecords: RdwFuelRecord[]): number | null {
   return null;
 }
 
+function pickElectricConsumptionWltp(
+  fuelRecords: RdwFuelRecord[],
+): number | null {
+  for (const fuel of fuelRecords) {
+    const consumption = parseOptionalNumber(
+      fuel.elektrisch_verbruik_enkel_elektrisch_wltp,
+    );
+    if (consumption !== null) return consumption;
+  }
+  return null;
+}
+
+function pickCo2EmissionGKm(fuelRecords: RdwFuelRecord[]): number | null {
+  for (const fuel of fuelRecords) {
+    const co2 = parseOptionalInt(fuel.co2_uitstoot_gecombineerd);
+    if (co2 !== null) return co2;
+  }
+  return null;
+}
+
+function pickEmissionStandard(fuelRecords: RdwFuelRecord[]): string | null {
+  for (const fuel of fuelRecords) {
+    const standard = fuel.uitlaatemissieniveau?.trim();
+    if (standard) return standard;
+  }
+  return null;
+}
+
+function parseFirstRegistrationYear(vehicle: RdwVehicleRecord): number | null {
+  if (vehicle.datum_eerste_toelating_dt) {
+    const date = new Date(vehicle.datum_eerste_toelating_dt);
+    if (!Number.isNaN(date.getTime())) {
+      return date.getFullYear();
+    }
+  }
+
+  const compact = vehicle.datum_eerste_toelating;
+  if (compact && compact.length >= 4) {
+    const year = Number.parseInt(compact.slice(0, 4), 10);
+    return Number.isFinite(year) ? year : null;
+  }
+
+  return null;
+}
+
 function parseApkDate(vehicle: RdwVehicleRecord): string | null {
   if (vehicle.vervaldatum_apk_dt) {
     const date = new Date(vehicle.vervaldatum_apk_dt);
@@ -93,14 +138,32 @@ export function mapRdwToSnapshot(
     brand: vehicle.merk?.trim() ?? "Onbekend",
     modelName: vehicle.handelsbenaming?.trim() ?? "Onbekend",
     vehicleType: vehicle.voertuigsoort?.trim() ?? null,
-    bodyType: vehicle.inrichting?.trim() ?? null,
+    bodyType: vehicle.inrichting
+      ? titleCaseWords(vehicle.inrichting.trim())
+      : null,
     primaryColor: color,
     doorCount: parseOptionalInt(vehicle.aantal_deuren),
+    seatCount: parseOptionalInt(vehicle.aantal_zitplaatsen),
+    cylinderCount: parseOptionalInt(vehicle.aantal_cilinders),
+    engineDisplacementCc: parseOptionalInt(vehicle.cilinderinhoud),
+    firstRegistrationYear: parseFirstRegistrationYear(vehicle),
     catalogPrice: parseOptionalInt(vehicle.catalogusprijs),
     apkExpiryDate: parseApkDate(vehicle),
+    vehicleLengthCm: parseOptionalInt(vehicle.lengte),
+    vehicleWidthCm: parseOptionalInt(vehicle.breedte),
+    vehicleHeightCm: parseOptionalInt(vehicle.hoogte_voertuig),
+    wheelbaseCm: parseOptionalInt(vehicle.wielbasis),
+    curbWeightKg: parseOptionalInt(vehicle.massa_rijklaar),
+    emptyWeightKg: parseOptionalInt(vehicle.massa_ledig_voertuig),
+    maxTowingWeightBrakedKg: parseOptionalInt(
+      vehicle.maximum_trekken_massa_geremd,
+    ),
     fuelType: pickFuelType(fuelRecords),
     powerKw: pickPowerKw(fuelRecords),
     electricRangeKm: pickElectricRangeKm(fuelRecords),
+    electricConsumptionWltp: pickElectricConsumptionWltp(fuelRecords),
+    co2EmissionGKm: pickCo2EmissionGKm(fuelRecords),
+    emissionStandard: pickEmissionStandard(fuelRecords),
     europeanVehicleCategory: vehicle.europese_voertuigcategorie ?? null,
     configurationKey: deriveConfigurationKey(vehicle),
     typeApprovalNumber: vehicle.typegoedkeuringsnummer ?? null,
@@ -145,4 +208,49 @@ export function formatElectricRange(km: number | null): string {
   if (km === null) return "-";
   const formatted = new Intl.NumberFormat("nl-NL").format(km);
   return `${formatted} km`;
+}
+
+export function formatCount(value: number | null): string {
+  if (value === null) return "-";
+  return new Intl.NumberFormat("nl-NL").format(value);
+}
+
+export function formatYear(year: number | null): string {
+  if (year === null) return "-";
+  return String(year);
+}
+
+export function formatMassKg(kg: number | null): string {
+  if (kg === null) return "-";
+  const formatted = new Intl.NumberFormat("nl-NL").format(kg);
+  return `${formatted} kg`;
+}
+
+export function formatVolumeCc(cc: number | null): string {
+  if (cc === null) return "-";
+  const formatted = new Intl.NumberFormat("nl-NL").format(cc);
+  return `${formatted} cc`;
+}
+
+export function formatLengthCm(cm: number | null): string {
+  if (cm === null) return "-";
+  const meters = cm / 100;
+  return `${new Intl.NumberFormat("nl-NL", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(meters)} m`;
+}
+
+export function formatCo2Emission(gKm: number | null): string {
+  if (gKm === null) return "-";
+  return `${new Intl.NumberFormat("nl-NL").format(gKm)} g/km`;
+}
+
+export function formatElectricConsumption(kwhPer100Km: number | null): string {
+  if (kwhPer100Km === null) return "-";
+  const formatted = new Intl.NumberFormat("nl-NL", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(kwhPer100Km);
+  return `${formatted} kWh/100 km`;
 }

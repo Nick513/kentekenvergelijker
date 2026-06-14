@@ -2,39 +2,15 @@ import {
   ComparisonTable,
   type ComparisonGroup,
 } from "@/components/comparison-table";
+import { loadComparisonSpecifications } from "@/lib/specifications/load";
+import { buildDemoComparisonGroups } from "@/lib/specifications/demo";
 
 const DEMO_KENTEKENS = ["AB-123-C", "CD-456-E"];
 
-const DEMO_GROUPS: ComparisonGroup[] = [
-  {
-    title: "Algemeen",
-    rows: [
-      { label: "Merk & model", values: ["Volkswagen Golf", "Volkswagen Golf"] },
-      { label: "Uitvoering / pakket", values: ["Life", "Style"] },
-      { label: "Bouwjaar", values: ["2019", "2021"] },
-    ],
-  },
-  {
-    title: "Motor & aandrijving",
-    rows: [
-      { label: "Brandstof", values: ["Benzine", "Benzine"] },
-      { label: "Vermogen", values: ["110 pk", "130 pk"] },
-    ],
-  },
-  {
-    title: "Uitrusting & opties",
-    rows: [
-      { label: "Stoelverwarming", values: [false, true] },
-      { label: "Adaptive cruise control", values: [false, true] },
-      { label: "Navigatie", values: [true, true] },
-      { label: "LED koplampen", values: [false, true] },
-      { label: "Parkeersensoren achter", values: [true, true] },
-      { label: "Parkeersensoren voor", values: [false, true] },
-    ],
-  },
-];
+export async function HomeDemoComparison() {
+  const specifications = await loadComparisonSpecifications();
+  const groups: ComparisonGroup[] = buildDemoComparisonGroups(specifications);
 
-export function HomeDemoComparison() {
   return (
     <section id="voorbeeld" className="border-t border-kv-border bg-kv-surface scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 py-16">
@@ -51,7 +27,7 @@ export function HomeDemoComparison() {
         <div className="kv-card overflow-hidden p-0 sm:p-0">
           <ComparisonTable
             kentekens={DEMO_KENTEKENS}
-            groups={DEMO_GROUPS}
+            groups={groups}
             caption="Voorbeeldvergelijking van twee Volkswagen Golf auto's"
           />
         </div>

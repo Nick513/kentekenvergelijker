@@ -286,7 +286,7 @@ Plate-specific and basic vehicle data. Fetched on every comparison request (with
 
 One row per unique homologated configuration. Populated optionally when a plate is looked up: derive `configuration_key`, upsert if new. Used for TGK enrichment and equipment lookup.
 
-Already migrated in `supabase/migrations/20260614233532_vehicle_configurations.sql`.
+Already migrated in `supabase/migrations/20260614233619_vehicle_configurations.sql`.
 
 Raw `rdw_vehicle` / `rdw_fuel` jsonb on this table stores a **representative snapshot** from any plate that shared this configuration, not a per-plate history.
 
@@ -462,7 +462,7 @@ lib/
 
 ## Related files
 
-- `supabase/migrations/20260614233532_vehicle_configurations.sql` - catalog table (optional until Phase 2)
+- `supabase/migrations/20260614233619_vehicle_configurations.sql` - catalog table (optional until Phase 2)
 - `lib/kenteken.ts` - plate normalization and validation
 - `components/comparison-preview.tsx` - placeholder UI to replace in Phase 1
 - `cursor.md` - project conventions (English DB names, no em dash)

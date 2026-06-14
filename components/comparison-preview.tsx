@@ -54,11 +54,6 @@ export function ComparisonPreview({
         groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
       />
-
-      <p className="mt-4 text-sm text-kv-muted">
-        Uitrusting en uitvoering volgen in een latere versie. Technische gegevens
-        komen uit RDW Open Data.
-      </p>
     </section>
   );
 }
