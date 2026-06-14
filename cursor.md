@@ -17,3 +17,5 @@ Use a regular hyphen (`-`), a comma, or rephrase the sentence instead.
 Always use English names for database objects: table and column names, constraints, indexes, enums, functions, and triggers.
 
 Dutch is fine for UI copy and user-facing labels. External APIs (e.g. RDW) may use Dutch field names in JSON; map those to English columns when persisting to Supabase.
+
+Before adding migrations, ingest scripts, or vehicle API clients, read **`docs/data-ingestion-plan.md`**. Vehicle data must use **free APIs only** (RDW Open Data); see that doc for the full plan and constraints.
