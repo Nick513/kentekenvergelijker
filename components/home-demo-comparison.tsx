@@ -2,7 +2,6 @@ import {
   ComparisonTable,
   type ComparisonGroup,
 } from "@/components/comparison-table";
-import { DataDisclaimer } from "@/components/data-disclaimer";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
 import { buildDemoComparisonGroups } from "@/lib/specifications/demo";
 
@@ -32,8 +31,6 @@ export async function HomeDemoComparison() {
             caption="Voorbeeldvergelijking van twee Volkswagen Golf auto's"
           />
         </div>
-
-        <DataDisclaimer className="mt-6" />
       </div>
     </section>
   );
