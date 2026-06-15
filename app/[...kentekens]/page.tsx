@@ -83,7 +83,7 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             Kenteken vergelijken: {parsed.kentekens.join(", ")}
           </h1>
           <p className="text-lg leading-8 text-kv-muted">
-            Vergelijk de auto&apos;s achter deze kentekens. Zie model, uitvoering,
+            Vergelijk de auto&apos;s achter de kentekens. Zie model, uitvoering,
             opties en uitrusting naast elkaar in één overzichtelijke tabel.
           </p>
         </header>

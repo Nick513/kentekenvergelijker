@@ -52,12 +52,12 @@ async function rdwFetch<T>(dataset: string, licensePlate: string): Promise<T[]> 
     });
 
     if (response.status === 429) {
-      throw new RdwApiError("RDW rate limit bereikt. Probeer het later opnieuw.", 429);
+      throw new RdwApiError("Te veel verzoeken. Probeer het later opnieuw.", 429);
     }
 
     if (!response.ok) {
       throw new RdwApiError(
-        `RDW request failed (${response.status})`,
+        "Gegevens tijdelijk niet beschikbaar.",
         response.status,
       );
     }
@@ -70,7 +70,7 @@ async function rdwFetch<T>(dataset: string, licensePlate: string): Promise<T[]> 
     }
 
     if (error instanceof Error && error.name === "AbortError") {
-      throw new RdwApiError("RDW request timed out", 408);
+      throw new RdwApiError("Verzoek duurde te lang. Probeer het later opnieuw.", 408);
     }
 
     throw error;

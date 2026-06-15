@@ -18,7 +18,6 @@ export const SITE_KEYWORDS = [
   "kenteken opzoeken",
   "Nederlandse kentekens",
   "auto specificaties vergelijken",
-  "RDW kenteken vergelijken",
   "tweedehands auto vergelijken",
 ];
 

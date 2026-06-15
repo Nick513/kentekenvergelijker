@@ -68,7 +68,7 @@ const faqItems = [
   {
     question: "Werkt dit alleen voor Nederlandse kentekens?",
     answer:
-      "Ja. De tool is gebouwd voor de Nederlandse markt en werkt met kentekens uit het RDW-register. Andere landen volgen later.",
+      "Ja. De tool is gebouwd voor de Nederlandse markt en werkt met Nederlandse kentekens. Andere landen volgen later.",
   },
   {
     question: "Waarom hebben twee auto's van hetzelfde model verschillende opties?",
@@ -78,7 +78,7 @@ const faqItems = [
   {
     question: "Hoe betrouwbaar zijn de getoonde gegevens?",
     answer:
-      "De informatie is een schatting op basis van beschikbare bronnen zoals het RDW-register en kan afwijken van de werkelijke uitrusting. Dit zijn indicaties, geen gegarandeerde feiten. Neem altijd contact op met de verkoper of plan een proefrit om alles te verifiëren voordat je koopt.",
+      "De informatie is een schatting op basis van beschikbare gegevens en kan afwijken van de werkelijke uitrusting. Dit zijn indicaties, geen gegarandeerde feiten. Neem altijd contact op met de verkoper of plan een proefrit om alles te verifiëren voordat je koopt.",
   },
 ];
 

@@ -14,6 +14,10 @@ Read this file before adding or changing styles.
 - Kenteken plate inputs keep authentic Dutch yellow (separate from brand UI accents)
 - Avoid generic Tailwind blues (`blue-700`, `slate-*`) for new UI; use `kv-*` tokens instead
 
+### Copy
+
+User-facing text must not reveal implementation: no data sources, APIs, registers, databases, or provider names. See `cursor.md` (User-facing copy).
+
 ---
 
 ## Colors

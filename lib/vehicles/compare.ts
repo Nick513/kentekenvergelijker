@@ -36,14 +36,14 @@ async function fetchPlate(licensePlate: string): Promise<PlateFetchResult> {
       return {
         status: "error",
         licensePlate: normalized,
-        message: error.message,
+        message: "Gegevens tijdelijk niet beschikbaar.",
       };
     }
 
     return {
       status: "error",
       licensePlate: normalized,
-      message: "Kon RDW-gegevens niet ophalen.",
+      message: "Gegevens tijdelijk niet beschikbaar.",
     };
   }
 }

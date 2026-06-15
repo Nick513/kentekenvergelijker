@@ -34,12 +34,12 @@ export function ComparisonPreview({
               <strong className="font-semibold text-kv-navy">{kenteken}</strong>
               {index < kentekens.length - 1 ? ", " : ""}
             </span>
-          ))}{" "}
-          opgehaald via het RDW-register.
+          ))}
+          .
         </p>
         {hasNotFound ? (
           <p className="text-sm text-kv-muted" role="status">
-            Een of meer kentekens zijn niet gevonden in het RDW-register.
+            Een of meer kentekens zijn niet gevonden.
           </p>
         ) : null}
         {hasErrors ? (

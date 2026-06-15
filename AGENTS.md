@@ -9,3 +9,5 @@ This version has breaking changes: APIs, conventions, and file structure may all
 Read `cursor.md` before changing UI or database work.
 
 Database: always use English names for tables, columns, indexes, constraints, enums, functions, and triggers. Map Dutch external API fields to English at ingest time.
+
+User-facing copy: never mention how data is fetched or stored. No APIs, registers, databases, or provider names in the app, SEO, or visitor-visible errors. See `cursor.md` for the full rule.

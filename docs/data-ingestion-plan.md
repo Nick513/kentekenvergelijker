@@ -2,6 +2,8 @@
 
 Roadmap for filling the Kentekenvergelijker database. Read this before adding migrations, ingest scripts, or API clients for vehicle data.
 
+**Internal only.** This document describes architecture and data sources for developers and agents. None of this belongs in user-facing copy, SEO, metadata, or error messages. See `cursor.md` (User-facing copy).
+
 ## Goals
 
 - Compare **specific registered cars** by Dutch license plate (`kenteken`), not brochure-level specs.

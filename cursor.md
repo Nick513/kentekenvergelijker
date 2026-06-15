@@ -1,5 +1,13 @@
 # Cursor project notes
 
+## User-facing copy
+
+Never expose how the app works in UI copy, metadata, SEO text, or error messages shown to users.
+
+Do not mention data sources, APIs, registers, databases, caches, or third-party providers (for example RDW, Carbase, Supabase). Describe outcomes from the user's perspective only: kenteken lookup, specifications, comparison results, availability, and disclaimers.
+
+Internal docs (`docs/`), code comments, and backend modules may reference implementation details. Keep those out of anything a visitor can see.
+
 ## Design system
 
 Before changing UI, styling, colors, or components, read **`docs/design-system.md`**.
