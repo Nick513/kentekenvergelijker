@@ -26,7 +26,7 @@ async function fetchComparisonSpecifications(): Promise<ComparisonSpecification[
   const supabase = createSupabaseServerClient();
 
   const { data, error } = await supabase
-    .from("comparison_specifications")
+    .from("specifications")
     .select(
       "spec_key, group_key, group_label, group_sort_order, label, sort_order, value_source, value_key, display_type, is_active",
     )

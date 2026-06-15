@@ -19,20 +19,20 @@ async function main() {
   });
 
   const { count, error: countError } = await supabase
-    .from("comparison_specifications")
+    .from("specifications")
     .select("*", { count: "exact", head: true })
     .eq("is_active", true);
 
   if (countError) {
     throw new Error(
-      `comparison_specifications not available: ${countError.message}. Run the migration first.`,
+      `specifications not available: ${countError.message}. Run the migration first.`,
     );
   }
 
   console.log(`Active comparison specifications: ${count ?? 0}`);
 
   const { data, error } = await supabase
-    .from("comparison_specifications")
+    .from("specifications")
     .select("group_label, label, value_source, value_key")
     .eq("is_active", true)
     .order("group_sort_order", { ascending: true })
