@@ -43,7 +43,7 @@ const faqItems = [
   {
     question: "Hoe vergelijk ik auto's op kenteken?",
     answer:
-      "Voer twee tot vier Nederlandse kentekens in en start de vergelijking. Binnen enkele seconden zie je model, uitvoering, motorgegevens en opties side-by-side in één overzichtelijke tabel.",
+      "Voer twee tot acht Nederlandse kentekens in en start de vergelijking. Binnen enkele seconden zie je model, uitvoering, motorgegevens en opties side-by-side in één overzichtelijke tabel.",
   },
   {
     question: "Hoeveel kentekens kan ik vergelijken?",
@@ -68,7 +68,7 @@ const faqItems = [
   {
     question: "Werkt dit alleen voor Nederlandse kentekens?",
     answer:
-      "Ja. De tool is gebouwd voor de Nederlandse markt en werkt met Nederlandse kentekens. Andere landen volgen later.",
+      "Ja. De tool is gebouwd voor de Nederlandse markt en werkt met Nederlandse kentekens.",
   },
   {
     question: "Waarom hebben twee auto's van hetzelfde model verschillende opties?",
