@@ -3,7 +3,7 @@
 // brands without a registered brochure adapter still work via Plan B sources.
 
 import { loadMapping } from "./field-map.mjs";
-import { mergeConfigurations } from "./merge.mjs";
+import { mergeConfigurations, propagatePetrolEquipmentToHybridVariants } from "./merge.mjs";
 import { upsertSpecValues, upsertVehicleConfiguration } from "./db-writer.mjs";
 import * as hyundai from "./sources/hyundai.mjs";
 import * as gaspedaal from "./sources/gaspedaal.mjs";
@@ -119,7 +119,14 @@ export async function runScrape(params) {
     }
   }
 
-  const { configurations, skipped } = mergeConfigurations(primary, planB);
+  const { configurations: merged, skipped } = mergeConfigurations(primary, planB);
+  const equipmentSpecKeys = [...specCatalog.entries()]
+    .filter(([, meta]) => meta.valueSource === "equipment")
+    .map(([specKey]) => specKey);
+  const configurations = propagatePetrolEquipmentToHybridVariants(
+    merged,
+    equipmentSpecKeys,
+  );
   logger.info(
     `Merged into ${configurations.length} configurations (${skipped.length} skipped)`,
   );

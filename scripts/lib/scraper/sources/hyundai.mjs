@@ -11,6 +11,7 @@ import { extractPdfText } from "../pdf.mjs";
 import { fetchRenderedHtml } from "../browser.mjs";
 import { buildSpecValue, matchSpecKey } from "../field-map.mjs";
 import { parseHyundaiPriceList } from "./hyundai-pricelist.mjs";
+import { applyHyundaiEquipment } from "./hyundai-equipment.mjs";
 
 export const meta = {
   brand: "Hyundai",
@@ -292,7 +293,10 @@ export async function scrape(ctx) {
         specCatalog,
       });
       if (configs.length > 0) {
-        logger?.info?.(`Hyundai: price list yielded ${configs.length} configurations`);
+        await applyHyundaiEquipment(configs, lines, specCatalog);
+        logger?.info?.(
+          `Hyundai: price list yielded ${configs.length} configurations (with equipment)`,
+        );
         return configs;
       }
       logger?.warn?.("Hyundai: price list parsed but yielded no configurations");

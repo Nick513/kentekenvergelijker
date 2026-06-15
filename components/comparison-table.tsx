@@ -18,9 +18,14 @@ type ComparisonTableProps = {
   caption?: string;
 };
 
+const SPEC_COLUMN_WIDTH = "11rem";
+/** Minimum per kenteken column before the table scrolls horizontally. */
+const PLATE_COLUMN_MIN_WIDTH = "7rem";
+
 const SPEC_COLUMN_CLASS =
-  "sticky left-0 z-10 min-w-[11rem] max-w-[14rem] border-r border-kv-border/40 bg-inherit px-4 shadow-[4px_0_8px_-4px_rgb(17_17_17_/_10%)]";
-const PLATE_COLUMN_CLASS = "min-w-[9.5rem] whitespace-nowrap px-4";
+  "sticky left-0 z-10 w-[11rem] max-w-[11rem] border-r border-kv-border/40 bg-inherit px-3 shadow-[4px_0_8px_-4px_rgb(17_17_17_/_10%)]";
+const PLATE_COLUMN_CLASS =
+  "min-w-0 px-3 align-top break-words [overflow-wrap:anywhere]";
 
 function ComparisonCell({ value }: { value: ComparisonCellValue }) {
   if (typeof value === "boolean") {
@@ -39,7 +44,7 @@ function ComparisonCell({ value }: { value: ComparisonCellValue }) {
     return <span className="text-kv-muted">-</span>;
   }
 
-  return <span className="text-kv-navy">{value}</span>;
+  return <span className="block break-words text-kv-navy [overflow-wrap:anywhere]">{value}</span>;
 }
 
 function rowBackgroundClass(rowIndex: number): string {
@@ -48,11 +53,21 @@ function rowBackgroundClass(rowIndex: number): string {
 
 export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableProps) {
   const columnCount = kentekens.length + 1;
+  const tableMinWidth = `max(100%, calc(${SPEC_COLUMN_WIDTH} + ${kentekens.length} * ${PLATE_COLUMN_MIN_WIDTH}))`;
 
   return (
-    <div className="kv-comparison-table-scroll overflow-x-auto rounded-xl border border-kv-border">
-      <table className="w-full min-w-max border-collapse text-left text-sm">
+    <div className="kv-comparison-table-scroll w-full overflow-x-auto rounded-xl border border-kv-border">
+      <table
+        className="w-full table-fixed border-collapse text-left text-sm"
+        style={{ minWidth: tableMinWidth }}
+      >
         {caption ? <caption className="sr-only">{caption}</caption> : null}
+        <colgroup>
+          <col style={{ width: SPEC_COLUMN_WIDTH }} />
+          {kentekens.map((kenteken) => (
+            <col key={kenteken} />
+          ))}
+        </colgroup>
         <thead>
           <tr className="bg-kv-navy-bg text-white">
             <th
@@ -90,7 +105,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
                 <tr key={row.label} className={rowClass}>
                   <th
                     scope="row"
-                    className={`${SPEC_COLUMN_CLASS} ${rowClass} border-t border-kv-border py-3 pl-6 font-medium text-kv-navy`}
+                    className={`${SPEC_COLUMN_CLASS} ${rowClass} border-t border-kv-border py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
                   >
                     {row.label}
                   </th>
