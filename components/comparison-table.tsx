@@ -124,3 +124,30 @@ export function sliceComparisonGroups(
     })),
   }));
 }
+
+export function countComparisonRows(groups: ComparisonGroup[]): number {
+  return groups.reduce((total, group) => total + group.rows.length, 0);
+}
+
+export function filterComparisonGroups(
+  groups: ComparisonGroup[],
+  query: string,
+): ComparisonGroup[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    return groups;
+  }
+
+  return groups
+    .map((group) => {
+      const groupMatches = group.title.toLowerCase().includes(normalized);
+      const rows = groupMatches
+        ? group.rows
+        : group.rows.filter((row) =>
+            row.label.toLowerCase().includes(normalized),
+          );
+
+      return { ...group, rows };
+    })
+    .filter((group) => group.rows.length > 0);
+}

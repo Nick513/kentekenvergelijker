@@ -1,8 +1,8 @@
 import {
-  ComparisonTable,
   type ComparisonGroup,
 } from "@/components/comparison-table";
 import { DataDisclaimer } from "@/components/data-disclaimer";
+import { SearchableComparisonTable } from "@/components/searchable-comparison-table";
 
 type ComparisonPreviewProps = {
   kentekens: string[];
@@ -50,7 +50,7 @@ export function ComparisonPreview({
         ) : null}
       </div>
 
-      <ComparisonTable
+      <SearchableComparisonTable
         kentekens={kentekens}
         groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}

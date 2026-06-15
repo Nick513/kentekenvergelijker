@@ -354,6 +354,10 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+.kv-search-input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
 details summary::-webkit-details-marker {
   display: none;
 }
