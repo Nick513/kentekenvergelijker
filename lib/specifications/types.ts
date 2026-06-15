@@ -1,4 +1,8 @@
-export type SpecificationValueSource = "rdw" | "equipment" | "unavailable";
+export type SpecificationValueSource =
+  | "rdw"
+  | "equipment"
+  | "catalog"
+  | "unavailable";
 
 export type SpecificationDisplayType =
   | "text"
