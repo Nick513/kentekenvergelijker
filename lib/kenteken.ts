@@ -56,7 +56,7 @@ const FORBIDDEN_WORDS = [
 ] as const;
 
 export const MIN_COMPARISON_PLATES = 2;
-export const MAX_COMPARISON_PLATES = 4;
+export const MAX_COMPARISON_PLATES = 8;
 
 export function normalizeKenteken(input: string): string {
   return input.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 6);

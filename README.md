@@ -14,7 +14,7 @@ Most comparison tools stop at brochure-level specs. Kentekenvergelijker starts f
 
 | You enter | You get |
 | --- | --- |
-| 2–4 kentekens | A clear comparison table |
+| 2–8 kentekens | A clear comparison table |
 | Dutch plates only *(for now)* | Model, edition & equipment per car |
 
 ## Status

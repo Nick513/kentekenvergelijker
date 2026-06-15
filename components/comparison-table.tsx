@@ -18,6 +18,10 @@ type ComparisonTableProps = {
   caption?: string;
 };
 
+const SPEC_COLUMN_CLASS =
+  "sticky left-0 z-10 min-w-[11rem] max-w-[14rem] border-r border-kv-border/40 bg-inherit px-4 shadow-[4px_0_8px_-4px_rgb(17_17_17_/_10%)]";
+const PLATE_COLUMN_CLASS = "min-w-[9.5rem] whitespace-nowrap px-4";
+
 function ComparisonCell({ value }: { value: ComparisonCellValue }) {
   if (typeof value === "boolean") {
     return value ? (
@@ -38,20 +42,31 @@ function ComparisonCell({ value }: { value: ComparisonCellValue }) {
   return <span className="text-kv-navy">{value}</span>;
 }
 
+function rowBackgroundClass(rowIndex: number): string {
+  return rowIndex % 2 === 0 ? "bg-kv-surface" : "bg-kv-bg/60";
+}
+
 export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableProps) {
   const columnCount = kentekens.length + 1;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-kv-border">
-      <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+    <div className="kv-comparison-table-scroll overflow-x-auto rounded-xl border border-kv-border">
+      <table className="w-full min-w-max border-collapse text-left text-sm">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
           <tr className="bg-kv-navy-bg text-white">
-            <th scope="col" className="px-4 py-3.5 font-semibold text-white/70">
+            <th
+              scope="col"
+              className={`${SPEC_COLUMN_CLASS} z-20 bg-kv-navy-bg py-3.5 font-semibold text-white/70`}
+            >
               Specificatie
             </th>
             {kentekens.map((kenteken) => (
-              <th key={kenteken} scope="col" className="px-4 py-3.5 font-semibold">
+              <th
+                key={kenteken}
+                scope="col"
+                className={`${PLATE_COLUMN_CLASS} py-3.5 font-semibold`}
+              >
                 <KentekenPlateChip kenteken={kenteken} />
               </th>
             ))}
@@ -68,27 +83,28 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
                 {group.title}
               </th>
             </tr>
-            {group.rows.map((row, rowIndex) => (
-              <tr
-                key={row.label}
-                className={rowIndex % 2 === 0 ? "bg-kv-surface" : "bg-kv-bg/60"}
-              >
-                <th
-                  scope="row"
-                  className="border-t border-kv-border px-4 py-3 pl-6 font-medium text-kv-navy"
-                >
-                  {row.label}
-                </th>
-                {row.values.map((value, valueIndex) => (
-                  <td
-                    key={`${row.label}-${kentekens[valueIndex]}`}
-                    className="border-t border-kv-border px-4 py-3"
+            {group.rows.map((row, rowIndex) => {
+              const rowClass = rowBackgroundClass(rowIndex);
+
+              return (
+                <tr key={row.label} className={rowClass}>
+                  <th
+                    scope="row"
+                    className={`${SPEC_COLUMN_CLASS} ${rowClass} border-t border-kv-border py-3 pl-6 font-medium text-kv-navy`}
                   >
-                    <ComparisonCell value={value} />
-                  </td>
-                ))}
-              </tr>
-            ))}
+                    {row.label}
+                  </th>
+                  {row.values.map((value, valueIndex) => (
+                    <td
+                      key={`${row.label}-${kentekens[valueIndex]}`}
+                      className={`${PLATE_COLUMN_CLASS} border-t border-kv-border py-3`}
+                    >
+                      <ComparisonCell value={value} />
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         ))}
       </table>

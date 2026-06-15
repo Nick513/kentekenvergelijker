@@ -190,8 +190,54 @@ describe("parseComparisonSlugs", () => {
   it(`requires between ${MIN_COMPARISON_PLATES} and ${MAX_COMPARISON_PLATES} slugs`, () => {
     expect(parseComparisonSlugs(["ab123c"])).toBeNull();
     expect(
-      parseComparisonSlugs(["ab123c", "88zbp6", "cd456e", "ef789g", "hi012i"]),
+      parseComparisonSlugs([
+        "ab123c",
+        "88zbp6",
+        "ab1234",
+        "12ab34",
+        "ab12cd",
+        "abcd12",
+        "12abcd",
+        "1abc23",
+        "x999xx",
+      ]),
     ).toBeNull();
+  });
+
+  it(`accepts up to ${MAX_COMPARISON_PLATES} slugs`, () => {
+    expect(
+      parseComparisonSlugs([
+        "ab123c",
+        "88zbp6",
+        "ab1234",
+        "12ab34",
+        "ab12cd",
+        "abcd12",
+        "12abcd",
+        "1abc23",
+      ]),
+    ).toEqual({
+      kentekens: [
+        "AB-123-C",
+        "88-ZBP-6",
+        "AB-12-34",
+        "12-AB-34",
+        "AB-12-CD",
+        "AB-CD-12",
+        "12-AB-CD",
+        "1-ABC-23",
+      ],
+      slugs: [
+        "ab123c",
+        "88zbp6",
+        "ab1234",
+        "12ab34",
+        "ab12cd",
+        "abcd12",
+        "12abcd",
+        "1abc23",
+      ],
+    });
   });
 
   it("rejects invalid kentekens", () => {

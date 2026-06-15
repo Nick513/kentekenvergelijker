@@ -18,7 +18,7 @@ const howItWorksSteps = [
     step: "1",
     title: "Voer kentekens in",
     description:
-      "Typ de kentekens van de auto's die je overweegt. Minimaal twee, maximaal vier tegelijk.",
+      "Typ de kentekens van de auto's die je overweegt. Minimaal twee, maximaal acht tegelijk.",
   },
   {
     step: "2",
@@ -48,7 +48,7 @@ const faqItems = [
   {
     question: "Hoeveel kentekens kan ik vergelijken?",
     answer:
-      "Je kunt tussen de 2 en 4 kentekens tegelijk invoeren. Zo houd je de vergelijking overzichtelijk en gericht op de auto's die je echt overweegt.",
+      "Je kunt tussen de 2 en 8 kentekens tegelijk invoeren. Zo houd je de vergelijking overzichtelijk en gericht op de auto's die je echt overweegt.",
   },
   {
     question: "Welke gegevens zie ik per auto?",
@@ -132,7 +132,7 @@ function SeoContent() {
             <p>
               Zoek je een occasion en twijfel je tussen meerdere auto&apos;s? Met
               kentekenvergelijken zie je direct welke voertuigen beter uitgerust zijn.
-              In plaats van losse kentekenchecks of brochure-informatie leg je 2 tot 4
+              In plaats van losse kentekenchecks of brochure-informatie leg je 2 tot 8
               Nederlandse kentekens naast elkaar en vergelijk je de exacte auto&apos;s
               achter die platen.
             </p>
@@ -189,7 +189,7 @@ export default function Home() {
               <ul className="grid gap-3 text-sm text-kv-navy sm:grid-cols-2">
                 <li className="flex items-start gap-2">
                   <span className="mt-0.5 font-bold text-kv-green">✓</span>
-                  <span>2 tot 4 kentekens tegelijk vergelijken</span>
+                  <span>2 tot 8 kentekens tegelijk vergelijken</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-0.5 font-bold text-kv-green">✓</span>

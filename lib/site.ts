@@ -5,7 +5,7 @@ export const SITE_TITLE =
   "Kenteken vergelijken - Auto's vergelijken op kenteken";
 
 export const SITE_DESCRIPTION =
-  "Vergelijk 2 tot 4 Nederlandse kentekens naast elkaar. Zie merk, model, uitvoering en uitrusting van de exacte auto's: van stoelverwarming tot rijassistentie. Gratis en zonder account.";
+  "Vergelijk 2 tot 8 Nederlandse kentekens naast elkaar. Zie merk, model, uitvoering en uitrusting van de exacte auto's: van stoelverwarming tot rijassistentie. Gratis en zonder account.";
 
 export const SITE_KEYWORDS = [
   "kenteken vergelijken",

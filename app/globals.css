@@ -350,6 +350,10 @@ body {
   white-space: nowrap;
 }
 
+.kv-comparison-table-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
 details summary::-webkit-details-marker {
   display: none;
 }

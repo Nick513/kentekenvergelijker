@@ -10,7 +10,7 @@ export default function ComparisonNotFound() {
       <main className="mx-auto flex min-h-[60vh] max-w-6xl flex-col items-center justify-center px-6 py-16 text-center">
         <h1 className="text-3xl font-semibold text-kv-navy">Vergelijking niet gevonden</h1>
         <p className="mt-4 max-w-md text-kv-muted">
-          Deze vergelijking bestaat niet of bevat ongeldige kentekens. Voer 2 tot 4 geldige
+          Deze vergelijking bestaat niet of bevat ongeldige kentekens. Voer 2 tot 8 geldige
           Nederlandse kentekens in om te vergelijken.
         </p>
         <Link

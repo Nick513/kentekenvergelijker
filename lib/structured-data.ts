@@ -40,7 +40,7 @@ export function buildHomeStructuredData(faqItems: FaqItem[]) {
           priceCurrency: "EUR",
         },
         featureList: [
-          "Vergelijk 2 tot 4 Nederlandse kentekens tegelijk",
+          "Vergelijk 2 tot 8 Nederlandse kentekens tegelijk",
           "Vergelijk uitrusting en opties per voertuig",
           "Vergelijk merk, model en uitvoering side-by-side",
           "Gratis te gebruiken zonder account",
