@@ -21,7 +21,7 @@ export function ComparisonPreview({
     <section
       id="vergelijking"
       aria-labelledby="comparison-heading"
-      className="kv-card scroll-mt-24 p-6 sm:p-8"
+      className="kv-scroll-anchor kv-card p-6 sm:p-8"
     >
       <div className="mb-6 space-y-2">
         <h2 id="comparison-heading" className="text-2xl font-semibold text-kv-navy">

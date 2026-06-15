@@ -12,10 +12,17 @@ export async function HomeDemoComparison() {
   const groups: ComparisonGroup[] = buildDemoComparisonGroups(specifications);
 
   return (
-    <section id="voorbeeld" className="border-t border-kv-border bg-kv-surface scroll-mt-24">
+    <section
+      id="voorbeeld"
+      aria-labelledby="voorbeeld-heading"
+      className="kv-scroll-anchor border-t border-kv-border bg-kv-surface"
+    >
       <div className="mx-auto max-w-6xl px-6 py-16">
         <div className="mb-8 max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight text-kv-navy">
+          <h2
+            id="voorbeeld-heading"
+            className="text-3xl font-semibold tracking-tight text-kv-navy"
+          >
             Voorbeeld: kentekens vergelijken op uitrusting
           </h2>
           <p className="mt-4 text-lg leading-8 text-kv-muted">

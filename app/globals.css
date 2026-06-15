@@ -32,6 +32,8 @@
   --kv-plate-yellow: #f7ca00;
   --kv-plate-yellow-light: #ffe066;
   --kv-eu-blue: #003399;
+  /* Measured at runtime by SiteHeaderHeight; fallback until hydrated */
+  --kv-header-height: 5rem;
 }
 
 .dark {
@@ -94,6 +96,10 @@
   :where(button:disabled, [aria-disabled="true"]) {
     cursor: not-allowed;
   }
+}
+
+.kv-scroll-anchor {
+  scroll-margin-top: var(--kv-header-height);
 }
 
 body {

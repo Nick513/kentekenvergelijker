@@ -163,8 +163,9 @@ export default function Home() {
 
       <main>
         <section
+          id="vergelijken"
           aria-labelledby="hero-heading"
-          className="relative overflow-hidden bg-kv-bg"
+          className="kv-scroll-anchor relative overflow-hidden bg-kv-bg"
         >
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(8_168_160_/_16%),transparent_42%)] dark:bg-[radial-gradient(circle_at_80%_0%,rgb(40_184_200_/_12%),transparent_42%)]" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_10%),transparent_50%)] dark:bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_18%),transparent_50%)]" />
@@ -206,7 +207,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div id="vergelijken" className="scroll-mt-24">
+            <div>
               <KentekenForm />
             </div>
           </div>
@@ -218,10 +219,17 @@ export default function Home() {
 
         <SeoContent />
 
-        <section id="faq" className="border-t border-kv-border bg-kv-bg scroll-mt-24">
+        <section
+          id="faq"
+          aria-labelledby="faq-heading"
+          className="kv-scroll-anchor border-t border-kv-border bg-kv-bg"
+        >
           <div className="mx-auto max-w-6xl px-6 py-16">
             <div className="mb-10 max-w-2xl">
-              <h2 className="text-3xl font-semibold tracking-tight text-kv-navy">
+              <h2
+                id="faq-heading"
+                className="text-3xl font-semibold tracking-tight text-kv-navy"
+              >
                 Veelgestelde vragen over kenteken vergelijken
               </h2>
             </div>
