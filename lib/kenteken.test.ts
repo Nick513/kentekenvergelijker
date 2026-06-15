@@ -73,16 +73,28 @@ describe("formatKenteken", () => {
     expect(formatKenteken("A1")).toBe("A-1");
   });
 
-  it("formats all-digit and all-letter plates", () => {
+  it("formats all-digit and all-letter plates with fallback grouping", () => {
     expect(formatKenteken("123456")).toBe("12-34-56");
     expect(formatKenteken("ABCDEF")).toBe("AB-CD-EF");
   });
 });
 
 describe("isValidKenteken", () => {
-  it("accepts exactly 6 alphanumeric characters", () => {
-    expect(isValidKenteken("AB-123-C")).toBe(true);
-    expect(isValidKenteken("88-ZBP-6")).toBe(true);
+  it("accepts all 14 official sidecode patterns", () => {
+    expect(isValidKenteken("AB1234")).toBe(true); // 1
+    expect(isValidKenteken("1234AB")).toBe(true); // 2
+    expect(isValidKenteken("12AB34")).toBe(true); // 3
+    expect(isValidKenteken("AB12CD")).toBe(true); // 4
+    expect(isValidKenteken("ABCD12")).toBe(true); // 5
+    expect(isValidKenteken("12ABCD")).toBe(true); // 6
+    expect(isValidKenteken("88ZBP6")).toBe(true); // 7
+    expect(isValidKenteken("1ABC23")).toBe(true); // 8
+    expect(isValidKenteken("AB123C")).toBe(true); // 9
+    expect(isValidKenteken("X999XX")).toBe(true); // 10
+    expect(isValidKenteken("ABC12D")).toBe(true); // 11
+    expect(isValidKenteken("A12BCD")).toBe(true); // 12
+    expect(isValidKenteken("1AB234")).toBe(true); // 13
+    expect(isValidKenteken("123AB4")).toBe(true); // 14
   });
 
   it("rejects too short input", () => {
@@ -90,9 +102,58 @@ describe("isValidKenteken", () => {
     expect(isValidKenteken("")).toBe(false);
   });
 
+  it("rejects plates that do not match any sidecode", () => {
+    expect(isValidKenteken("ABCDEF")).toBe(false);
+    expect(isValidKenteken("123456")).toBe(false);
+  });
+
+  it("validates after normalizing dashes and case", () => {
+    expect(isValidKenteken("ab-123-c")).toBe(true);
+    expect(isValidKenteken("88-zbp-6")).toBe(true);
+  });
+
   it("truncates overlong input before validating", () => {
     expect(isValidKenteken("AB12345")).toBe(true);
     expect(normalizeKenteken("AB12345")).toBe("AB1234");
+  });
+
+  it("rejects forbidden letter combinations", () => {
+    expect(isValidKenteken("X99GVD")).toBe(false);
+    expect(isValidKenteken("X99KKK")).toBe(false);
+    expect(isValidKenteken("X99KVT")).toBe(false);
+    expect(isValidKenteken("X99LPF")).toBe(false);
+    expect(isValidKenteken("X99NSB")).toBe(false);
+    expect(isValidKenteken("X99PKK")).toBe(false);
+    expect(isValidKenteken("X99PSV")).toBe(false);
+    expect(isValidKenteken("X99SSS")).toBe(false);
+    expect(isValidKenteken("X99SDS")).toBe(false);
+  });
+
+  it("allows similar letter combos that are not forbidden words", () => {
+    expect(isValidKenteken("99AKKK")).toBe(true);
+    expect(isValidKenteken("99AGVD")).toBe(true);
+    expect(isValidKenteken("99APSV")).toBe(true);
+  });
+
+  it("allows VVD on sidecodes below 7", () => {
+    expect(isValidKenteken("14VVD4")).toBe(true);
+  });
+
+  it("rejects political abbreviations from sidecode 7 onward", () => {
+    expect(isValidKenteken("99PVV9")).toBe(false);
+    expect(isValidKenteken("9PVV99")).toBe(false);
+    expect(isValidKenteken("PVV99X")).toBe(false);
+    expect(isValidKenteken("X99PVV")).toBe(false);
+    expect(isValidKenteken("99SGP9")).toBe(false);
+    expect(isValidKenteken("9SGP99")).toBe(false);
+    expect(isValidKenteken("SGP99X")).toBe(false);
+    expect(isValidKenteken("X99SGP")).toBe(false);
+  });
+
+  it("rejects VVD from sidecode 8 onward", () => {
+    expect(isValidKenteken("9VVD99")).toBe(false);
+    expect(isValidKenteken("VVD99X")).toBe(false);
+    expect(isValidKenteken("X99VVD")).toBe(false);
   });
 });
 
@@ -135,6 +196,7 @@ describe("parseComparisonSlugs", () => {
 
   it("rejects invalid kentekens", () => {
     expect(parseComparisonSlugs(["ab12", "88zbp6"])).toBeNull();
+    expect(parseComparisonSlugs(["abcdef", "88zbp6"])).toBeNull();
   });
 
   it("rejects duplicate kentekens", () => {

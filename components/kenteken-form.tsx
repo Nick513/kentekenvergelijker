@@ -47,7 +47,7 @@ export function KentekenForm() {
 
     const invalid = kentekens.find((plate) => !isValidKenteken(plate));
     if (invalid) {
-      setError(`"${formatKenteken(invalid)}" is geen geldig kenteken. Een kenteken heeft 6 tekens.`);
+      setError(`"${formatKenteken(invalid)}" is geen geldig Nederlands kenteken.`);
       return;
     }
 

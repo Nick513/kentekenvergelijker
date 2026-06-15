@@ -16,11 +16,44 @@ const KENTEKEN_FORMATS: { pattern: CharType[]; groups: number[] }[] = [
   { pattern: ["L", "D", "D", "L", "L", "L"], groups: [1, 2, 3] }, // X-99-XXX
   { pattern: ["D", "L", "L", "D", "D", "D"], groups: [1, 2, 3] }, // 9-XX-999
   { pattern: ["D", "D", "D", "L", "L", "D"], groups: [3, 2, 1] }, // 999-XX-9
-  { pattern: ["D", "D", "D", "D", "D", "D"], groups: [2, 2, 2] },
-  { pattern: ["L", "L", "L", "L", "L", "L"], groups: [2, 2, 2] },
 ];
 
 const DEFAULT_GROUPS = [2, 2, 2];
+
+/**
+ * RDW sidecode patterns (14 series). Mirrors license-plate package sidecodes.
+ * @see https://github.com/niels-bosman/license-plate/blob/main/src/data/sidecodes.ts
+ */
+const SIDECODE_PATTERNS: RegExp[] = [
+  /^([A-Z]{2})(\d{2})(\d{2})$/, // 1: XX-99-99
+  /^(\d{2})(\d{2})([A-Z]{2})$/, // 2: 99-99-XX
+  /^(\d{2})([A-Z]{2})(\d{2})$/, // 3: 99-XX-99
+  /^([A-Z]{2})(\d{2})([A-Z]{2})$/, // 4: XX-99-XX
+  /^([A-Z]{2})([A-Z]{2})(\d{2})$/, // 5: XX-XX-99
+  /^(\d{2})([A-Z]{2})([A-Z]{2})$/, // 6: 99-XX-XX
+  /^(\d{2})([A-Z]{3})(\d)$/, // 7: 99-XXX-9
+  /^(\d)([A-Z]{3})(\d{2})$/, // 8: 9-XXX-99
+  /^([A-Z]{2})(\d{3})([A-Z])$/, // 9: XX-999-X
+  /^([A-Z])(\d{3})([A-Z]{2})$/, // 10: X-999-XX
+  /^([A-Z]{3})(\d{2})([A-Z])$/, // 11: XXX-99-X
+  /^([A-Z])(\d{2})([A-Z]{3})$/, // 12: X-99-XXX
+  /^(\d)([A-Z]{2})(\d{3})$/, // 13: 9-XX-999
+  /^(\d{3})([A-Z]{2})(\d)$/, // 14: 999-XX-9
+];
+
+/** Forbidden letter combinations on Dutch plates. */
+const FORBIDDEN_WORDS = [
+  "GVD",
+  "KKK",
+  "KVT",
+  "LPF",
+  "NSB",
+  "PKK",
+  "PSV",
+  "TBS",
+  "SS",
+  "SD",
+] as const;
 
 export const MIN_COMPARISON_PLATES = 2;
 export const MAX_COMPARISON_PLATES = 4;
@@ -125,6 +158,35 @@ function applyGroups(clean: string, groups: number[]): string {
   return parts.join("-");
 }
 
+function findSidecode(clean: string): number {
+  const index = SIDECODE_PATTERNS.findIndex((pattern) => pattern.test(clean));
+  return index + 1;
+}
+
+function formatBySidecode(clean: string, sidecode: number): string {
+  if (sidecode === 0) return "";
+
+  const match = clean.match(SIDECODE_PATTERNS[sidecode - 1]);
+  if (!match) return "";
+
+  return match.slice(1).join("-");
+}
+
+function hasForbiddenCombination(clean: string, sidecode: number): boolean {
+  let forbidden: string[] = [...FORBIDDEN_WORDS];
+
+  if (sidecode >= 7) {
+    forbidden = [...forbidden, "PVV", "SGP"];
+  }
+
+  if (sidecode >= 8) {
+    forbidden = [...forbidden, "VVD"];
+  }
+
+  const formatted = formatBySidecode(clean, sidecode);
+  return forbidden.some((word) => formatted.includes(word));
+}
+
 export function formatKenteken(input: string): string {
   const clean = normalizeKenteken(input);
   if (!clean) return "";
@@ -133,7 +195,13 @@ export function formatKenteken(input: string): string {
 }
 
 export function isValidKenteken(input: string): boolean {
-  return normalizeKenteken(input).length === 6;
+  const clean = normalizeKenteken(input);
+  if (clean.length !== 6) return false;
+
+  const sidecode = findSidecode(clean);
+  if (sidecode === 0) return false;
+
+  return !hasForbiddenCombination(clean, sidecode);
 }
 
 export function toKentekenSlug(kenteken: string): string {
