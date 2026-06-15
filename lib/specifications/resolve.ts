@@ -15,10 +15,49 @@ import {
   formatYear,
 } from "@/lib/rdw/map";
 import type { PlateFetchResult } from "@/lib/rdw/types";
-import type { ComparisonSpecification } from "@/lib/specifications/types";
+import type { CatalogSpecMap, CatalogSpecValue } from "@/lib/vehicles/catalog";
+import type {
+  ComparisonSpecification,
+  SpecificationDisplayType,
+} from "@/lib/specifications/types";
+
+const UNAVAILABLE = "-";
 
 function unavailableCell(): ComparisonCellValue {
-  return "-";
+  return UNAVAILABLE;
+}
+
+function formatCatalogValue(
+  displayType: SpecificationDisplayType,
+  value: CatalogSpecValue,
+): ComparisonCellValue {
+  switch (displayType) {
+    case "boolean":
+      // Omit-if-unknown: only true is shown; absence stays "-", never "Nee".
+      return value.valueBoolean === true ? true : unavailableCell();
+    case "currency":
+      return formatCatalogPrice(value.valueNumeric);
+    case "power_kw":
+      return formatPowerKw(value.valueNumeric);
+    case "distance_km":
+      return formatElectricRange(value.valueNumeric);
+    case "mass_kg":
+      return formatMassKg(value.valueNumeric);
+    case "volume_cc":
+      return formatVolumeCc(value.valueNumeric);
+    case "length_cm":
+      return formatLengthCm(value.valueNumeric);
+    case "co2_g_km":
+      return formatCo2Emission(value.valueNumeric);
+    case "year":
+      return formatYear(value.valueNumeric);
+    case "date":
+      return value.valueText ?? unavailableCell();
+    default:
+      if (value.valueText) return value.valueText;
+      if (value.valueNumeric !== null) return String(value.valueNumeric);
+      return unavailableCell();
+  }
 }
 
 function resolveRdwValue(
@@ -84,6 +123,7 @@ function resolveRdwValue(
 function resolvePlateValue(
   spec: ComparisonSpecification,
   plate: PlateFetchResult,
+  catalog: CatalogSpecMap | null,
 ): ComparisonCellValue {
   if (plate.status === "not_found") {
     return spec.displayType === "boolean" ? unavailableCell() : "Niet gevonden";
@@ -93,8 +133,22 @@ function resolvePlateValue(
     return unavailableCell();
   }
 
+  const catalogValue = catalog?.get(spec.specKey) ?? null;
+
   if (spec.valueSource === "rdw") {
-    return resolveRdwValue(spec.valueKey, plate);
+    const rdwValue = resolveRdwValue(spec.valueKey, plate);
+    // Live RDW wins; catalog only fills a gap when RDW has no value.
+    if (rdwValue === UNAVAILABLE && catalogValue) {
+      return formatCatalogValue(spec.displayType, catalogValue);
+    }
+    return rdwValue;
+  }
+
+  if (spec.valueSource === "catalog" || spec.valueSource === "equipment") {
+    if (catalogValue) {
+      return formatCatalogValue(spec.displayType, catalogValue);
+    }
+    return unavailableCell();
   }
 
   return unavailableCell();
@@ -103,6 +157,7 @@ function resolvePlateValue(
 export function buildComparisonGroups(
   specifications: ComparisonSpecification[],
   plates: PlateFetchResult[],
+  catalogs: (CatalogSpecMap | null)[] = [],
 ): ComparisonGroup[] {
   const groups = new Map<string, ComparisonGroup>();
 
@@ -111,7 +166,9 @@ export function buildComparisonGroups(
 
     const row = {
       label: spec.label,
-      values: plates.map((plate) => resolvePlateValue(spec, plate)),
+      values: plates.map((plate, index) =>
+        resolvePlateValue(spec, plate, catalogs[index] ?? null),
+      ),
     };
 
     if (existing) {

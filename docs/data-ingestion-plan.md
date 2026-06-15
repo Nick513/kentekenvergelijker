@@ -4,6 +4,8 @@ Roadmap for filling the Kentekenvergelijker database. Read this before adding mi
 
 **Internal only.** This document describes architecture and data sources for developers and agents. None of this belongs in user-facing copy, SEO, metadata, or error messages. See `cursor.md` (User-facing copy).
 
+> **Addendum (catalog enrichment via scraping).** The catalog layer (`vehicle_configurations` + `vehicle_configuration_specification_values`) is now populated by scraping, approved by the project owner. Primary source is manufacturer brochures/PDFs and configurator pages; listing aggregators (Gaspedaal, AutoTrack, AutoScout24) are Plan B for trim discovery and gap-fill. This applies only to shared catalog/equipment data, never to per-plate data: live RDW remains the sole source for plate lookups, and no `kenteken` is ever stored. See `docs/catalog-scraping-plan.md` for the full design and `scripts/scrape-manufacturer.mjs` for the implementation.
+
 ## Goals
 
 - Compare **specific registered cars** by Dutch license plate (`kenteken`), not brochure-level specs.
@@ -433,7 +435,9 @@ lib/
 
 ## Explicitly excluded
 
-**APIs (without user approval):** Finnik, VWE, RDC, DAT, AutoDNA, overheid.io, VIN decode APIs, dealer scraping.
+**APIs (without user approval):** Finnik, VWE, RDC, DAT, AutoDNA, overheid.io, VIN decode APIs.
+
+**Catalog scraping is approved** for shared trim/equipment data only (see Addendum above). Per-plate scraping or per-plate storage remains excluded.
 
 **Database patterns (always excluded):** Any table keyed by `license_plate` / `kenteken`. No fleet mirror.
 

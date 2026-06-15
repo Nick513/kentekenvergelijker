@@ -1,0 +1,23 @@
+{
+  "source": "autoscout24",
+  "note": "Plan B keyword map. Listing titles are free text; a keyword present implies the equipment is fitted (boolean true). Absence means unknown (omit, never false). Structured JSON-LD fields are handled in listing-common.mjs.",
+  "keywords": [
+    { "match": ["stoelverwarming", "stoelverw", "stoel verw", "stoel/stuurv"], "specKey": "heated_seats" },
+    { "match": ["stuurverwarming", "stuurverw"], "specKey": "heated_steering_wheel" },
+    { "match": ["navigatie", "navi", "nav."], "specKey": "navigation" },
+    { "match": ["apple carplay", "carplay"], "specKey": "apple_carplay" },
+    { "match": ["android auto"], "specKey": "android_auto" },
+    { "match": ["adaptive cruise", "adaptieve cruise"], "specKey": "adaptive_cruise_control" },
+    { "match": ["cruise"], "specKey": "cruise_control" },
+    { "match": ["climate control", "climate", "clima"], "specKey": "dual_zone_climate_control" },
+    { "match": ["achteruitrijcamera", "camera"], "specKey": "parking_camera" },
+    { "match": ["pdc", "parkeersensor", "parkeersensoren"], "specKey": "parking_sensors_rear" },
+    { "match": ["trekhaak"], "specKey": "tow_hitch" },
+    { "match": ["panoramadak"], "specKey": "panoramic_roof" },
+    { "match": ["schuifdak"], "specKey": "sunroof" },
+    { "match": ["lane assist", "rijstrook"], "specKey": "lane_assist" },
+    { "match": ["keyless"], "specKey": "keyless_entry" },
+    { "match": ["led"], "specKey": "led_headlights" },
+    { "match": ["leder", "lederen", "leer"], "specKey": "leather_upholstery" }
+  ]
+}

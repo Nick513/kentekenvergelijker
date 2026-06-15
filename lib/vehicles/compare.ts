@@ -6,6 +6,7 @@ import type { PlateFetchResult } from "@/lib/rdw/types";
 import { normalizeKenteken } from "@/lib/kenteken";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
 import { buildComparisonGroups } from "@/lib/specifications/resolve";
+import { loadCatalogForPlates } from "@/lib/vehicles/catalog";
 
 export type ComparisonBuildResult = {
   groups: ComparisonGroup[];
@@ -56,8 +57,10 @@ export async function buildComparison(
     Promise.all(formattedKentekens.map((kenteken) => fetchPlate(kenteken))),
   ]);
 
+  const catalogs = await loadCatalogForPlates(plates);
+
   return {
-    groups: buildComparisonGroups(specifications, plates),
+    groups: buildComparisonGroups(specifications, plates, catalogs),
     plates,
     hasNotFound: plates.some((plate) => plate.status === "not_found"),
     hasErrors: plates.some((plate) => plate.status === "error"),

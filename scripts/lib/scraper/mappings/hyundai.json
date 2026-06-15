@@ -1,0 +1,23 @@
+{
+  "source": "hyundai",
+  "note": "Dutch brochure labels mapped to English spec_key values. valueType is a parsing hint; the storage column is chosen from specifications.display_type.",
+  "specs": [
+    { "sourceLabels": ["Transmissie", "Schakeling", "Versnellingsbak"], "specKey": "transmission", "valueType": "text" },
+    { "sourceLabels": ["Acceleratie 0-100 km/h", "0-100 km/h", "Acceleratie (0-100 km/h)", "Acceleratie 0-100"], "specKey": "acceleration_0_100", "valueType": "text" },
+    { "sourceLabels": ["Topsnelheid", "Maximumsnelheid", "Max. snelheid"], "specKey": "top_speed", "valueType": "text" },
+    { "sourceLabels": ["Bagageruimte", "Kofferbakinhoud", "Inhoud bagageruimte", "Bagagevolume"], "specKey": "luggage_volume", "valueType": "text" },
+    { "sourceLabels": ["Aandrijving", "Aangedreven wielen"], "specKey": "drive_wheels", "valueType": "text" },
+    { "sourceLabels": ["Maximaal vermogen", "Max. vermogen", "Vermogen"], "specKey": "max_power_engine", "valueType": "text" },
+    { "sourceLabels": ["Gecombineerd verbruik", "Brandstofverbruik gecombineerd", "Verbruik gecombineerd"], "specKey": "fuel_consumption_combined_nedc", "valueType": "text" },
+    { "sourceLabels": ["Vanafprijs", "Rijklaarprijs", "Prijs rijklaar", "Consumentenadviesprijs"], "specKey": "list_price_ready_to_drive", "valueType": "numeric" },
+
+    { "sourceLabels": ["Stoelverwarming", "Verwarmde voorstoelen", "Verwarmbare voorstoelen"], "specKey": "heated_seats", "valueType": "boolean" },
+    { "sourceLabels": ["Navigatiesysteem", "Navigatie"], "specKey": "navigation", "valueType": "boolean" },
+    { "sourceLabels": ["Apple CarPlay"], "specKey": "apple_carplay", "valueType": "boolean" },
+    { "sourceLabels": ["Lane Keeping Assist", "Rijstrookassistent", "Lane Assist", "Rijstrookvolgassistent"], "specKey": "lane_assist", "valueType": "boolean" },
+    { "sourceLabels": ["Achteruitrijcamera", "Parkeercamera"], "specKey": "parking_camera", "valueType": "boolean" },
+    { "sourceLabels": ["LED-koplampen", "LED koplampen", "Full-LED koplampen"], "specKey": "led_headlights", "valueType": "boolean" },
+    { "sourceLabels": ["Cruise control", "Adaptieve cruise control", "Cruisecontrol"], "specKey": "cruise_control", "valueType": "boolean" },
+    { "sourceLabels": ["Climate control", "Automatische airconditioning", "Dual-zone climate control", "Climatecontrol"], "specKey": "dual_zone_climate_control", "valueType": "boolean" }
+  ]
+}
