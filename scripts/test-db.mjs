@@ -31,43 +31,47 @@ async function main() {
 
   console.log(`  vehicle_configurations rows: ${count ?? 0}`);
 
-  const testKey = `test_${Date.now()}`;
-  const testRow = {
-    configuration_key: testKey,
+  const testCatalogKey = `test_${Date.now()}`;
+  const testConfiguration = {
     brand: "TEST",
     model_name: "Database connectivity check",
-    fuel_type: "Test",
-    rdw_vehicle: { test: true },
-    source: "rdw",
+    trim_name: "Base",
+    catalog_key: testCatalogKey,
   };
 
-  console.log("Inserting test row...");
-  const { error: insertError } = await supabase
+  console.log("Inserting test configuration...");
+  const { data: inserted, error: insertError } = await supabase
     .from("vehicle_configurations")
-    .insert(testRow);
+    .insert(testConfiguration)
+    .select("id, brand, model_name, trim_name, catalog_key, created_at")
+    .single();
 
   if (insertError) {
     throw new Error(`Insert failed: ${insertError.message}`);
   }
 
-  const { data, error: selectError } = await supabase
-    .from("vehicle_configurations")
-    .select("configuration_key, brand, model_name, created_at: fetched_at")
-    .eq("configuration_key", testKey)
-    .single();
+  console.log("Read back test configuration:");
+  console.log(`  ${JSON.stringify(inserted)}`);
 
-  if (selectError) {
-    throw new Error(`Select failed: ${selectError.message}`);
+  console.log("Inserting test specification value...");
+  const { error: specInsertError } = await supabase
+    .from("vehicle_configuration_specification_values")
+    .insert({
+      vehicle_configuration_id: inserted.id,
+      spec_key: "fuel_type",
+      value_text: "Test",
+      source: "test",
+    });
+
+  if (specInsertError) {
+    throw new Error(`Spec insert failed: ${specInsertError.message}`);
   }
 
-  console.log("Read back test row:");
-  console.log(`  ${JSON.stringify(data)}`);
-
-  console.log("Deleting test row...");
+  console.log("Deleting test configuration...");
   const { error: deleteError } = await supabase
     .from("vehicle_configurations")
     .delete()
-    .eq("configuration_key", testKey);
+    .eq("id", inserted.id);
 
   if (deleteError) {
     throw new Error(`Delete failed: ${deleteError.message}`);
