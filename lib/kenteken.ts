@@ -2,11 +2,20 @@ type CharType = "L" | "D";
 
 /** Known 6-character Dutch kenteken sidecode patterns (letters vs digits). */
 const KENTEKEN_FORMATS: { pattern: CharType[]; groups: number[] }[] = [
-  { pattern: ["L", "L", "D", "D", "D", "L"], groups: [2, 3, 1] }, // AB-123-C
+  { pattern: ["L", "L", "D", "D", "D", "D"], groups: [2, 2, 2] }, // XX-99-99
+  { pattern: ["D", "D", "D", "D", "L", "L"], groups: [2, 2, 2] }, // 99-99-XX
+  { pattern: ["D", "D", "L", "L", "D", "D"], groups: [2, 2, 2] }, // 99-XX-99
+  { pattern: ["L", "L", "D", "D", "L", "L"], groups: [2, 2, 2] }, // XX-99-XX
+  { pattern: ["L", "L", "L", "L", "D", "D"], groups: [2, 2, 2] }, // XX-XX-99
+  { pattern: ["D", "D", "L", "L", "L", "L"], groups: [2, 2, 2] }, // 99-XX-XX
+  { pattern: ["D", "D", "L", "L", "L", "D"], groups: [2, 3, 1] }, // 99-XXX-9
+  { pattern: ["D", "L", "L", "L", "D", "D"], groups: [1, 3, 2] }, // 9-XXX-99
+  { pattern: ["L", "L", "D", "D", "D", "L"], groups: [2, 3, 1] }, // XX-999-X
   { pattern: ["L", "D", "D", "D", "L", "L"], groups: [1, 3, 2] }, // X-999-XX
-  { pattern: ["L", "L", "D", "D", "L", "L"], groups: [2, 2, 2] }, // AB-12-CD
-  { pattern: ["L", "L", "L", "D", "D", "L"], groups: [3, 2, 1] }, // ABC-12-D
-  { pattern: ["L", "D", "D", "L", "L", "L"], groups: [1, 2, 3] }, // A-12-BCD
+  { pattern: ["L", "L", "L", "D", "D", "L"], groups: [3, 2, 1] }, // XXX-99-X
+  { pattern: ["L", "D", "D", "L", "L", "L"], groups: [1, 2, 3] }, // X-99-XXX
+  { pattern: ["D", "L", "L", "D", "D", "D"], groups: [1, 2, 3] }, // 9-XX-999
+  { pattern: ["D", "D", "D", "L", "L", "D"], groups: [3, 2, 1] }, // 999-XX-9
   { pattern: ["D", "D", "D", "D", "D", "D"], groups: [2, 2, 2] },
   { pattern: ["L", "L", "L", "L", "L", "L"], groups: [2, 2, 2] },
 ];
@@ -66,6 +75,37 @@ function findGroups(types: CharType[]): number[] {
     if (types[0] === "L" && types[1] === "L") {
       const format = matches.find((match) => match.groups[0] === 2);
       if (format) return format.groups;
+    }
+
+    if (types[0] === "D" && types[1] === "L") {
+      if (types.length >= 4 && types[3] === "D") {
+        const format = matches.find((match) => match.groups[0] === 1 && match.groups[1] === 2);
+        if (format) return format.groups;
+      }
+
+      const format = matches.find((match) => match.groups[0] === 1 && match.groups[1] === 3);
+      if (format) return format.groups;
+    }
+
+    if (types[0] === "D" && types[1] === "D" && types[2] === "L" && types[3] === "L") {
+      if (types.length >= 5 && types[4] === "L") {
+        const format = matches.find((match) => match.groups[1] === 3);
+        if (format) return format.groups;
+      }
+
+      if (types.length >= 5 && types[4] === "D") {
+        const format = matches.find(
+          (match) => match.pattern[4] === "D" && match.pattern[5] === "D",
+        );
+        if (format) return format.groups;
+      }
+    }
+
+    if (types[0] === "D" && types[1] === "D" && types[2] === "D") {
+      if (types.length >= 4 && types[3] === "L") {
+        const format = matches.find((match) => match.groups[0] === 3);
+        if (format) return format.groups;
+      }
     }
   }
 

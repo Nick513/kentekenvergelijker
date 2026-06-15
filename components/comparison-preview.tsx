@@ -2,6 +2,7 @@ import {
   ComparisonTable,
   type ComparisonGroup,
 } from "@/components/comparison-table";
+import { DataDisclaimer } from "@/components/data-disclaimer";
 
 type ComparisonPreviewProps = {
   kentekens: string[];
@@ -54,6 +55,8 @@ export function ComparisonPreview({
         groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
       />
+
+      <DataDisclaimer className="mt-6" />
     </section>
   );
 }

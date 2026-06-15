@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:db": "node --env-file=.env.local scripts/test-db.mjs",
     "test:specs": "node --env-file=.env.local scripts/test-specifications.mjs",
     "fetch:rdw": "node --env-file=.env.local scripts/fetch-rdw.mjs"
@@ -26,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

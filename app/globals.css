@@ -24,6 +24,9 @@
   --kv-error-border: #fecaca;
   --kv-error-bg: #fef2f2;
   --kv-error-text: #991b1b;
+  --kv-info-border: rgb(8 168 160 / 28%);
+  --kv-info-bg: rgb(0 128 144 / 8%);
+  --kv-info-text: var(--kv-navy);
   --kv-plate-border: #111111;
   --kv-plate-text: #111111;
   --kv-plate-yellow: #f7ca00;
@@ -50,6 +53,9 @@
   --kv-error-border: rgb(248 113 113 / 35%);
   --kv-error-bg: rgb(127 29 29 / 28%);
   --kv-error-text: #fca5a5;
+  --kv-info-border: rgb(72 208 216 / 32%);
+  --kv-info-bg: rgb(40 184 200 / 10%);
+  --kv-info-text: var(--kv-text);
   --kv-btn-primary-start: #102035;
   --kv-btn-primary-mid: #143848;
   --kv-btn-primary-end: #184858;
@@ -212,6 +218,12 @@ body {
   border: 1px solid var(--kv-error-border);
   background: var(--kv-error-bg);
   color: var(--kv-error-text);
+}
+
+.kv-alert-info {
+  border: 1px solid var(--kv-info-border);
+  background: var(--kv-info-bg);
+  color: var(--kv-info-text);
 }
 
 .kenteken-input {

@@ -75,6 +75,11 @@ const faqItems = [
     answer:
       "Fabrikanten bieden pakketten en losse opties aan. Twee auto's met dezelfde merk- en modelnaam kunnen daardoor sterk verschillen in uitrusting, vermogen en veiligheidssystemen.",
   },
+  {
+    question: "Hoe betrouwbaar zijn de getoonde gegevens?",
+    answer:
+      "De informatie is een schatting op basis van beschikbare bronnen zoals het RDW-register en kan afwijken van de werkelijke uitrusting. Dit zijn indicaties, geen gegarandeerde feiten. Neem altijd contact op met de verkoper of plan een proefrit om alles te verifiëren voordat je koopt.",
+  },
 ];
 
 function HowItWorks() {
