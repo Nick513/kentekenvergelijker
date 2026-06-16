@@ -99,7 +99,7 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
   ];
 
   for (const url of searchUrls) {
-    const html = await fetchHtml(url);
+    const html = await fetchHtml(url, { referer: "https://www.google.nl/" });
     if (!html) continue;
 
     if (!textContainsPlate(html, variants)) {
@@ -117,7 +117,7 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
     let descriptionText = matchedVehicle ? vehicleToText(matchedVehicle) : "";
 
     if (listingUrl) {
-      const detailHtml = await fetchHtml(listingUrl);
+      const detailHtml = await fetchHtml(listingUrl, { referer: url });
       if (detailHtml) {
         descriptionText = cheerio.load(detailHtml)("body").text();
         const detailVehicles = extractJsonLdVehicles(detailHtml);
@@ -148,7 +148,7 @@ async function searchAutotrack(licensePlate: string): Promise<ListingSearchResul
   const normalized = normalizeKenteken(licensePlate);
   const variants = plateVariants(licensePlate);
   const url = `https://www.autotrack.nl/aanbod?kenteken=${normalized}`;
-  const html = await fetchHtml(url);
+  const html = await fetchHtml(url, { referer: "https://www.google.nl/" });
 
   if (!html || !textContainsPlate(html, variants)) {
     return null;
@@ -161,7 +161,7 @@ async function searchAutotrack(licensePlate: string): Promise<ListingSearchResul
   let descriptionText = cheerio.load(html)("body").text();
 
   if (listingUrl) {
-    const detailHtml = await fetchHtml(listingUrl);
+    const detailHtml = await fetchHtml(listingUrl, { referer: url });
     if (detailHtml) {
       descriptionText = cheerio.load(detailHtml)("body").text();
     }

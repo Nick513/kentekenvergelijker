@@ -12,10 +12,7 @@ type ComparisonEnrichmentProps = {
   hasErrors?: boolean;
 };
 
-type EnrichResponse = {
-  groups: ComparisonGroup[];
-  status: string;
-};
+type SsePayload = { groups: ComparisonGroup[]; done: boolean };
 
 export function ComparisonEnrichment({
   kentekens,
@@ -29,48 +26,87 @@ export function ComparisonEnrichment({
   const [enrichError, setEnrichError] = useState(false);
   const hasRun = useRef(false);
 
-  const runEnrichment = useCallback(
-    async (updateState: boolean, refresh: boolean) => {
+  const runStream = useCallback(
+    async (skipCache: boolean) => {
+      setEnrichError(false);
       try {
-        const response = await fetch("/api/comparison/enrich", {
+        const response = await fetch("/api/comparison/stream", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kentekens, refresh }),
+          body: JSON.stringify({ kentekens, skipCache }),
         });
 
-        if (!response.ok) {
-          if (updateState) setEnrichError(true);
+        if (!response.ok || !response.body) {
+          setEnrichError(true);
+          setShowModal(false);
+          setIsEnriching(false);
           return;
         }
 
-        const payload = (await response.json()) as EnrichResponse;
-        if (updateState && payload.groups) {
-          setGroups(payload.groups);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          // SSE events are separated by double newlines
+          const events = buffer.split("\n\n");
+          buffer = events.pop() ?? "";
+
+          for (const event of events) {
+            if (!event.startsWith("data: ")) continue;
+            let payload: SsePayload;
+            try {
+              payload = JSON.parse(event.slice(6)) as SsePayload;
+            } catch {
+              continue;
+            }
+
+            // First event: remove modal and show table (even if no extra specs yet)
+            setShowModal(false);
+            if (payload.groups.length > 0) {
+              setGroups(payload.groups);
+            }
+            if (payload.done) {
+              setIsEnriching(false);
+              return;
+            }
+          }
         }
       } catch {
-        if (updateState) setEnrichError(true);
+        setEnrichError(true);
       } finally {
-        if (updateState) {
-          setIsEnriching(false);
-          setShowModal(false);
-        }
+        setShowModal(false);
+        setIsEnriching(false);
       }
     },
     [kentekens],
   );
+
+  const runBackgroundRefresh = useCallback(() => {
+    // Fire-and-forget: keeps the existing JSON endpoint for background refresh.
+    // Results are saved to DB and served on the next page load.
+    void fetch("/api/comparison/enrich", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kentekens, refresh: true }),
+    });
+  }, [kentekens]);
 
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
 
     if (initiallyEnriched) {
-      // Cache hit: show table immediately, refresh in background for next visit
-      void runEnrichment(false, true);
+      runBackgroundRefresh();
     } else {
-      // Cache miss: block with modal until enrichment completes
-      void runEnrichment(true, false);
+      void runStream(false);
     }
-  }, [initiallyEnriched, runEnrichment]);
+  }, [initiallyEnriched, runStream, runBackgroundRefresh]);
 
   return (
     <>
@@ -87,7 +123,7 @@ export function ComparisonEnrichment({
         onRetryEnrichment={() => {
           setIsEnriching(true);
           setEnrichError(false);
-          void runEnrichment(true, true);
+          void runStream(true);
         }}
       />
     </>

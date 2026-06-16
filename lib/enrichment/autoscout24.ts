@@ -588,17 +588,18 @@ export async function searchAutoScout24(
   ];
 
   let listingUrl: string | null = null;
+  let searchUrl: string | null = null;
 
   for (const url of searchUrls) {
-    const html = await fetchHtml(url);
+    const html = await fetchHtml(url, { referer: "https://www.google.nl/" });
     if (!html || !containsPlate(html, variants)) continue;
     listingUrl = findListingUrl(html, variants);
-    if (listingUrl) break;
+    if (listingUrl) { searchUrl = url; break; }
   }
 
   if (!listingUrl) return new Map();
 
-  const detailHtml = await fetchHtml(listingUrl);
+  const detailHtml = await fetchHtml(listingUrl, { referer: searchUrl ?? BASE });
   if (!detailHtml) return new Map();
 
   // --- Structured feature list (highest confidence) ---

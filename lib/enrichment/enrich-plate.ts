@@ -1,5 +1,6 @@
 import { mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
 import { searchAutoScout24 } from "@/lib/enrichment/autoscout24";
+import { searchCarbase } from "@/lib/enrichment/carbase";
 import { searchTextListings } from "@/lib/enrichment/listings";
 import {
   loadPlateEnrichment,
@@ -26,14 +27,15 @@ export async function enrichPlate(
     }
   }
 
-  const [textSpecs, structuredSpecs] = await Promise.all([
-    searchTextListings(licensePlate),
+  // Priority: listing_claim_structured(3) > listing_claim(2) > trim_inferred(1)
+  // Structured (autoscout24) is passed first so it wins tie-breaks at equal priority.
+  const [structuredSpecs, textSpecs, carbaseSpecs] = await Promise.all([
     searchAutoScout24(licensePlate),
+    searchTextListings(licensePlate),
+    searchCarbase(snapshot),
   ]);
 
-  // Priority: listing_claim_structured(3) > listing_claim(2)
-  // structuredSpecs is passed first so it wins tie-breaks over text at equal priority.
-  const merged = mergeEnrichedSpecs(structuredSpecs, textSpecs);
+  const merged = mergeEnrichedSpecs(structuredSpecs, textSpecs, carbaseSpecs);
 
   if (merged.size > 0) {
     await savePlateEnrichment(licensePlate, merged);
