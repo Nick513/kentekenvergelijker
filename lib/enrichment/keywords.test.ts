@@ -34,6 +34,31 @@ describe("mergeEnrichedSpecs", () => {
     expect(merged.get("lane_assist")?.verification).toBe("listing_claim");
   });
 
+  it("prefers listing_claim_structured over listing_claim for the same spec", () => {
+    const structured = specMap([
+      ["adaptive_cruise_control", { verification: "listing_claim_structured", valueBoolean: false, source: "listing_autoscout24" }],
+    ]);
+    const text = specMap([
+      ["adaptive_cruise_control", { verification: "listing_claim", valueBoolean: true, source: "listing_gaspedaal" }],
+    ]);
+
+    const merged = mergeEnrichedSpecs(structured, text);
+    expect(merged.get("adaptive_cruise_control")?.valueBoolean).toBe(false);
+    expect(merged.get("adaptive_cruise_control")?.verification).toBe("listing_claim_structured");
+  });
+
+  it("prefers listing_claim_structured over trim_inferred and can set false", () => {
+    const structured = specMap([
+      ["adaptive_cruise_control", { verification: "listing_claim_structured", valueBoolean: false, source: "listing_autoscout24" }],
+    ]);
+    const catalog = specMap([
+      ["adaptive_cruise_control", { verification: "trim_inferred", valueBoolean: true }],
+    ]);
+
+    const merged = mergeEnrichedSpecs(structured, catalog);
+    expect(merged.get("adaptive_cruise_control")?.valueBoolean).toBe(false);
+  });
+
   it("keeps catalog specs when listing has no claim", () => {
     const catalog = specMap([["navigation", { verification: "trim_inferred" }]]);
     const merged = mergeEnrichedSpecs(new Map(), catalog);
@@ -51,6 +76,12 @@ describe("cellIsUnverifiedForDisplay", () => {
   it("does not flag listing_claim cells", () => {
     expect(
       cellIsUnverifiedForDisplay({ value: true, verification: "listing_claim" }),
+    ).toBe(false);
+  });
+
+  it("does not flag listing_claim_structured cells", () => {
+    expect(
+      cellIsUnverifiedForDisplay({ value: true, verification: "listing_claim_structured" }),
     ).toBe(false);
   });
 

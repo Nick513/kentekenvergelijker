@@ -46,7 +46,12 @@ export function mergeEnrichedSpecs(
   ...maps: EnrichedSpecMap[]
 ): EnrichedSpecMap {
   const merged: EnrichedSpecMap = new Map();
-  const priority = { listing_claim: 3, verified: 2, trim_inferred: 1 };
+  const priority: Record<string, number> = {
+    verified: 4,
+    listing_claim_structured: 3,
+    listing_claim: 2,
+    trim_inferred: 1,
+  };
 
   for (const map of maps) {
     for (const [key, value] of map.entries()) {

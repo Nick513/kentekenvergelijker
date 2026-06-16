@@ -1,5 +1,6 @@
 import { mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
-import { listingToSpecs, searchListingByPlate } from "@/lib/enrichment/listings";
+import { searchAutoScout24 } from "@/lib/enrichment/autoscout24";
+import { searchTextListings } from "@/lib/enrichment/listings";
 import {
   catalogToEnriched,
   loadPlateEnrichment,
@@ -49,23 +50,26 @@ export async function enrichPlate(
     if (cached && cached.size > 0) {
       return {
         licensePlate,
-        listing: null,
         specs: cached,
         fetchedAt: new Date().toISOString(),
       };
     }
   }
 
-  const listing = await searchListingByPlate(licensePlate);
-  const listingSpecs = listing ? listingToSpecs(listing) : new Map();
+  const [textSpecs, structuredSpecs, catalog] = await Promise.all([
+    searchTextListings(licensePlate),
+    searchAutoScout24(licensePlate),
+    loadCatalogForSnapshot(snapshot),
+  ]);
 
-  const catalog = await loadCatalogForSnapshot(snapshot);
   const catalogSpecs = applyCatalogVerification(
     catalogToEnriched(catalog),
     specifications,
   );
 
-  const merged = mergeEnrichedSpecs(listingSpecs, catalogSpecs);
+  // Priority: verified(4) > listing_claim_structured(3) > listing_claim(2) > trim_inferred(1)
+  // structuredSpecs is passed first so it wins tie-breaks over text at equal priority.
+  const merged = mergeEnrichedSpecs(structuredSpecs, textSpecs, catalogSpecs);
 
   if (merged.size > 0) {
     await savePlateEnrichment(licensePlate, merged);
@@ -73,7 +77,6 @@ export async function enrichPlate(
 
   return {
     licensePlate,
-    listing,
     specs: merged,
     fetchedAt: new Date().toISOString(),
   };

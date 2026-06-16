@@ -1,4 +1,4 @@
-export type SpecVerification = "verified" | "listing_claim" | "trim_inferred";
+export type SpecVerification = "verified" | "listing_claim_structured" | "listing_claim" | "trim_inferred";
 
 export type EnrichedSpecValue = {
   valueText: string | null;
@@ -21,7 +21,6 @@ export type ListingSearchResult = {
 
 export type PlateEnrichmentResult = {
   licensePlate: string;
-  listing: ListingSearchResult | null;
   specs: EnrichedSpecMap;
   fetchedAt: string;
 };

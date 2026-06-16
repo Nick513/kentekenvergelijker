@@ -176,27 +176,32 @@ async function searchAutotrack(licensePlate: string): Promise<ListingSearchResul
   };
 }
 
-export async function searchListingByPlate(
-  licensePlate: string,
-): Promise<ListingSearchResult | null> {
-  const gaspedaal = await searchGaspedaal(licensePlate);
-  if (gaspedaal?.found) {
-    return gaspedaal;
-  }
-
-  return searchAutotrack(licensePlate);
-}
-
-export function listingToSpecs(
-  listing: ListingSearchResult,
-): EnrichedSpecMap {
+function listingToSpecs(listing: ListingSearchResult): EnrichedSpecMap {
   const combined = [listing.title, listing.descriptionText]
     .filter(Boolean)
     .join(" ");
+  return extractEquipmentFromText(combined, listing.source, listing.listingUrl);
+}
 
-  return extractEquipmentFromText(
-    combined,
-    listing.source,
-    listing.listingUrl,
-  );
+/** Search Gaspedaal and Autotrack in parallel, merge keyword-matched specs from both. */
+export async function searchTextListings(
+  licensePlate: string,
+): Promise<EnrichedSpecMap> {
+  const [gaspedaal, autotrack] = await Promise.all([
+    searchGaspedaal(licensePlate).catch(() => null),
+    searchAutotrack(licensePlate).catch(() => null),
+  ]);
+
+  const specs: EnrichedSpecMap = new Map();
+
+  for (const listing of [gaspedaal, autotrack]) {
+    if (!listing?.found) continue;
+    for (const [key, value] of listingToSpecs(listing)) {
+      if (!specs.has(key)) {
+        specs.set(key, value);
+      }
+    }
+  }
+
+  return specs;
 }
