@@ -10,6 +10,53 @@ import { formatKenteken, normalizeKenteken } from "@/lib/kenteken";
 
 const GASPEDAAL_BASE = "https://www.gaspedaal.nl";
 
+/**
+ * Extract listing-relevant text from a detail page.
+ * Strips navigation, headers, footers, and sidebars so that keyword matching
+ * only fires on the actual vehicle description — not on menu items, filter chips,
+ * or related-car sidebars that can introduce false positives.
+ */
+function extractListingBodyText(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Remove chrome/boilerplate areas first.
+  $(
+    "nav, header, footer, aside, " +
+    "[role='navigation'], [role='menu'], [role='menubar'], " +
+    "[role='banner'], [role='complementary'], " +
+    "[class*='menu'], [class*='Menu'], [class*='nav'], [class*='Nav'], " +
+    "[class*='sidebar'], [class*='Sidebar'], " +
+    "[class*='related'], [class*='Related'], " +
+    "[class*='recommendation'], [class*='Recommendation'], " +
+    "script, style",
+  ).remove();
+
+  // Prefer a focused content container when one is present.
+  const contentSelectors = [
+    "main",
+    "article",
+    '[class*="description"]',
+    '[class*="Description"]',
+    '[class*="omschrijving"]',
+    '[class*="Omschrijving"]',
+    '[class*="listing-detail"]',
+    '[class*="ListingDetail"]',
+    '[class*="vehicle-detail"]',
+    '[class*="VehicleDetail"]',
+    '[class*="car-detail"]',
+    '[class*="CarDetail"]',
+    '[class*="content"]',
+    '[class*="Content"]',
+  ];
+
+  for (const sel of contentSelectors) {
+    const text = $(sel).text().trim();
+    if (text.length > 100) return text;
+  }
+
+  return $("body").text();
+}
+
 function plateVariants(licensePlate: string): string[] {
   const normalized = normalizeKenteken(licensePlate);
   const formatted = formatKenteken(normalized);
@@ -163,7 +210,7 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
     if (listingUrl) {
       const detailHtml = await fetchHtml(listingUrl, { referer: url });
       if (detailHtml) {
-        descriptionText = cheerio.load(detailHtml)("body").text();
+        descriptionText = extractListingBodyText(detailHtml);
         const detailVehicles = extractJsonLdVehicles(detailHtml);
         const detailVehicle = detailVehicles[0];
         if (detailVehicle) {
@@ -175,7 +222,7 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
         }
       }
     } else if (!descriptionText) {
-      descriptionText = cheerio.load(html)("body").text();
+      descriptionText = extractListingBodyText(html);
     }
 
     return {
@@ -206,14 +253,14 @@ async function searchAutotrack(licensePlate: string): Promise<ListingSearchResul
     html.replaceAll("autotrack.nl", "www.autotrack.nl"),
     variants,
   );
-  let descriptionText = cheerio.load(html)("body").text();
+  let descriptionText = extractListingBodyText(html);
   let mileageKm: number | null = null;
   let askingPriceEur: number | null = null;
 
   if (listingUrl) {
     const detailHtml = await fetchHtml(listingUrl, { referer: url });
     if (detailHtml) {
-      descriptionText = cheerio.load(detailHtml)("body").text();
+      descriptionText = extractListingBodyText(detailHtml);
       const detailVehicles = extractJsonLdVehicles(detailHtml);
       const detailVehicle = detailVehicles[0];
       if (detailVehicle) {

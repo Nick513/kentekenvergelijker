@@ -11,6 +11,7 @@ export type ComparisonCellValue = string | boolean;
 export type ComparisonCell = {
   value: ComparisonCellValue;
   verification?: SpecVerification | null;
+  listingUrl?: string | null;
 };
 
 export type ComparisonRow = {
@@ -50,13 +51,13 @@ function readSiteHeaderHeight(): number {
   return Number.isFinite(parsed) ? parsed : 80;
 }
 
-function UnverifiedValueHint() {
+function UnverifiedValueHint({ sourceUrl }: { sourceUrl?: string | null }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <span className="mt-1 block text-xs font-normal text-kv-muted">
-        Ongeverifieerd{" "}
+        Mogelijk onjuist{" "}
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -65,7 +66,7 @@ function UnverifiedValueHint() {
           Wat betekent dit?
         </button>
       </span>
-      <SpecVerificationModal open={open} onClose={() => setOpen(false)} />
+      <SpecVerificationModal open={open} onClose={() => setOpen(false)} sourceUrl={sourceUrl} />
     </>
   );
 }
@@ -99,7 +100,7 @@ function ComparisonCellContent({ cell }: { cell: ComparisonCell }) {
   return (
     <>
       {content}
-      {showUnverifiedHint ? <UnverifiedValueHint /> : null}
+      {showUnverifiedHint ? <UnverifiedValueHint sourceUrl={cell.listingUrl} /> : null}
     </>
   );
 }

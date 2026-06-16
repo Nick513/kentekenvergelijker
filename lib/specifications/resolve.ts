@@ -30,8 +30,9 @@ function unavailableCell(): ComparisonCell {
 function cellFromValue(
   value: ComparisonCell["value"],
   verification: ComparisonCell["verification"] = null,
+  listingUrl?: string | null,
 ): ComparisonCell {
-  return { value, verification };
+  return { value, verification, listingUrl: listingUrl ?? null };
 }
 
 function formatCatalogValue(
@@ -190,7 +191,7 @@ function resolvePlateValue(
       if (formatted === UNAVAILABLE && spec.displayType === "boolean") {
         return unavailableCell();
       }
-      return cellFromValue(formatted, enrichedValue.verification);
+      return cellFromValue(formatted, enrichedValue.verification, enrichedValue.listingUrl);
     }
 
     return unavailableCell();

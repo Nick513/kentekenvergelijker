@@ -524,19 +524,58 @@ function findListingUrl(html: string, variants: string[]): string | null {
 }
 
 /**
- * Extract all <li> texts from the detail page.
- * AutoScout24 renders each equipment item as a separate <li> element,
- * giving us the structured feature list with minimal noise.
+ * Ordered list of selectors for AS24's equipment/features section.
+ * Tried in sequence; the first one that yields items wins.
+ */
+const FEATURE_CONTAINER_SELECTORS = [
+  '[data-cy="features-list"]',
+  '[data-testid="vehicle-details-features"]',
+  '[data-testid="features"]',
+  '[class*="FeaturesList"]',
+  '[class*="features-list"]',
+  '[class*="EquipmentList"]',
+  '[class*="equipment-list"]',
+];
+
+/**
+ * Extract equipment items from the detail page.
+ * Targets AS24's features section first; falls back to a full-page scan with
+ * navigation/chrome stripped so sidebar filters don't pollute the result.
  */
 function extractStructuredItems(html: string): string[] {
   const $ = cheerio.load(html);
   const items: string[] = [];
 
-  $("li").each((_, el) => {
-    const text = $(el).clone().children().remove().end().text().trim();
-    if (text && text.length < 80) {
-      items.push(text);
+  function collectLiText(root: ReturnType<typeof $>): void {
+    root.find("li").each((_, el) => {
+      // Nav-style items have a direct <a> child — skip them.
+      if ($(el).children("a").length > 0) return;
+      const text = $(el).clone().children().remove().end().text().trim();
+      if (text && text.length < 80) items.push(text);
+    });
+  }
+
+  // 1. Try targeted containers — any hit wins immediately.
+  for (const sel of FEATURE_CONTAINER_SELECTORS) {
+    const container = $(sel);
+    if (container.length > 0) {
+      collectLiText(container);
+      if (items.length > 0) return items;
     }
+  }
+
+  // 2. Fallback: remove boilerplate then scan the remaining <li> elements.
+  $(
+    "nav, header, footer, aside, " +
+    "[role='navigation'], [role='menu'], [role='menubar'], " +
+    "[role='banner'], [role='complementary'], " +
+    "script, style",
+  ).remove();
+
+  $("li").each((_, el) => {
+    if ($(el).children("a").length > 0) return;
+    const text = $(el).clone().children().remove().end().text().trim();
+    if (text && text.length < 80) items.push(text);
   });
 
   return items;
@@ -544,8 +583,8 @@ function extractStructuredItems(html: string): string[] {
 
 /**
  * Extract seller description / free-text notes from the detail page.
- * We try targeted selectors first; if those yield nothing we fall back to all
- * <p> elements that look like prose (longer than a nav label).
+ * Targeted selectors are tried first; the fallback strips navigation before
+ * scanning <p> elements so menu prose doesn't leak in.
  */
 function extractDescriptionText(html: string): string {
   const $ = cheerio.load(html);
@@ -571,6 +610,7 @@ function extractDescriptionText(html: string): string {
   }
 
   if (parts.length === 0) {
+    $("nav, header, footer, aside, [role='navigation'], script, style").remove();
     $("p").each((_, el) => {
       const t = $(el).text().trim();
       if (t.length > 30) parts.push(t);

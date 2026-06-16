@@ -6,11 +6,13 @@ import { createPortal } from "react-dom";
 type SpecVerificationModalProps = {
   open: boolean;
   onClose: () => void;
+  sourceUrl?: string | null;
 };
 
 export function SpecVerificationModal({
   open,
   onClose,
+  sourceUrl,
 }: SpecVerificationModalProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -56,18 +58,30 @@ export function SpecVerificationModal({
           id="spec-verification-title"
           className="text-lg font-semibold text-kv-navy"
         >
-          Ongeverifieerd
+          Mogelijk onjuist
         </h2>
         <p className="mt-3 text-sm leading-7 text-kv-muted">
-          Sommige specificaties kunnen we niet met 100% zekerheid bevestigen voor
-          deze exacte auto. We hebben geen directe bevestiging gevonden dat dit
-          voertuig deze uitrusting wel of niet heeft.
+          Deze waarde is afgeleid van de typespecificaties van dit model en
+          uitvoering - niet bevestigd voor dit specifieke voertuig. De werkelijke
+          uitrusting kan afwijken afhankelijk van de gekozen opties.
         </p>
         <p className="mt-3 text-sm leading-7 text-kv-muted">
-          Gebruik deze gegevens als indicatie bij het vergelijken. Controleer
-          belangrijke opties bij de verkoper of in de advertentie voordat je een
-          beslissing neemt.
+          Gebruik deze gegevens als indicatie. Controleer belangrijke opties bij
+          de verkoper of in de advertentie voordat je een beslissing neemt.
         </p>
+        {sourceUrl ? (
+          <p className="mt-3 text-sm leading-7 text-kv-muted">
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
+              onClick={onClose}
+            >
+              Bekijk de typespecificaties
+            </a>
+          </p>
+        ) : null}
         <div className="mt-8 flex justify-end">
           <button
             type="button"

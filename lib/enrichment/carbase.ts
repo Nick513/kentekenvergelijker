@@ -53,12 +53,46 @@ const SPEC_LABEL_MAP: Record<string, string> = {
   "acceleratie 0-100 km/h": "acceleration_0_100",
   "acceleratie": "acceleration_0_100",
 
-  // Consumption NEDC / Verbruik
+  // Consumption NEDC / Verbruik NEDC
   "verbruik gecombineerd": "fuel_consumption_combined_nedc",
   "verbruik binnen bebouwde kom": "fuel_consumption_urban_nedc",
   "verbruik buiten bebouwde kom": "fuel_consumption_extra_urban_nedc",
   "stroomverbruik": "electricity_consumption_nedc",
   "actieradius": "electric_range_nedc",
+
+  // Consumption WLTP / Verbruik WLTP
+  "verbruik gecombineerd (wltp)": "fuel_consumption_combined_wltp",
+  "verbruik gecombineerd wltp": "fuel_consumption_combined_wltp",
+  "brandstofverbruik (wltp)": "fuel_consumption_combined_wltp",
+  "brandstofverbruik wltp": "fuel_consumption_combined_wltp",
+  "elektrisch verbruik (wltp)": "electricity_consumption_wltp",
+  "elektrisch verbruik wltp": "electricity_consumption_wltp",
+  "actieradius elektrisch (wltp)": "electric_range_wltp",
+  "actieradius elektrisch wltp": "electric_range_wltp",
+  "actieradius (wltp)": "electric_range_wltp",
+  "actieradius wltp": "electric_range_wltp",
+
+  // Electric drivetrain / Elektrische aandrijving
+  "elektrisch vermogen": "electric_motor_power",
+  "netto elektrisch vermogen": "electric_motor_power",
+  "max. elektrisch vermogen": "electric_motor_power",
+  "accucapaciteit (bruto)": "battery_capacity_gross",
+  "accucapaciteit bruto": "battery_capacity_gross",
+  "accucapaciteit (netto)": "battery_capacity_net",
+  "accucapaciteit netto": "battery_capacity_net",
+  "accucapaciteit": "battery_capacity_net",
+  "maximaal laadvermogen ac": "ac_charge_power",
+  "laden ac": "ac_charge_power",
+  "laadvermogen wisselstroom": "ac_charge_power",
+  "maximaal laadvermogen dc": "dc_charge_power",
+  "laden dc": "dc_charge_power",
+  "laadvermogen gelijkstroom": "dc_charge_power",
+
+  // Luggage / Bagageruimte
+  "bagageruimte": "trunk_volume",
+  "bagageruimteinhoud": "trunk_volume",
+  "kofferruimte": "trunk_volume",
+  "laadruimte": "trunk_volume",
 
   // Chassis / Onderstel
   "wielophanging voor": "front_suspension",
@@ -159,6 +193,14 @@ function scoreVersion(label: string, snapshot: VehicleSnapshot): number {
       (norm.includes("elektrisch") || norm.includes("electric") || norm.includes("ev") ||
         norm.includes("bev"))
     ) score += 4;
+  }
+
+  // Trim / variant name from RDW (e.g. "DYNAMICLINE", "EXECUTIVELINE").
+  // Strip non-alpha before comparing to handle spacing/casing differences.
+  if (snapshot.variant) {
+    const variantAlpha = normalize(snapshot.variant).replace(/[^a-z]/g, "");
+    const normAlpha = norm.replace(/[^a-z]/g, "");
+    if (variantAlpha.length >= 4 && normAlpha.includes(variantAlpha)) score += 4;
   }
 
   // Year range in label (e.g. "2013-2016")
