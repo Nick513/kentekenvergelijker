@@ -8,6 +8,7 @@ import {
   SITE_TITLE,
   SITE_URL,
 } from "@/lib/site";
+import { Providers } from "@/components/providers";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -89,7 +90,7 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

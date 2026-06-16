@@ -7,19 +7,13 @@ import { SearchableComparisonTable } from "@/components/searchable-comparison-ta
 type ComparisonPreviewProps = {
   kentekens: string[];
   groups: ComparisonGroup[];
-  hasErrors?: boolean;
   isEnriching?: boolean;
-  enrichError?: boolean;
-  onRetryEnrichment?: () => void;
 };
 
 export function ComparisonPreview({
   kentekens,
   groups,
-  hasErrors = false,
   isEnriching = false,
-  enrichError = false,
-  onRetryEnrichment,
 }: ComparisonPreviewProps) {
   return (
     <section
@@ -41,31 +35,6 @@ export function ComparisonPreview({
           ))}
           .
         </p>
-        {isEnriching ? (
-          <p className="text-sm text-kv-muted" role="status" aria-live="polite">
-            Advertentiegegevens worden opgezocht om specificaties te verrijken…
-          </p>
-        ) : null}
-        {enrichError ? (
-          <p className="text-sm text-kv-muted" role="status">
-            Extra specificaties zijn niet geladen.{" "}
-            {onRetryEnrichment ? (
-              <button
-                type="button"
-                onClick={onRetryEnrichment}
-                className="underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
-              >
-                Opnieuw proberen
-              </button>
-            ) : null}
-          </p>
-        ) : null}
-        {hasErrors ? (
-          <p className="text-sm text-kv-muted" role="status">
-            Sommige gegevens zijn tijdelijk niet beschikbaar. Probeer het later
-            opnieuw.
-          </p>
-        ) : null}
       </div>
 
       <SearchableComparisonTable

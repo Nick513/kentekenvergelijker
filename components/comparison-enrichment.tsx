@@ -4,6 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ComparisonGroup } from "@/components/comparison-table";
 import { ComparisonPreview } from "@/components/comparison-preview";
 import { FetchingModal } from "@/components/fetching-modal";
+import { useToast } from "@/components/toast";
+
+const ENRICH_ERROR_MESSAGE =
+  "Extra specificaties zijn niet geladen.";
+const DATA_ERROR_MESSAGE =
+  "Sommige gegevens zijn tijdelijk niet beschikbaar. Probeer het later opnieuw.";
 
 type ComparisonEnrichmentProps = {
   kentekens: string[];
@@ -23,12 +29,13 @@ export function ComparisonEnrichment({
   const [groups, setGroups] = useState(initialGroups);
   const [showModal, setShowModal] = useState(!initiallyEnriched);
   const [isEnriching, setIsEnriching] = useState(!initiallyEnriched);
-  const [enrichError, setEnrichError] = useState(false);
   const hasRun = useRef(false);
+  const dataErrorShown = useRef(false);
+  const retryEnrichmentRef = useRef<() => void>(() => {});
+  const { showToast } = useToast();
 
   const runStream = useCallback(
     async (skipCache: boolean) => {
-      setEnrichError(false);
       try {
         const response = await fetch("/api/comparison/stream", {
           method: "POST",
@@ -37,7 +44,12 @@ export function ComparisonEnrichment({
         });
 
         if (!response.ok || !response.body) {
-          setEnrichError(true);
+          showToast(ENRICH_ERROR_MESSAGE, {
+            action: {
+              label: "Opnieuw proberen",
+              onClick: () => retryEnrichmentRef.current(),
+            },
+          });
           setShowModal(false);
           setIsEnriching(false);
           return;
@@ -78,14 +90,26 @@ export function ComparisonEnrichment({
           }
         }
       } catch {
-        setEnrichError(true);
+        showToast(ENRICH_ERROR_MESSAGE, {
+          action: {
+            label: "Opnieuw proberen",
+            onClick: () => retryEnrichmentRef.current(),
+          },
+        });
       } finally {
         setShowModal(false);
         setIsEnriching(false);
       }
     },
-    [kentekens],
+    [kentekens, showToast],
   );
+
+  const retryEnrichment = useCallback(() => {
+    setIsEnriching(true);
+    void runStream(true);
+  }, [runStream]);
+
+  retryEnrichmentRef.current = retryEnrichment;
 
   const runBackgroundRefresh = useCallback(() => {
     // Fire-and-forget: keeps the existing JSON endpoint for background refresh.
@@ -108,6 +132,12 @@ export function ComparisonEnrichment({
     }
   }, [initiallyEnriched, runStream, runBackgroundRefresh]);
 
+  useEffect(() => {
+    if (!hasErrors || dataErrorShown.current) return;
+    dataErrorShown.current = true;
+    showToast(DATA_ERROR_MESSAGE);
+  }, [hasErrors, showToast]);
+
   return (
     <>
       <FetchingModal
@@ -117,14 +147,7 @@ export function ComparisonEnrichment({
       <ComparisonPreview
         kentekens={kentekens}
         groups={groups}
-        hasErrors={hasErrors}
         isEnriching={isEnriching && !showModal}
-        enrichError={enrichError}
-        onRetryEnrichment={() => {
-          setIsEnriching(true);
-          setEnrichError(false);
-          void runStream(true);
-        }}
       />
     </>
   );

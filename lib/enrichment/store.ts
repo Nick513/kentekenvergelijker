@@ -1,54 +1,29 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { EnrichedSpecMap, EnrichedSpecValue, SpecVerification } from "@/lib/enrichment/types";
+import type { EnrichedSpecMap, EnrichedSpecValue } from "@/lib/enrichment/types";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-
-type PlateSpecRow = {
-  license_plate: string;
-  spec_key: string;
-  value_text: string | null;
-  value_numeric: number | null;
-  value_boolean: boolean | null;
-  source: string;
-  verification: SpecVerification;
-  listing_url: string | null;
-  fetched_at: string;
-};
-
-function rowToValue(row: PlateSpecRow): EnrichedSpecValue {
-  return {
-    valueText: row.value_text,
-    valueNumeric: row.value_numeric === null ? null : Number(row.value_numeric),
-    valueBoolean: row.value_boolean,
-    verification: row.verification,
-    source: row.source,
-    listingUrl: row.listing_url,
-  };
-}
 
 export async function loadPlateEnrichment(
   licensePlate: string,
 ): Promise<EnrichedSpecMap | null> {
   const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
-    .from("plate_specification_values")
-    .select(
-      "license_plate, spec_key, value_text, value_numeric, value_boolean, source, verification, listing_url, fetched_at",
-    )
-    .eq("license_plate", licensePlate);
+    .from("plate_enrichment_cache")
+    .select("specs, fetched_at")
+    .eq("license_plate", licensePlate)
+    .single();
 
-  if (error || !data || data.length === 0) {
+  if (error || !data) {
     return null;
   }
 
-  const fetchedAt = new Date((data[0] as PlateSpecRow).fetched_at).getTime();
-  if (Date.now() - fetchedAt > CACHE_TTL_MS) {
+  if (Date.now() - new Date(data.fetched_at).getTime() > CACHE_TTL_MS) {
     return null;
   }
 
   const map: EnrichedSpecMap = new Map();
-  for (const row of data as PlateSpecRow[]) {
-    map.set(row.spec_key, rowToValue(row));
+  for (const [key, value] of Object.entries(data.specs as Record<string, EnrichedSpecValue>)) {
+    map.set(key, value);
   }
   return map;
 }
@@ -61,25 +36,20 @@ export async function savePlateEnrichment(
     return;
   }
 
-  const supabase = createSupabaseServerClient();
-  const rows = [...specs.entries()].map(([specKey, value]) => ({
-    license_plate: licensePlate,
-    spec_key: specKey,
-    value_text: value.valueText,
-    value_numeric: value.valueNumeric,
-    value_boolean: value.valueBoolean,
-    source: value.source,
-    verification: value.verification,
-    listing_url: value.listingUrl ?? null,
-    fetched_at: new Date().toISOString(),
-  }));
+  const specsObj: Record<string, EnrichedSpecValue> = {};
+  for (const [key, value] of specs.entries()) {
+    specsObj[key] = value;
+  }
 
+  const supabase = createSupabaseServerClient();
   const { error } = await supabase
-    .from("plate_specification_values")
-    .upsert(rows, { onConflict: "license_plate,spec_key" });
+    .from("plate_enrichment_cache")
+    .upsert(
+      { license_plate: licensePlate, specs: specsObj, fetched_at: new Date().toISOString() },
+      { onConflict: "license_plate" },
+    );
 
   if (error) {
     throw new Error(`Failed to save plate enrichment: ${error.message}`);
   }
 }
-
