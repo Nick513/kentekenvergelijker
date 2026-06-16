@@ -58,6 +58,8 @@ export function extractEquipmentFromText(
       verification: "listing_claim",
       source,
       listingUrl: listingUrl ?? null,
+      timesFound: 1,
+      conflictCount: 0,
     };
     specs.set(entry.specKey, value);
   }
@@ -65,23 +67,101 @@ export function extractEquipmentFromText(
   return specs;
 }
 
+/**
+ * Compare two spec values to decide if they represent the same fact.
+ * Cross-type comparison handles ja/nee text vs boolean.
+ */
+function sameValue(a: EnrichedSpecValue, b: EnrichedSpecValue): boolean {
+  // Direct boolean comparison
+  if (a.valueBoolean !== null && b.valueBoolean !== null) {
+    return a.valueBoolean === b.valueBoolean;
+  }
+  // Text comparison (normalised)
+  if (a.valueText && b.valueText) {
+    return normalizeText(a.valueText) === normalizeText(b.valueText);
+  }
+  // Numeric comparison
+  if (a.valueNumeric !== null && b.valueNumeric !== null) {
+    return a.valueNumeric === b.valueNumeric;
+  }
+  // Cross-type: boolean vs ja/nee text
+  const boolFromText = (v: EnrichedSpecValue): boolean | null => {
+    if (v.valueBoolean !== null) return v.valueBoolean;
+    if (!v.valueText) return null;
+    const t = normalizeText(v.valueText);
+    if (t.startsWith("ja")) return true;
+    if (t === "nee") return false;
+    return null;
+  };
+  const bA = boolFromText(a);
+  const bB = boolFromText(b);
+  if (bA !== null && bB !== null) return bA === bB;
+  return false;
+}
+
+const VERIFICATION_PRIORITY: Record<string, number> = {
+  verified: 4,
+  listing_claim_structured: 3,
+  listing_claim: 2,
+  listing_claim_single: 1.5,
+  trim_inferred: 1,
+};
+
 export function mergeEnrichedSpecs(
   ...maps: EnrichedSpecMap[]
 ): EnrichedSpecMap {
   const merged: EnrichedSpecMap = new Map();
-  const priority: Record<string, number> = {
-    verified: 4,
-    listing_claim_structured: 3,
-    listing_claim: 2,
-    listing_claim_single: 1.5,
-    trim_inferred: 1,
-  };
 
   for (const map of maps) {
-    for (const [key, value] of map.entries()) {
+    for (const [key, incoming] of map.entries()) {
+      const timesFoundIn = incoming.timesFound ?? 1;
+      const conflictCountIn = incoming.conflictCount ?? 0;
+
       const existing = merged.get(key);
-      if (!existing || priority[value.verification] > priority[existing.verification]) {
-        merged.set(key, value);
+      if (!existing) {
+        merged.set(key, { ...incoming, timesFound: timesFoundIn, conflictCount: conflictCountIn });
+        continue;
+      }
+
+      const timesFoundEx = existing.timesFound ?? 1;
+      const conflictCountEx = existing.conflictCount ?? 0;
+      const prioIn = VERIFICATION_PRIORITY[incoming.verification] ?? 0;
+      const prioEx = VERIFICATION_PRIORITY[existing.verification] ?? 0;
+
+      if (sameValue(existing, incoming)) {
+        // Same value: accumulate confirmations, keep the higher-trust source
+        if (prioIn > prioEx) {
+          merged.set(key, {
+            ...incoming,
+            timesFound: timesFoundEx + timesFoundIn,
+            conflictCount: conflictCountEx + conflictCountIn,
+          });
+        } else {
+          merged.set(key, {
+            ...existing,
+            timesFound: timesFoundEx + timesFoundIn,
+            conflictCount: conflictCountEx + conflictCountIn,
+          });
+        }
+      } else {
+        // Conflicting values: higher priority (or more votes on tie) wins
+        const incomingWins =
+          prioIn > prioEx ||
+          (prioIn === prioEx && timesFoundIn > timesFoundEx);
+
+        if (incomingWins) {
+          merged.set(key, {
+            ...incoming,
+            timesFound: timesFoundIn,
+            conflictCount: conflictCountEx + conflictCountIn + timesFoundEx,
+          });
+        } else {
+          merged.set(key, {
+            ...existing,
+            timesFound: timesFoundEx,
+            conflictCount: conflictCountEx + conflictCountIn + timesFoundIn,
+          });
+        }
       }
     }
   }

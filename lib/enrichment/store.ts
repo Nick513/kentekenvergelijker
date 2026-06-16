@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
 import type {
   EnrichedSpecMap,
   EnrichedSpecValue,
@@ -6,6 +7,18 @@ import type {
 } from "@/lib/enrichment/types";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+function rowToMap(specs: Record<string, EnrichedSpecValue>): EnrichedSpecMap {
+  const map: EnrichedSpecMap = new Map();
+  for (const [key, value] of Object.entries(specs)) {
+    map.set(key, {
+      ...value,
+      timesFound: value.timesFound ?? 1,
+      conflictCount: value.conflictCount ?? 0,
+    });
+  }
+  return map;
+}
 
 export async function loadPlateEnrichment(
   licensePlate: string,
@@ -17,31 +30,45 @@ export async function loadPlateEnrichment(
     .eq("license_plate", licensePlate)
     .single();
 
-  if (error || !data) {
-    return null;
-  }
+  if (error || !data) return null;
 
   if (Date.now() - new Date(data.fetched_at).getTime() > CACHE_TTL_MS) {
     return null;
   }
 
-  const map: EnrichedSpecMap = new Map();
-  for (const [key, value] of Object.entries(data.specs as Record<string, EnrichedSpecValue>)) {
-    map.set(key, value);
-  }
-  return map;
+  return rowToMap(data.specs as Record<string, EnrichedSpecValue>);
+}
+
+/** Load existing enrichment bypassing the TTL — used when merging before save. */
+async function loadPlateEnrichmentRaw(
+  licensePlate: string,
+): Promise<EnrichedSpecMap | null> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("plate_enrichment_cache")
+    .select("specs")
+    .eq("license_plate", licensePlate)
+    .single();
+
+  if (error || !data) return null;
+  return rowToMap(data.specs as Record<string, EnrichedSpecValue>);
 }
 
 export async function savePlateEnrichment(
   licensePlate: string,
-  specs: EnrichedSpecMap,
+  newSpecs: EnrichedSpecMap,
 ): Promise<void> {
-  if (specs.size === 0) {
-    return;
-  }
+  if (newSpecs.size === 0) return;
+
+  // Merge new findings with whatever we already have in the DB.
+  // This means: values not found in this run are preserved, and timesFound
+  // increments each time the same value is confirmed by another source.
+  // We never discard previously found specs — only timesFound/conflictCount change.
+  const existing = await loadPlateEnrichmentRaw(licensePlate);
+  const merged = existing ? mergeEnrichedSpecs(existing, newSpecs) : newSpecs;
 
   const specsObj: Record<string, EnrichedSpecValue> = {};
-  for (const [key, value] of specs.entries()) {
+  for (const [key, value] of merged.entries()) {
     specsObj[key] = value;
   }
 

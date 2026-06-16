@@ -642,6 +642,8 @@ function buildStructuredSpecs(
         verification: "listing_claim_structured",
         source: "listing_autoscout24",
         listingUrl,
+        timesFound: 1,
+        conflictCount: 0,
       } satisfies EnrichedSpecValue);
     }
   }
@@ -674,6 +676,8 @@ function applyNegativeEvidence(
         verification: "listing_claim_structured",
         source: "listing_autoscout24",
         listingUrl,
+        timesFound: 1,
+        conflictCount: 0,
       });
     }
   }

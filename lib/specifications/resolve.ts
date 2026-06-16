@@ -63,6 +63,7 @@ function formatCatalogValue(
     default:
       if (value.valueText) return value.valueText;
       if (value.valueNumeric !== null) return String(value.valueNumeric);
+      if (value.valueBoolean !== null) return value.valueBoolean ? "ja" : "nee";
       return UNAVAILABLE;
   }
 }

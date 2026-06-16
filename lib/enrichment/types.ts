@@ -12,6 +12,10 @@ export type EnrichedSpecValue = {
   verification: SpecVerification;
   source: string;
   listingUrl?: string | null;
+  /** How many source observations returned this exact value. Starts at 1. */
+  timesFound: number;
+  /** How many source observations returned a different value for the same key. */
+  conflictCount: number;
 };
 
 export type EnrichedSpecMap = Map<string, EnrichedSpecValue>;

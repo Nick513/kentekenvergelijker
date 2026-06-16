@@ -15,6 +15,8 @@ function specMap(
       verification: "trim_inferred",
       source: "catalog",
       listingUrl: null,
+      timesFound: 1,
+      conflictCount: 0,
       ...value,
     });
   }
