@@ -17,10 +17,26 @@ export type ListingSearchResult = {
   title: string | null;
   descriptionText: string;
   source: string;
+  mileageKm: number | null;
+  askingPriceEur: number | null;
+};
+
+export type ListingEnrichmentResult = {
+  specs: EnrichedSpecMap;
+  mileageKm: number | null;
+  askingPriceEur: number | null;
 };
 
 export type PlateEnrichmentResult = {
   licensePlate: string;
   specs: EnrichedSpecMap;
   fetchedAt: string;
+};
+
+export type PlateListingSnapshot = {
+  licensePlate: string;
+  mileageKm: number | null;
+  askingPriceEur: number | null;
+  listingUrl: string | null;
+  lastSeenAt: string;
 };

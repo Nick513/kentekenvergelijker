@@ -3,10 +3,10 @@ import { searchAutoScout24 } from "@/lib/enrichment/autoscout24";
 import { searchCarbase } from "@/lib/enrichment/carbase";
 import { mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
 import { searchTextListings } from "@/lib/enrichment/listings";
-import { savePlateEnrichment } from "@/lib/enrichment/store";
-import type { EnrichedSpecMap } from "@/lib/enrichment/types";
+import { savePlateEnrichment, savePlateListingSnapshot } from "@/lib/enrichment/store";
+import type { EnrichedSpecMap, ListingEnrichmentResult } from "@/lib/enrichment/types";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
-import { buildComparisonGroups } from "@/lib/specifications/resolve";
+import { buildComparisonGroups, buildMarketGroup } from "@/lib/specifications/resolve";
 import { fetchPlate } from "@/lib/vehicles/compare";
 import type { ComparisonGroup } from "@/components/comparison-table";
 import type { PlateFetchResult, VehicleSnapshot } from "@/lib/rdw/types";
@@ -69,6 +69,27 @@ export async function POST(request: Request) {
           okPlates.map((p) => [p.snapshot.licensePlate, new Map()]),
         );
 
+        // Per-plate market data collected from listing sources
+        type MarketEntry = { mileageKm: number | null; askingPriceEur: number | null; lastSeenAt: string };
+        const marketDataMap = new Map<string, MarketEntry>(
+          okPlates.map((p) => [
+            p.snapshot.licensePlate,
+            { mileageKm: null, askingPriceEur: null, lastSeenAt: new Date().toISOString() },
+          ]),
+        );
+
+        const updateMarket = (lp: string, result: ListingEnrichmentResult) => {
+          const entry = marketDataMap.get(lp);
+          if (!entry) return;
+          if (result.mileageKm !== null && entry.mileageKm === null) {
+            entry.mileageKm = result.mileageKm;
+            entry.lastSeenAt = new Date().toISOString();
+          }
+          if (result.askingPriceEur !== null && entry.askingPriceEur === null) {
+            entry.askingPriceEur = result.askingPriceEur;
+          }
+        };
+
         const totalSources = okPlates.length * 3;
         let sourcesCompleted = 0;
 
@@ -79,7 +100,27 @@ export async function POST(request: Request) {
             accumulated.set(lp, mergeEnrichedSpecs(prev, specs));
           }
           sourcesCompleted++;
-          emit(buildGroups(specifications, plates, accumulated), sourcesCompleted === totalSources);
+          const isDone = sourcesCompleted === totalSources;
+          const specGroups = buildGroups(specifications, plates, accumulated);
+
+          if (isDone) {
+            const alignedSnapshots = plates.map((p) => {
+              if (p.status !== "ok") return null;
+              const md = marketDataMap.get(p.snapshot.licensePlate);
+              if (!md) return null;
+              return {
+                licensePlate: p.snapshot.licensePlate,
+                mileageKm: md.mileageKm,
+                askingPriceEur: md.askingPriceEur,
+                listingUrl: null,
+                lastSeenAt: md.lastSeenAt,
+              };
+            });
+            const marketGroup = buildMarketGroup(plates, alignedSnapshots);
+            emit(marketGroup ? [marketGroup, ...specGroups] : specGroups, true);
+          } else {
+            emit(specGroups, false);
+          }
         };
 
         const sourceTasks = (plate: PlateFetchResult & { status: "ok" }) => {
@@ -87,10 +128,16 @@ export async function POST(request: Request) {
           const snap: VehicleSnapshot = plate.snapshot;
           return [
             searchAutoScout24(lp)
-              .then((s) => onSourceComplete(lp, s))
+              .then((result) => {
+                updateMarket(lp, result);
+                onSourceComplete(lp, result.specs);
+              })
               .catch(() => onSourceComplete(lp, new Map())),
             searchTextListings(lp)
-              .then((s) => onSourceComplete(lp, s))
+              .then((result) => {
+                updateMarket(lp, result);
+                onSourceComplete(lp, result.specs);
+              })
               .catch(() => onSourceComplete(lp, new Map())),
             searchCarbase(snap)
               .then((s) => onSourceComplete(lp, s))
@@ -100,15 +147,29 @@ export async function POST(request: Request) {
 
         await Promise.all(okPlates.flatMap(sourceTasks));
 
-        // Persist final merged specs
-        await Promise.all(
-          okPlates.map((p) => {
+        // Persist final merged specs and market data
+        await Promise.all([
+          ...okPlates.map((p) => {
             const specs = accumulated.get(p.snapshot.licensePlate)!;
             return specs.size > 0
               ? savePlateEnrichment(p.snapshot.licensePlate, specs)
               : Promise.resolve();
           }),
-        );
+          ...okPlates.map((p) => {
+            const lp = p.snapshot.licensePlate;
+            const md = marketDataMap.get(lp);
+            if (!md || (md.mileageKm === null && md.askingPriceEur === null)) {
+              return Promise.resolve();
+            }
+            return savePlateListingSnapshot({
+              licensePlate: lp,
+              mileageKm: md.mileageKm,
+              askingPriceEur: md.askingPriceEur,
+              listingUrl: null,
+              lastSeenAt: md.lastSeenAt,
+            }).catch(() => {});
+          }),
+        ]);
       } catch {
         // Emit a done event so the client unblocks even on errors
         emit([], true);

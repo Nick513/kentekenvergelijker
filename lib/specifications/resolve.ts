@@ -13,7 +13,7 @@ import {
   formatVolumeCc,
   formatYear,
 } from "@/lib/rdw/map";
-import type { EnrichedSpecMap, EnrichedSpecValue } from "@/lib/enrichment/types";
+import type { EnrichedSpecMap, EnrichedSpecValue, PlateListingSnapshot } from "@/lib/enrichment/types";
 import { isUnverifiedForDisplay } from "@/lib/enrichment/verification";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 import type {
@@ -232,6 +232,65 @@ export function buildComparisonGroups(
   }
 
   return [...groups.values()];
+}
+
+function formatMileage(km: number): string {
+  return `${km.toLocaleString("nl-NL")} km`;
+}
+
+function formatAskingPrice(eur: number): string {
+  return `€ ${eur.toLocaleString("nl-NL")}`;
+}
+
+function formatSeenDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("nl-NL", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export function buildMarketGroup(
+  plates: PlateFetchResult[],
+  snapshots: (PlateListingSnapshot | null)[],
+): ComparisonGroup | null {
+  const hasAny = snapshots.some(
+    (s) => s && (s.mileageKm !== null || s.askingPriceEur !== null),
+  );
+  if (!hasAny) return null;
+
+  return {
+    title: "Markt",
+    rows: [
+      {
+        label: "Kilometerstand",
+        values: plates.map((plate, i) => {
+          if (plate.status !== "ok") return unavailableCell();
+          const s = snapshots[i];
+          if (!s || s.mileageKm === null) return unavailableCell();
+          return cellFromValue(formatMileage(s.mileageKm));
+        }),
+      },
+      {
+        label: "Vraagprijs",
+        values: plates.map((plate, i) => {
+          if (plate.status !== "ok") return unavailableCell();
+          const s = snapshots[i];
+          if (!s || s.askingPriceEur === null) return unavailableCell();
+          return cellFromValue(formatAskingPrice(s.askingPriceEur));
+        }),
+      },
+      {
+        label: "Gezien op",
+        values: plates.map((plate, i) => {
+          if (plate.status !== "ok") return unavailableCell();
+          const s = snapshots[i];
+          if (!s || (s.mileageKm === null && s.askingPriceEur === null)) return unavailableCell();
+          return cellFromValue(formatSeenDate(s.lastSeenAt));
+        }),
+      },
+    ],
+  };
 }
 
 export function cellIsUnverifiedForDisplay(cell: ComparisonCell): boolean {

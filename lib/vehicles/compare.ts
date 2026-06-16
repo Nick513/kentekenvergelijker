@@ -4,9 +4,10 @@ import { getCachedRdwFuel, getCachedRdwVehicle } from "@/lib/rdw/cache";
 import { mapRdwToSnapshot } from "@/lib/rdw/map";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 import { normalizeKenteken } from "@/lib/kenteken";
-import { loadPlateEnrichment } from "@/lib/enrichment/store";
+import { loadPlateEnrichment, loadPlateListingSnapshot } from "@/lib/enrichment/store";
+import type { PlateListingSnapshot } from "@/lib/enrichment/types";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
-import { buildComparisonGroups } from "@/lib/specifications/resolve";
+import { buildComparisonGroups, buildMarketGroup } from "@/lib/specifications/resolve";
 
 export type ComparisonBuildResult = {
   groups: ComparisonGroup[];
@@ -62,13 +63,25 @@ export async function buildComparison(
     (p): p is PlateFetchResult & { status: "ok" } => p.status === "ok",
   );
 
-  const cachedEnrichments = await Promise.all(
-    okPlates.map((p) => loadPlateEnrichment(p.snapshot.licensePlate)),
-  );
+  const [cachedEnrichments, listingSnapshots] = await Promise.all([
+    Promise.all(okPlates.map((p) => loadPlateEnrichment(p.snapshot.licensePlate))),
+    Promise.all(okPlates.map((p) => loadPlateListingSnapshot(p.snapshot.licensePlate))),
+  ]);
 
   const allEnriched =
     okPlates.length > 0 &&
     cachedEnrichments.every((e) => e !== null && e.size > 0);
+
+  // Align listing snapshots with the full plates array (null for non-ok plates)
+  let snapshotIndex = 0;
+  const alignedSnapshots: (PlateListingSnapshot | null)[] = plates.map((plate) => {
+    if (plate.status !== "ok") return null;
+    return listingSnapshots[snapshotIndex++] ?? null;
+  });
+
+  const marketGroup = buildMarketGroup(plates, alignedSnapshots);
+  const prependMarket = (specGroups: ComparisonGroup[]): ComparisonGroup[] =>
+    marketGroup ? [marketGroup, ...specGroups] : specGroups;
 
   if (allEnriched) {
     let enrichedIndex = 0;
@@ -78,7 +91,7 @@ export async function buildComparison(
     });
 
     return {
-      groups: buildComparisonGroups(specifications, plates, alignedEnriched),
+      groups: prependMarket(buildComparisonGroups(specifications, plates, alignedEnriched)),
       plates,
       hasNotFound: plates.some((p) => p.status === "not_found"),
       hasErrors: plates.some((p) => p.status === "error"),
@@ -87,7 +100,7 @@ export async function buildComparison(
   }
 
   return {
-    groups: buildComparisonGroups(specifications, plates, []),
+    groups: prependMarket(buildComparisonGroups(specifications, plates, [])),
     plates,
     hasNotFound: plates.some((p) => p.status === "not_found"),
     hasErrors: plates.some((p) => p.status === "error"),

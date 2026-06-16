@@ -27,3 +27,7 @@ Always use English names for database objects: table and column names, constrain
 Dutch is fine for UI copy and user-facing labels. External APIs (e.g. RDW) may use Dutch field names in JSON; map those to English columns when persisting to Supabase.
 
 Before adding migrations, ingest scripts, or vehicle API clients, read **`docs/data-ingestion-plan.md`**. Vehicle data must use **free APIs only** (RDW Open Data); see that doc for the full plan and constraints.
+
+## Migrations
+
+Write migration files to `supabase/migrations/`. Never apply them via the CLI (`supabase db push` or similar). The user runs migrations manually in the Supabase SQL editor. When a migration is ready, tell the user to paste and run the SQL there.

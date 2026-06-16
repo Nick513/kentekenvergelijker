@@ -5,6 +5,7 @@ import { searchTextListings } from "@/lib/enrichment/listings";
 import {
   loadPlateEnrichment,
   savePlateEnrichment,
+  savePlateListingSnapshot,
 } from "@/lib/enrichment/store";
 import type { EnrichedSpecMap, PlateEnrichmentResult } from "@/lib/enrichment/types";
 import { normalizeKenteken } from "@/lib/kenteken";
@@ -27,18 +28,31 @@ export async function enrichPlate(
     }
   }
 
-  // Priority: listing_claim_structured(3) > listing_claim(2) > trim_inferred(1)
-  // Structured (autoscout24) is passed first so it wins tie-breaks at equal priority.
-  const [structuredSpecs, textSpecs, carbaseSpecs] = await Promise.all([
+  const [autoScoutResult, textResult, carbaseSpecs] = await Promise.all([
     searchAutoScout24(licensePlate),
     searchTextListings(licensePlate),
     searchCarbase(snapshot),
   ]);
 
-  const merged = mergeEnrichedSpecs(structuredSpecs, textSpecs, carbaseSpecs);
+  const merged = mergeEnrichedSpecs(autoScoutResult.specs, textResult.specs, carbaseSpecs);
 
   if (merged.size > 0) {
     await savePlateEnrichment(licensePlate, merged);
+  }
+
+  const mileageKm = autoScoutResult.mileageKm ?? textResult.mileageKm;
+  const askingPriceEur = autoScoutResult.askingPriceEur ?? textResult.askingPriceEur;
+
+  if (mileageKm !== null || askingPriceEur !== null) {
+    await savePlateListingSnapshot({
+      licensePlate,
+      mileageKm,
+      askingPriceEur,
+      listingUrl: null,
+      lastSeenAt: new Date().toISOString(),
+    }).catch(() => {
+      // Non-fatal: market data save failure should not break enrichment
+    });
   }
 
   return {

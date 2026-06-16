@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio";
 import { fetchHtml } from "@/lib/enrichment/fetch-html";
 import { extractEquipmentFromText, mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
-import type { EnrichedSpecMap, EnrichedSpecValue } from "@/lib/enrichment/types";
+import type { EnrichedSpecMap, EnrichedSpecValue, ListingEnrichmentResult } from "@/lib/enrichment/types";
 import { formatKenteken, normalizeKenteken } from "@/lib/kenteken";
 
 const BASE = "https://www.autoscout24.nl";
@@ -424,6 +424,67 @@ const FEATURE_MAP: Record<string, string> = {
 /** All spec keys that appear in the feature map — used for negative evidence. */
 const COVERED_SPEC_KEYS = new Set(Object.values(FEATURE_MAP));
 
+function extractVehicleJsonLd(html: string): Record<string, unknown> | null {
+  const $ = cheerio.load(html);
+  let result: Record<string, unknown> | null = null;
+
+  $('script[type="application/ld+json"]').each((_, element) => {
+    if (result) return;
+    const raw = $(element).contents().text();
+    if (!raw) return;
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    const nodes = Array.isArray(data) ? data : [data];
+    for (const node of nodes) {
+      if (!node || typeof node !== "object") continue;
+      const record = node as Record<string, unknown>;
+      if (record["@type"] === "Car") {
+        result = record;
+        return;
+      }
+    }
+  });
+
+  return result;
+}
+
+function extractMileageKm(vehicle: Record<string, unknown>): number | null {
+  const raw = vehicle.mileageFromOdometer;
+  if (typeof raw === "number") return raw > 0 && raw < 2_000_000 ? Math.round(raw) : null;
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    const val = typeof obj.value === "number"
+      ? obj.value
+      : parseFloat(String(obj.value ?? "").replace(/\./g, "").replace(",", "."));
+    if (!isNaN(val) && val > 0 && val < 2_000_000) {
+      const unit = (obj.unitCode as string | undefined)?.toUpperCase();
+      return Math.round(unit === "SMI" ? val * 1.60934 : val);
+    }
+  }
+  return null;
+}
+
+function extractPriceEur(vehicle: Record<string, unknown>): number | null {
+  const offers = vehicle.offers as Record<string, unknown> | undefined;
+  if (!offers) return null;
+  const currency = offers.priceCurrency as string | undefined;
+  if (currency && currency.toUpperCase() !== "EUR") return null;
+  const raw = offers.price;
+  let price: number;
+  if (typeof raw === "number") {
+    price = raw;
+  } else if (typeof raw === "string") {
+    price = parseFloat(raw.replace(/\./g, "").replace(",", "."));
+  } else {
+    return null;
+  }
+  return !isNaN(price) && price > 0 && price < 10_000_000 ? Math.round(price) : null;
+}
+
 function normalize(text: string): string {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -577,7 +638,7 @@ function applyNegativeEvidence(
 
 export async function searchAutoScout24(
   licensePlate: string,
-): Promise<EnrichedSpecMap> {
+): Promise<ListingEnrichmentResult> {
   const normalized = normalizeKenteken(licensePlate);
   const variants = plateVariants(licensePlate);
 
@@ -597,10 +658,15 @@ export async function searchAutoScout24(
     if (listingUrl) { searchUrl = url; break; }
   }
 
-  if (!listingUrl) return new Map();
+  if (!listingUrl) return { specs: new Map(), mileageKm: null, askingPriceEur: null };
 
   const detailHtml = await fetchHtml(listingUrl, { referer: searchUrl ?? BASE });
-  if (!detailHtml) return new Map();
+  if (!detailHtml) return { specs: new Map(), mileageKm: null, askingPriceEur: null };
+
+  // --- Market data from JSON-LD ---
+  const vehicleJsonLd = extractVehicleJsonLd(detailHtml);
+  const mileageKm = vehicleJsonLd ? extractMileageKm(vehicleJsonLd) : null;
+  const askingPriceEur = vehicleJsonLd ? extractPriceEur(vehicleJsonLd) : null;
 
   // --- Structured feature list (highest confidence) ---
   const structuredItems = extractStructuredItems(detailHtml);
@@ -620,5 +686,6 @@ export async function searchAutoScout24(
     : (new Map() as EnrichedSpecMap);
 
   // Structured wins on conflict; description fills in any gaps.
-  return mergeEnrichedSpecs(structuredSpecs, descriptionSpecs);
+  const specs = mergeEnrichedSpecs(structuredSpecs, descriptionSpecs);
+  return { specs, mileageKm, askingPriceEur };
 }

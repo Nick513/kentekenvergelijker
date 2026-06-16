@@ -1,5 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { EnrichedSpecMap, EnrichedSpecValue } from "@/lib/enrichment/types";
+import type {
+  EnrichedSpecMap,
+  EnrichedSpecValue,
+  PlateListingSnapshot,
+} from "@/lib/enrichment/types";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -51,5 +55,48 @@ export async function savePlateEnrichment(
 
   if (error) {
     throw new Error(`Failed to save plate enrichment: ${error.message}`);
+  }
+}
+
+export async function loadPlateListingSnapshot(
+  licensePlate: string,
+): Promise<PlateListingSnapshot | null> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("plate_listing_snapshot")
+    .select("mileage_km, asking_price_eur, listing_url, last_seen_at")
+    .eq("license_plate", licensePlate)
+    .single();
+
+  if (error || !data) return null;
+
+  return {
+    licensePlate,
+    mileageKm: data.mileage_km ?? null,
+    askingPriceEur: data.asking_price_eur ?? null,
+    listingUrl: data.listing_url ?? null,
+    lastSeenAt: data.last_seen_at,
+  };
+}
+
+export async function savePlateListingSnapshot(
+  snapshot: PlateListingSnapshot,
+): Promise<void> {
+  const supabase = createSupabaseServerClient();
+  const { error } = await supabase
+    .from("plate_listing_snapshot")
+    .upsert(
+      {
+        license_plate: snapshot.licensePlate,
+        mileage_km: snapshot.mileageKm,
+        asking_price_eur: snapshot.askingPriceEur,
+        listing_url: snapshot.listingUrl,
+        last_seen_at: snapshot.lastSeenAt,
+      },
+      { onConflict: "license_plate" },
+    );
+
+  if (error) {
+    throw new Error(`Failed to save plate listing snapshot: ${error.message}`);
   }
 }

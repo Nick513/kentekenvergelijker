@@ -1,7 +1,11 @@
 import * as cheerio from "cheerio";
 import { fetchHtml } from "@/lib/enrichment/fetch-html";
 import { extractEquipmentFromText } from "@/lib/enrichment/keywords";
-import type { EnrichedSpecMap, ListingSearchResult } from "@/lib/enrichment/types";
+import type {
+  EnrichedSpecMap,
+  ListingEnrichmentResult,
+  ListingSearchResult,
+} from "@/lib/enrichment/types";
 import { formatKenteken, normalizeKenteken } from "@/lib/kenteken";
 
 const GASPEDAAL_BASE = "https://www.gaspedaal.nl";
@@ -55,6 +59,39 @@ function extractJsonLdVehicles(html: string): Record<string, unknown>[] {
   });
 
   return vehicles;
+}
+
+function extractMileageKm(vehicle: Record<string, unknown>): number | null {
+  const raw = vehicle.mileageFromOdometer;
+  if (typeof raw === "number") return raw > 0 && raw < 2_000_000 ? Math.round(raw) : null;
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    const val = typeof obj.value === "number"
+      ? obj.value
+      : parseFloat(String(obj.value ?? "").replace(/\./g, "").replace(",", "."));
+    if (!isNaN(val) && val > 0 && val < 2_000_000) {
+      const unit = (obj.unitCode as string | undefined)?.toUpperCase();
+      return Math.round(unit === "SMI" ? val * 1.60934 : val);
+    }
+  }
+  return null;
+}
+
+function extractPriceEur(vehicle: Record<string, unknown>): number | null {
+  const offers = vehicle.offers as Record<string, unknown> | undefined;
+  if (!offers) return null;
+  const currency = offers.priceCurrency as string | undefined;
+  if (currency && currency.toUpperCase() !== "EUR") return null;
+  const raw = offers.price;
+  let price: number;
+  if (typeof raw === "number") {
+    price = raw;
+  } else if (typeof raw === "string") {
+    price = parseFloat(raw.replace(/\./g, "").replace(",", "."));
+  } else {
+    return null;
+  }
+  return !isNaN(price) && price > 0 && price < 10_000_000 ? Math.round(price) : null;
 }
 
 function findListingUrl(html: string, variants: string[]): string | null {
@@ -115,6 +152,8 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
     let title =
       typeof matchedVehicle?.name === "string" ? matchedVehicle.name : null;
     let descriptionText = matchedVehicle ? vehicleToText(matchedVehicle) : "";
+    let mileageKm = matchedVehicle ? extractMileageKm(matchedVehicle) : null;
+    let askingPriceEur = matchedVehicle ? extractPriceEur(matchedVehicle) : null;
 
     if (listingUrl) {
       const detailHtml = await fetchHtml(listingUrl, { referer: url });
@@ -126,6 +165,8 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
           title =
             typeof detailVehicle.name === "string" ? detailVehicle.name : title;
           descriptionText = `${descriptionText} ${vehicleToText(detailVehicle)}`;
+          mileageKm ??= extractMileageKm(detailVehicle);
+          askingPriceEur ??= extractPriceEur(detailVehicle);
         }
       }
     } else if (!descriptionText) {
@@ -138,6 +179,8 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
       title,
       descriptionText,
       source: "listing_gaspedaal",
+      mileageKm,
+      askingPriceEur,
     };
   }
 
@@ -159,11 +202,19 @@ async function searchAutotrack(licensePlate: string): Promise<ListingSearchResul
     variants,
   );
   let descriptionText = cheerio.load(html)("body").text();
+  let mileageKm: number | null = null;
+  let askingPriceEur: number | null = null;
 
   if (listingUrl) {
     const detailHtml = await fetchHtml(listingUrl, { referer: url });
     if (detailHtml) {
       descriptionText = cheerio.load(detailHtml)("body").text();
+      const detailVehicles = extractJsonLdVehicles(detailHtml);
+      const detailVehicle = detailVehicles[0];
+      if (detailVehicle) {
+        mileageKm = extractMileageKm(detailVehicle);
+        askingPriceEur = extractPriceEur(detailVehicle);
+      }
     }
   }
 
@@ -173,6 +224,8 @@ async function searchAutotrack(licensePlate: string): Promise<ListingSearchResul
     title: null,
     descriptionText,
     source: "listing_autotrack",
+    mileageKm,
+    askingPriceEur,
   };
 }
 
@@ -186,13 +239,15 @@ function listingToSpecs(listing: ListingSearchResult): EnrichedSpecMap {
 /** Search Gaspedaal and Autotrack in parallel, merge keyword-matched specs from both. */
 export async function searchTextListings(
   licensePlate: string,
-): Promise<EnrichedSpecMap> {
+): Promise<ListingEnrichmentResult> {
   const [gaspedaal, autotrack] = await Promise.all([
     searchGaspedaal(licensePlate).catch(() => null),
     searchAutotrack(licensePlate).catch(() => null),
   ]);
 
   const specs: EnrichedSpecMap = new Map();
+  let mileageKm: number | null = null;
+  let askingPriceEur: number | null = null;
 
   for (const listing of [gaspedaal, autotrack]) {
     if (!listing?.found) continue;
@@ -201,7 +256,9 @@ export async function searchTextListings(
         specs.set(key, value);
       }
     }
+    mileageKm ??= listing.mileageKm;
+    askingPriceEur ??= listing.askingPriceEur;
   }
 
-  return specs;
+  return { specs, mileageKm, askingPriceEur };
 }
