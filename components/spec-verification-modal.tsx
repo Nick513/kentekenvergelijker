@@ -2,17 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import type { SpecVerification } from "@/lib/enrichment/types";
 
 type SpecVerificationModalProps = {
   open: boolean;
   onClose: () => void;
   sourceUrl?: string | null;
+  verification?: SpecVerification | null;
 };
 
 export function SpecVerificationModal({
   open,
   onClose,
   sourceUrl,
+  verification,
 }: SpecVerificationModalProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -60,15 +63,33 @@ export function SpecVerificationModal({
         >
           Mogelijk onjuist
         </h2>
-        <p className="mt-3 text-sm leading-7 text-kv-muted">
-          Deze waarde is afgeleid van de typespecificaties van dit model en
-          uitvoering - niet bevestigd voor dit specifieke voertuig. De werkelijke
-          uitrusting kan afwijken afhankelijk van de gekozen opties.
-        </p>
-        <p className="mt-3 text-sm leading-7 text-kv-muted">
-          Gebruik deze gegevens als indicatie. Controleer belangrijke opties bij
-          de verkoper of in de advertentie voordat je een beslissing neemt.
-        </p>
+        {verification === "listing_claim_single" ? (
+          <>
+            <p className="mt-3 text-sm leading-7 text-kv-muted">
+              Deze waarde is gevonden in één advertentie en is niet bevestigd
+              door een tweede onafhankelijke bron. Het is mogelijk dat de waarde
+              afwijkt van de werkelijke uitrusting van dit voertuig.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-kv-muted">
+              Controleer dit altijd bij de verkoper of in de advertentie voordat
+              je een beslissing neemt.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mt-3 text-sm leading-7 text-kv-muted">
+              Deze waarde is afgeleid van de typespecificaties van dit model en
+              uitvoering - niet bevestigd voor dit specifieke voertuig. De
+              werkelijke uitrusting kan afwijken afhankelijk van de gekozen
+              opties.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-kv-muted">
+              Gebruik deze gegevens als indicatie. Controleer belangrijke opties
+              bij de verkoper of in de advertentie voordat je een beslissing
+              neemt.
+            </p>
+          </>
+        )}
         {sourceUrl ? (
           <p className="mt-3 text-sm leading-7 text-kv-muted">
             <a

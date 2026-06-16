@@ -50,6 +50,7 @@ export function mergeEnrichedSpecs(
     verified: 4,
     listing_claim_structured: 3,
     listing_claim: 2,
+    listing_claim_single: 1.5,
     trim_inferred: 1,
   };
 

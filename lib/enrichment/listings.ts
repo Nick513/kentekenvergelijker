@@ -288,7 +288,14 @@ function listingToSpecs(listing: ListingSearchResult): EnrichedSpecMap {
   return extractEquipmentFromText(combined, listing.source, listing.listingUrl);
 }
 
-/** Search Gaspedaal and Autotrack in parallel, merge keyword-matched specs from both. */
+/**
+ * Search Gaspedaal and Autotrack in parallel, then apply cross-source consensus:
+ * - A spec found by BOTH sources → listing_claim (corroborated)
+ * - A spec found by only ONE source → listing_claim_single (weaker, shown as "Mogelijk onjuist")
+ *
+ * This prevents noise on one listing page (menu items, sidebars) from asserting a
+ * feature as confirmed when the other independent source doesn't mention it.
+ */
 export async function searchTextListings(
   licensePlate: string,
 ): Promise<ListingEnrichmentResult> {
@@ -297,20 +304,27 @@ export async function searchTextListings(
     searchAutotrack(licensePlate).catch(() => null),
   ]);
 
-  const specs: EnrichedSpecMap = new Map();
-  let mileageKm: number | null = null;
-  let askingPriceEur: number | null = null;
+  const gaspedaalSpecs = gaspedaal?.found ? listingToSpecs(gaspedaal) : new Map() as EnrichedSpecMap;
+  const autotrackSpecs = autotrack?.found ? listingToSpecs(autotrack) : new Map() as EnrichedSpecMap;
 
-  for (const listing of [gaspedaal, autotrack]) {
-    if (!listing?.found) continue;
-    for (const [key, value] of listingToSpecs(listing)) {
-      if (!specs.has(key)) {
-        specs.set(key, value);
-      }
+  const allKeys = new Set([...gaspedaalSpecs.keys(), ...autotrackSpecs.keys()]);
+  const specs: EnrichedSpecMap = new Map();
+
+  for (const key of allKeys) {
+    const gVal = gaspedaalSpecs.get(key);
+    const aVal = autotrackSpecs.get(key);
+
+    if (gVal && aVal) {
+      // Both sources agree — corroborated, full listing_claim confidence.
+      specs.set(key, { ...gVal, verification: "listing_claim" });
+    } else {
+      // Single source only — lower confidence.
+      specs.set(key, { ...(gVal ?? aVal)!, verification: "listing_claim_single" });
     }
-    mileageKm ??= listing.mileageKm;
-    askingPriceEur ??= listing.askingPriceEur;
   }
+
+  const mileageKm = gaspedaal?.mileageKm ?? autotrack?.mileageKm ?? null;
+  const askingPriceEur = gaspedaal?.askingPriceEur ?? autotrack?.askingPriceEur ?? null;
 
   return { specs, mileageKm, askingPriceEur };
 }

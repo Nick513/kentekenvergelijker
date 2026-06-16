@@ -1,4 +1,9 @@
-export type SpecVerification = "verified" | "listing_claim_structured" | "listing_claim" | "trim_inferred";
+export type SpecVerification =
+  | "verified"
+  | "listing_claim_structured"
+  | "listing_claim"
+  | "listing_claim_single"
+  | "trim_inferred";
 
 export type EnrichedSpecValue = {
   valueText: string | null;

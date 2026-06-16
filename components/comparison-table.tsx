@@ -51,7 +51,13 @@ function readSiteHeaderHeight(): number {
   return Number.isFinite(parsed) ? parsed : 80;
 }
 
-function UnverifiedValueHint({ sourceUrl }: { sourceUrl?: string | null }) {
+function UnverifiedValueHint({
+  sourceUrl,
+  verification,
+}: {
+  sourceUrl?: string | null;
+  verification?: SpecVerification | null;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -66,7 +72,12 @@ function UnverifiedValueHint({ sourceUrl }: { sourceUrl?: string | null }) {
           Wat betekent dit?
         </button>
       </span>
-      <SpecVerificationModal open={open} onClose={() => setOpen(false)} sourceUrl={sourceUrl} />
+      <SpecVerificationModal
+        open={open}
+        onClose={() => setOpen(false)}
+        sourceUrl={sourceUrl}
+        verification={verification}
+      />
     </>
   );
 }
@@ -100,7 +111,9 @@ function ComparisonCellContent({ cell }: { cell: ComparisonCell }) {
   return (
     <>
       {content}
-      {showUnverifiedHint ? <UnverifiedValueHint sourceUrl={cell.listingUrl} /> : null}
+      {showUnverifiedHint ? (
+        <UnverifiedValueHint sourceUrl={cell.listingUrl} verification={cell.verification} />
+      ) : null}
     </>
   );
 }
