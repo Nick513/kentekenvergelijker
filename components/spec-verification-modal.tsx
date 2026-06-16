@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
 type SpecVerificationModalProps = {
   open: boolean;
   onClose: () => void;
@@ -9,18 +12,37 @@ export function SpecVerificationModal({
   open,
   onClose,
 }: SpecVerificationModalProps) {
-  if (!open) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
+  if (!open || !mounted) {
     return null;
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       role="presentation"
     >
       <button
         type="button"
-        className="absolute inset-0 bg-kv-navy/40"
+        className="absolute inset-0 bg-kv-navy/50 backdrop-blur-[2px]"
         aria-label="Sluiten"
         onClick={onClose}
       />
@@ -46,14 +68,17 @@ export function SpecVerificationModal({
           belangrijke opties bij de verkoper of in de advertentie voordat je een
           beslissing neemt.
         </p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="kv-btn-primary mt-6 w-full"
-        >
-          Begrepen
-        </button>
+        <div className="mt-8 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="kv-btn-primary rounded-xl px-6 py-2.5 text-sm shadow-md shadow-kv-teal/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kv-teal"
+          >
+            Begrepen
+          </button>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
