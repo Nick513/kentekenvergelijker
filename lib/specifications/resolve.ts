@@ -261,6 +261,8 @@ export function buildMarketGroup(
 
   return {
     title: "Markt",
+    note: "Gevonden op het web",
+    variant: "market" as const,
     rows: [
       {
         label: "Kilometerstand",

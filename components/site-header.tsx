@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteHeaderHeight } from "@/components/site-header-height";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SITE_TAGLINE } from "@/lib/site";
 
 const navItems = [
   { href: "/#vergelijken", label: "Vergelijken" },
@@ -26,7 +27,7 @@ export function SiteHeader() {
             />
             <div>
               <p className="font-semibold text-kv-navy">Kentekenvergelijker</p>
-              <p className="text-xs text-kv-muted">kentekenvergelijker.nl</p>
+              <p className="text-xs text-kv-muted">{SITE_TAGLINE}</p>
             </div>
           </Link>
 

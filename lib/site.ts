@@ -1,6 +1,8 @@
 export const SITE_URL = "https://kentekenvergelijker.nl";
 export const SITE_NAME = "Kentekenvergelijker";
 
+export const SITE_TAGLINE = "Vergelijk tot in de uitrusting";
+
 export const SITE_TITLE =
   "Kenteken vergelijken - Auto's vergelijken op kenteken";
 

@@ -21,6 +21,8 @@ export type ComparisonRow = {
 export type ComparisonGroup = {
   title: string;
   rows: ComparisonRow[];
+  note?: string;
+  variant?: "market";
 };
 
 type ComparisonTableProps = {
@@ -279,41 +281,54 @@ export function ComparisonTable({
             ))}
           </tr>
         </thead>
-        {groups.map((group) => (
-          <tbody key={group.title}>
-            <tr className="bg-kv-bg-alt">
-              <th
-                colSpan={columnCount}
-                scope="colgroup"
-                className="border-t border-kv-teal/20 px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-kv-teal"
-              >
-                {group.title}
-              </th>
-            </tr>
-            {group.rows.map((row, rowIndex) => {
-              const rowClass = rowBackgroundClass(rowIndex);
+        {groups.map((group) => {
+          const isMarket = group.variant === "market";
+          return (
+            <tbody key={group.title}>
+              <tr>
+                <th
+                  colSpan={columnCount}
+                  scope="colgroup"
+                  className={
+                    isMarket
+                      ? "border-t-2 border-kv-teal/50 bg-kv-teal/10 px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-kv-teal"
+                      : "border-t border-kv-teal/20 bg-kv-bg-alt px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-kv-teal"
+                  }
+                >
+                  {group.title}
+                  {group.note ? (
+                    <span className="mt-0.5 block text-[10px] font-normal normal-case tracking-normal text-kv-muted">
+                      {group.note}
+                    </span>
+                  ) : null}
+                </th>
+              </tr>
+              {group.rows.map((row, rowIndex) => {
+                const rowClass = rowBackgroundClass(rowIndex);
+                const borderClass = "border-t border-kv-border";
 
-              return (
-                <tr key={row.label} className={rowClass}>
-                  <th
-                    scope="row"
-                    className={`${SPEC_COLUMN_BODY_CLASS} ${rowClass} border-t border-kv-border py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
-                  >
-                    {row.label}
-                  </th>
-                  {row.values.map((cell, valueIndex) => (
-                    <td
-                      key={`${row.label}-${kentekens[valueIndex]}`}
-                      className={`${PLATE_COLUMN_CLASS} border-t border-kv-border py-3`}
+                return (
+                  <tr key={row.label} className={rowClass}>
+                    <th
+                      scope="row"
+                      className={`${SPEC_COLUMN_BODY_CLASS} ${rowClass} ${borderClass} py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
                     >
-                      <ComparisonCellContent cell={cell} />
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        ))}
+                      {row.label}
+                    </th>
+                    {row.values.map((cell, valueIndex) => (
+                      <td
+                        key={`${row.label}-${kentekens[valueIndex]}`}
+                        className={`${PLATE_COLUMN_CLASS} ${borderClass} py-3`}
+                      >
+                        <ComparisonCellContent cell={cell} />
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          );
+        })}
       </table>
       </div>
     </>
