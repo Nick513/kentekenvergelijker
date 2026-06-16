@@ -16,7 +16,6 @@ import {
 import type { EnrichedSpecMap, EnrichedSpecValue } from "@/lib/enrichment/types";
 import { isUnverifiedForDisplay } from "@/lib/enrichment/verification";
 import type { PlateFetchResult } from "@/lib/rdw/types";
-import type { CatalogSpecMap, CatalogSpecValue } from "@/lib/vehicles/catalog";
 import type {
   ComparisonSpecification,
   SpecificationDisplayType,
@@ -37,7 +36,7 @@ function cellFromValue(
 
 function formatCatalogValue(
   displayType: SpecificationDisplayType,
-  value: CatalogSpecValue | EnrichedSpecValue,
+  value: EnrichedSpecValue,
 ): ComparisonCell["value"] {
   switch (displayType) {
     case "boolean":
@@ -158,7 +157,6 @@ function resolvePlateValue(
   spec: ComparisonSpecification,
   plate: PlateFetchResult,
   enriched: EnrichedSpecMap | null,
-  catalog: CatalogSpecMap | null,
 ): ComparisonCell {
   if (plate.status === "not_found") {
     return cellFromValue(
@@ -171,7 +169,6 @@ function resolvePlateValue(
   }
 
   const enrichedValue = enriched?.get(spec.specKey) ?? null;
-  const catalogValue = catalog?.get(spec.specKey) ?? null;
 
   if (spec.valueSource === "rdw") {
     const rdwCell = resolveRdwValue(spec.valueKey, plate);
@@ -179,13 +176,9 @@ function resolvePlateValue(
       return rdwCell;
     }
 
-    const fallback = enrichedValue ?? catalogValue;
-    if (fallback) {
-      const formatted = formatCatalogValue(spec.displayType, fallback);
-      const verification =
-        enrichedValue?.verification ??
-        (catalogValue ? "trim_inferred" : null);
-      return cellFromValue(formatted, verification);
+    if (enrichedValue) {
+      const formatted = formatCatalogValue(spec.displayType, enrichedValue);
+      return cellFromValue(formatted, enrichedValue.verification);
     }
 
     return rdwCell;
@@ -200,14 +193,6 @@ function resolvePlateValue(
       return cellFromValue(formatted, enrichedValue.verification);
     }
 
-    if (catalogValue) {
-      const formatted = formatCatalogValue(spec.displayType, catalogValue);
-      if (formatted === UNAVAILABLE && spec.displayType === "boolean") {
-        return unavailableCell();
-      }
-      return cellFromValue(formatted, "trim_inferred");
-    }
-
     return unavailableCell();
   }
 
@@ -218,7 +203,6 @@ export function buildComparisonGroups(
   specifications: ComparisonSpecification[],
   plates: PlateFetchResult[],
   enrichedMaps: (EnrichedSpecMap | null)[] = [],
-  catalogs: (CatalogSpecMap | null)[] = [],
 ): ComparisonGroup[] {
   const groups = new Map<string, ComparisonGroup>();
 
@@ -232,7 +216,6 @@ export function buildComparisonGroups(
           spec,
           plate,
           enrichedMaps[index] ?? null,
-          catalogs[index] ?? null,
         ),
       ),
     };

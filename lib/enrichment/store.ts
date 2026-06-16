@@ -1,6 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { EnrichedSpecMap, EnrichedSpecValue, SpecVerification } from "@/lib/enrichment/types";
-import type { CatalogSpecMap } from "@/lib/vehicles/catalog";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -84,20 +83,3 @@ export async function savePlateEnrichment(
   }
 }
 
-export function catalogToEnriched(catalog: CatalogSpecMap | null): EnrichedSpecMap {
-  const map: EnrichedSpecMap = new Map();
-  if (!catalog) {
-    return map;
-  }
-
-  for (const [specKey, value] of catalog.entries()) {
-    map.set(specKey, {
-      ...value,
-      verification: "trim_inferred",
-      source: "catalog",
-      listingUrl: null,
-    });
-  }
-
-  return map;
-}

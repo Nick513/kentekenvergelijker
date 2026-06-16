@@ -42,7 +42,7 @@ export function SpecVerificationModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-kv-navy/50 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-kv-navy-bg/50 backdrop-blur-[2px] dark:bg-black/75"
         aria-label="Sluiten"
         onClick={onClose}
       />

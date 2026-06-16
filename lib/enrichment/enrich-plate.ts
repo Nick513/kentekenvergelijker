@@ -2,45 +2,15 @@ import { mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
 import { searchAutoScout24 } from "@/lib/enrichment/autoscout24";
 import { searchTextListings } from "@/lib/enrichment/listings";
 import {
-  catalogToEnriched,
   loadPlateEnrichment,
   savePlateEnrichment,
 } from "@/lib/enrichment/store";
 import type { EnrichedSpecMap, PlateEnrichmentResult } from "@/lib/enrichment/types";
-import { verificationForCatalogSpec } from "@/lib/enrichment/verification";
 import { normalizeKenteken } from "@/lib/kenteken";
 import type { VehicleSnapshot } from "@/lib/rdw/types";
-import { loadCatalogForSnapshot } from "@/lib/vehicles/catalog";
-import type { ComparisonSpecification } from "@/lib/specifications/types";
-
-function applyCatalogVerification(
-  specs: EnrichedSpecMap,
-  specifications: ComparisonSpecification[],
-): EnrichedSpecMap {
-  const specByKey = new Map(specifications.map((spec) => [spec.specKey, spec]));
-  const adjusted: EnrichedSpecMap = new Map();
-
-  for (const [key, value] of specs.entries()) {
-    if (value.verification !== "trim_inferred") {
-      adjusted.set(key, value);
-      continue;
-    }
-
-    const spec = specByKey.get(key);
-    adjusted.set(key, {
-      ...value,
-      verification: spec
-        ? verificationForCatalogSpec(key, spec.valueSource)
-        : "trim_inferred",
-    });
-  }
-
-  return adjusted;
-}
 
 export async function enrichPlate(
   snapshot: VehicleSnapshot,
-  specifications: ComparisonSpecification[],
   options: { skipCache?: boolean } = {},
 ): Promise<PlateEnrichmentResult> {
   const licensePlate = normalizeKenteken(snapshot.licensePlate);
@@ -56,20 +26,14 @@ export async function enrichPlate(
     }
   }
 
-  const [textSpecs, structuredSpecs, catalog] = await Promise.all([
+  const [textSpecs, structuredSpecs] = await Promise.all([
     searchTextListings(licensePlate),
     searchAutoScout24(licensePlate),
-    loadCatalogForSnapshot(snapshot),
   ]);
 
-  const catalogSpecs = applyCatalogVerification(
-    catalogToEnriched(catalog),
-    specifications,
-  );
-
-  // Priority: verified(4) > listing_claim_structured(3) > listing_claim(2) > trim_inferred(1)
+  // Priority: listing_claim_structured(3) > listing_claim(2)
   // structuredSpecs is passed first so it wins tie-breaks over text at equal priority.
-  const merged = mergeEnrichedSpecs(structuredSpecs, textSpecs, catalogSpecs);
+  const merged = mergeEnrichedSpecs(structuredSpecs, textSpecs);
 
   if (merged.size > 0) {
     await savePlateEnrichment(licensePlate, merged);
@@ -84,13 +48,10 @@ export async function enrichPlate(
 
 export async function enrichPlates(
   snapshots: VehicleSnapshot[],
-  specifications: ComparisonSpecification[],
   options: { skipCache?: boolean } = {},
 ): Promise<EnrichedSpecMap[]> {
   const results = await Promise.all(
-    snapshots.map((snapshot) =>
-      enrichPlate(snapshot, specifications, options),
-    ),
+    snapshots.map((snapshot) => enrichPlate(snapshot, options)),
   );
   return results.map((result) => result.specs);
 }

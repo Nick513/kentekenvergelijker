@@ -7,7 +7,6 @@ import { normalizeKenteken } from "@/lib/kenteken";
 import { loadPlateEnrichment } from "@/lib/enrichment/store";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
 import { buildComparisonGroups } from "@/lib/specifications/resolve";
-import { loadCatalogForPlates } from "@/lib/vehicles/catalog";
 
 export type ComparisonBuildResult = {
   groups: ComparisonGroup[];
@@ -63,10 +62,9 @@ export async function buildComparison(
     (p): p is PlateFetchResult & { status: "ok" } => p.status === "ok",
   );
 
-  const [catalogs, cachedEnrichments] = await Promise.all([
-    loadCatalogForPlates(plates),
-    Promise.all(okPlates.map((p) => loadPlateEnrichment(p.snapshot.licensePlate))),
-  ]);
+  const cachedEnrichments = await Promise.all(
+    okPlates.map((p) => loadPlateEnrichment(p.snapshot.licensePlate)),
+  );
 
   const allEnriched =
     okPlates.length > 0 &&
@@ -80,7 +78,7 @@ export async function buildComparison(
     });
 
     return {
-      groups: buildComparisonGroups(specifications, plates, alignedEnriched, catalogs),
+      groups: buildComparisonGroups(specifications, plates, alignedEnriched),
       plates,
       hasNotFound: plates.some((p) => p.status === "not_found"),
       hasErrors: plates.some((p) => p.status === "error"),
@@ -89,7 +87,7 @@ export async function buildComparison(
   }
 
   return {
-    groups: buildComparisonGroups(specifications, plates, [], catalogs),
+    groups: buildComparisonGroups(specifications, plates, []),
     plates,
     hasNotFound: plates.some((p) => p.status === "not_found"),
     hasErrors: plates.some((p) => p.status === "error"),

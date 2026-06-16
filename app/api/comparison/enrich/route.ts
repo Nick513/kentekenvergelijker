@@ -32,9 +32,7 @@ export async function POST(request: Request) {
     .filter((plate): plate is PlateFetchResult & { status: "ok" } => plate.status === "ok")
     .map((plate) => plate.snapshot);
 
-  const enrichedForOk = await enrichPlates(okSnapshots, specifications, {
-    skipCache: refresh,
-  });
+  const enrichedForOk = await enrichPlates(okSnapshots, { skipCache: refresh });
 
   let enrichedIndex = 0;
   const alignedEnriched = plates.map((plate) => {
