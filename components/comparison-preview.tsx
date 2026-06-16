@@ -19,13 +19,13 @@ export function ComparisonPreview({
     <section
       id="vergelijking"
       aria-labelledby="comparison-heading"
-      className="kv-scroll-anchor kv-card p-6 sm:p-8"
+      className="kv-scroll-anchor kv-card p-4 sm:p-8"
     >
-      <div className="mb-6 space-y-2">
-        <h2 id="comparison-heading" className="text-2xl font-semibold text-kv-navy">
+      <div className="mb-5 space-y-2 sm:mb-6">
+        <h2 id="comparison-heading" className="text-xl font-semibold text-kv-navy sm:text-2xl">
           Jouw vergelijking
         </h2>
-        <p className="text-kv-muted">
+        <p className="text-sm text-kv-muted sm:text-base">
           Specificaties voor{" "}
           {kentekens.map((kenteken, index) => (
             <span key={kenteken}>
@@ -37,13 +37,15 @@ export function ComparisonPreview({
         </p>
       </div>
 
-      <SearchableComparisonTable
-        kentekens={kentekens}
-        groups={groups}
-        caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
-        isLoading={isEnriching}
-        stickyPlates
-      />
+      <div className="-mx-4 sm:mx-0">
+        <SearchableComparisonTable
+          kentekens={kentekens}
+          groups={groups}
+          caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
+          isLoading={isEnriching}
+          stickyPlates
+        />
+      </div>
 
       <DataDisclaimer className="mt-6" />
     </section>

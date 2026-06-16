@@ -17,21 +17,21 @@ export async function HomeDemoComparison() {
       aria-labelledby="voorbeeld-heading"
       className="kv-scroll-anchor border-t border-kv-border bg-kv-surface"
     >
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-8 max-w-2xl">
+      <div className="kv-container py-12 sm:py-16">
+        <div className="mb-6 max-w-2xl sm:mb-8">
           <h2
             id="voorbeeld-heading"
-            className="text-3xl font-semibold tracking-tight text-kv-navy"
+            className="text-2xl font-semibold tracking-tight text-kv-navy sm:text-3xl"
           >
             Voorbeeld: kentekens vergelijken op uitrusting
           </h2>
-          <p className="mt-4 text-lg leading-8 text-kv-muted">
+          <p className="mt-3 text-base leading-7 text-kv-muted sm:mt-4 sm:text-lg sm:leading-8">
             Twee auto&apos;s van hetzelfde model kunnen totaal anders uitgerust zijn.
             Zo ziet een vergelijking eruit.
           </p>
         </div>
 
-        <div className="kv-card overflow-hidden p-0 sm:p-0">
+        <div className="kv-card overflow-hidden p-0">
           <ComparisonTable
             kentekens={DEMO_KENTEKENS}
             groups={groups}

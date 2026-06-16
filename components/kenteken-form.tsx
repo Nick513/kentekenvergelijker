@@ -63,7 +63,7 @@ export function KentekenForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="kv-card w-full p-6 sm:p-8"
+      className="kv-card w-full min-w-0 max-w-full overflow-hidden p-4 sm:p-8"
       aria-label="Kentekens vergelijken"
     >
       <div className="mb-6 space-y-2">
@@ -75,7 +75,10 @@ export function KentekenForm() {
 
       <div className="space-y-3">
         {plates.map((plate, index) => (
-          <div key={index} className="flex items-center gap-3">
+          <div
+            key={index}
+            className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:gap-3"
+          >
             <label htmlFor={`kenteken-${index}`} className="sr-only">
               Kenteken {index + 1}
             </label>
@@ -90,11 +93,14 @@ export function KentekenForm() {
             <button
               type="button"
               onClick={() => removePlate(index)}
-              className="kv-btn-ghost shrink-0 disabled:cursor-not-allowed disabled:opacity-40"
+              className="kv-btn-ghost flex size-10 shrink-0 items-center justify-center rounded-lg p-0 disabled:cursor-not-allowed disabled:opacity-40 sm:size-auto sm:px-3 sm:py-2"
               disabled={plates.length <= MIN_COMPARISON_PLATES}
               aria-label={`Kenteken ${index + 1} verwijderen`}
             >
-              Verwijder
+              <span className="hidden sm:inline">Verwijder</span>
+              <span className="text-xl leading-none sm:hidden" aria-hidden="true">
+                ×
+              </span>
             </button>
           </div>
         ))}

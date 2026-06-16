@@ -88,11 +88,11 @@ function HowItWorks() {
       aria-labelledby="how-it-works-heading"
       className="border-t border-kv-border bg-kv-bg-alt"
     >
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="kv-container py-16 sm:py-16">
         <div className="mb-10 max-w-2xl">
           <h2
             id="how-it-works-heading"
-            className="text-3xl font-semibold tracking-tight text-kv-navy"
+            className="text-2xl font-semibold tracking-tight text-kv-navy sm:text-3xl"
           >
             Hoe werkt het?
           </h2>
@@ -120,12 +120,12 @@ function SeoContent() {
       aria-labelledby="seo-content-heading"
       className="border-t border-kv-border bg-kv-surface"
     >
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="kv-container py-12 sm:py-16">
         <div className="max-w-3xl space-y-8">
           <div className="space-y-4">
             <h2
               id="seo-content-heading"
-              className="text-3xl font-semibold tracking-tight text-kv-navy"
+              className="text-2xl font-semibold tracking-tight text-kv-navy sm:text-3xl"
             >
               Auto&apos;s vergelijken via kenteken
             </h2>
@@ -193,18 +193,18 @@ export default function Home() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgb(8_168_160_/_16%),transparent_42%)] dark:bg-[radial-gradient(circle_at_80%_0%,rgb(40_184_200_/_12%),transparent_42%)]" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_10%),transparent_50%)] dark:bg-[radial-gradient(circle_at_0%_100%,rgb(24_56_120_/_18%),transparent_50%)]" />
 
-          <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-24">
-            <div className="space-y-6">
+          <div className="relative kv-container grid min-w-0 gap-8 py-12 sm:gap-12 sm:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:py-24">
+            <div className="min-w-0 space-y-5 sm:space-y-6">
               <p className="kv-badge">Vergelijk auto&apos;s op kenteken</p>
 
               <h1
                 id="hero-heading"
-                className="max-w-xl text-4xl font-bold tracking-tight text-kv-navy sm:text-5xl sm:leading-tight"
+                className="max-w-xl text-3xl font-bold tracking-tight text-kv-navy sm:text-4xl sm:leading-tight lg:text-5xl"
               >
                 Vergelijk auto&apos;s op kenteken, tot in de uitrusting
               </h1>
 
-              <p className="max-w-xl text-lg leading-8 text-kv-muted">
+              <p className="max-w-xl text-base leading-7 text-kv-muted sm:text-lg sm:leading-8">
                 Voer een paar Nederlandse kentekens in en krijg een overzichtelijke
                 vergelijking van model, uitvoering en specificaties van de exacte
                 auto&apos;s achter die kentekens.
@@ -230,7 +230,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <KentekenForm />
             </div>
           </div>
@@ -247,11 +247,11 @@ export default function Home() {
           aria-labelledby="faq-heading"
           className="kv-scroll-anchor border-t border-kv-border bg-kv-bg"
         >
-          <div className="mx-auto max-w-6xl px-6 py-16">
+          <div className="kv-container py-12 sm:py-16">
             <div className="mb-10 max-w-2xl">
               <h2
                 id="faq-heading"
-                className="text-3xl font-semibold tracking-tight text-kv-navy"
+                className="text-2xl font-semibold tracking-tight text-kv-navy sm:text-3xl"
               >
                 Veelgestelde vragen over kenteken vergelijken
               </h2>
@@ -263,7 +263,7 @@ export default function Home() {
                   key={item.question}
                   className="group kv-card p-6 open:border-kv-teal/30"
                 >
-                  <summary className="list-none text-lg font-medium text-kv-navy marker:content-none">
+                  <summary className="list-none text-base font-medium text-kv-navy marker:content-none sm:text-lg">
                     <span className="flex items-center justify-between gap-4">
                       {item.question}
                       <span className="text-kv-muted transition group-open:rotate-45">

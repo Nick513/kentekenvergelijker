@@ -35,6 +35,15 @@
   --kv-eu-blue: #003399;
   /* Measured at runtime by SiteHeaderHeight; fallback until hydrated */
   --kv-header-height: 5rem;
+  --kv-comparison-spec-width: 11rem;
+  --kv-comparison-plate-min-width: 7rem;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --kv-comparison-spec-width: 7.5rem;
+    --kv-comparison-plate-min-width: 5.75rem;
+  }
 }
 
 .dark {
@@ -97,6 +106,20 @@
 
   :where(button:disabled, [aria-disabled="true"]) {
     cursor: not-allowed;
+  }
+}
+
+.kv-container {
+  width: 100%;
+  max-width: 72rem;
+  min-width: 0;
+  margin-inline: auto;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px)) max(1rem, env(safe-area-inset-right, 0px));
+}
+
+@media (min-width: 640px) {
+  .kv-container {
+    padding-inline: 1.5rem;
   }
 }
 
@@ -302,6 +325,15 @@ body {
   font-size: 0.5rem;
 }
 
+.kv-plate-eu--compact {
+  width: 1.25rem;
+  padding: 0.15rem 0.06rem 0.1rem;
+}
+
+.kv-plate-eu--compact .kv-plate-eu-code {
+  font-size: 0.4375rem;
+}
+
 .kv-plate-field {
   flex: 1;
   min-width: 0;
@@ -321,6 +353,23 @@ body {
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
   outline: none;
+}
+
+@media (max-width: 639px) {
+  .kv-plate-field {
+    padding: 0.5rem 0.5rem;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .kv-plate-eu {
+    width: 1.625rem;
+    padding: 0.3rem 0.08rem 0.2rem;
+  }
+
+  .kv-plate-eu-code {
+    font-size: 0.5625rem;
+  }
 }
 
 .kv-plate-field::placeholder {
@@ -358,8 +407,57 @@ body {
   white-space: nowrap;
 }
 
+.kv-plate-chip--compact {
+  border-width: 1.5px;
+}
+
+.kv-plate-chip--compact .kv-plate-chip-text {
+  padding: 0.15rem 0.3rem;
+  font-size: 0.5625rem;
+  letter-spacing: 0.05em;
+}
+
+.kv-comparison-table-outer {
+  position: relative;
+}
+
+.kv-comparison-table-outer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 1.75rem;
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: linear-gradient(to left, var(--kv-surface) 10%, transparent);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .kv-comparison-table-outer::after {
+    display: none;
+  }
+}
+
 .kv-comparison-table-scroll {
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  isolation: isolate;
+}
+
+.kv-comparison-spec-col {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  width: var(--kv-comparison-spec-width);
+  max-width: var(--kv-comparison-spec-width);
+  padding-inline: 0.75rem;
+  box-shadow: 4px 0 10px -4px rgb(17 17 17 / 14%);
+}
+
+.kv-comparison-spec-col--body {
+  border-right: 1px solid var(--kv-border);
 }
 
 .kv-comparison-thead {
@@ -369,23 +467,37 @@ body {
 
 .kv-comparison-thead th {
   border: none;
-  padding: 0.875rem 0.75rem;
+  padding: 0.75rem;
   vertical-align: middle;
   background: transparent;
+}
+
+@media (min-width: 640px) {
+  .kv-comparison-thead th {
+    padding: 0.875rem 0.75rem;
+  }
 }
 
 .kv-comparison-thead-spec {
   position: sticky;
   left: 0;
-  z-index: 20;
-  width: 11rem;
-  max-width: 11rem;
-  padding-left: 1.25rem;
-  font-size: 0.6875rem;
+  z-index: 30;
+  width: var(--kv-comparison-spec-width);
+  max-width: var(--kv-comparison-spec-width);
+  padding-left: 1rem;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgb(255 255 255 / 58%);
+  background: var(--kv-navy-bg);
+}
+
+@media (min-width: 640px) {
+  .kv-comparison-thead-spec {
+    padding-left: 1.25rem;
+    font-size: 0.6875rem;
+  }
 }
 
 .kv-comparison-thead-spec::after {
@@ -405,7 +517,14 @@ body {
 }
 
 .kv-comparison-thead-plate {
+  position: relative;
+  z-index: 0;
   text-align: left;
+}
+
+.kv-comparison-value-cell {
+  position: relative;
+  z-index: 0;
 }
 
 .kv-comparison-sticky-plates {
@@ -422,16 +541,33 @@ body {
 }
 
 .kv-comparison-sticky-plates-spacer {
-  width: 11rem;
-  max-width: 11rem;
+  width: var(--kv-comparison-spec-width);
+  max-width: var(--kv-comparison-spec-width);
   flex-shrink: 0;
 }
 
 .kv-comparison-sticky-plates-cell {
-  min-width: 0;
+  min-width: var(--kv-comparison-plate-min-width);
   flex: 1;
-  padding: 0.875rem 0.75rem;
+  padding: 0.75rem;
   text-align: left;
+}
+
+@media (min-width: 640px) {
+  .kv-comparison-sticky-plates-cell {
+    padding: 0.875rem 0.75rem;
+  }
+}
+
+.kv-comparison-mobile-sticky-plates {
+  overflow: hidden;
+  border-bottom: 1px solid var(--kv-border);
+  background: var(--kv-surface);
+  box-shadow: 0 4px 14px rgb(24 56 120 / 12%);
+}
+
+.dark .kv-comparison-mobile-sticky-plates {
+  box-shadow: 0 4px 14px rgb(0 0 0 / 32%);
 }
 
 .kv-search-input::-webkit-search-cancel-button {

@@ -86,57 +86,56 @@ export function SearchableComparisonTable({
   const isFiltering = trimmedQuery.length > 0;
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-kv-border bg-kv-bg/40 p-3 sm:p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <label htmlFor={searchId} className="sr-only">
-            Zoek specificaties
-          </label>
-          <div className="relative w-full sm:flex-1">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-              <SearchIcon />
-            </span>
-            <input
-              id={searchId}
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Zoek specificaties..."
-              autoComplete="off"
-              className="kv-search-input w-full rounded-xl border border-kv-border bg-kv-surface py-2.5 pr-4 pl-10 text-sm text-kv-navy shadow-sm transition-colors placeholder:text-kv-muted focus:border-kv-teal focus:ring-2 focus:ring-kv-teal/20 focus:outline-none"
-            />
-          </div>
-          <label
-            htmlFor={filledOnlyId}
-            className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-kv-border bg-kv-surface px-3 py-2 text-sm text-kv-navy transition-colors hover:border-kv-teal/50"
-          >
-            <input
-              id={filledOnlyId}
-              type="checkbox"
-              checked={showFilledOnly}
-              onChange={(event) => setShowFilledOnly(event.target.checked)}
-              className="peer sr-only"
-            />
-            <span
-              aria-hidden="true"
-              className="relative h-6 w-11 rounded-full bg-kv-border shadow-inner transition-colors duration-200 peer-checked:bg-kv-teal peer-focus-visible:ring-2 peer-focus-visible:ring-kv-teal/30 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-kv-surface"
-            >
-              <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-kv-surface shadow-sm transition-transform duration-200 peer-checked:translate-x-5" />
-            </span>
-            Toon alleen ingevulde rijen
-          </label>
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex flex-col gap-3 px-3 sm:flex-row sm:items-center sm:justify-between sm:rounded-xl sm:border sm:border-kv-border sm:bg-kv-bg/40 sm:p-4">
+        <label htmlFor={searchId} className="sr-only">
+          Zoek specificaties
+        </label>
+        <div className="relative w-full sm:flex-1">
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+            <SearchIcon />
+          </span>
+          <input
+            id={searchId}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Zoek specificaties..."
+            autoComplete="off"
+            className="kv-search-input w-full rounded-xl border border-kv-border bg-kv-surface py-2.5 pr-4 pl-10 text-sm text-kv-navy shadow-sm transition-colors placeholder:text-kv-muted focus:border-kv-teal focus:ring-2 focus:ring-kv-teal/20 focus:outline-none"
+          />
         </div>
-        {(isFiltering || showFilledOnly) && (
-          <p className="mt-3 text-sm text-kv-muted" role="status" aria-live="polite">
-            {visibleRows === 0
-              ? "Geen specificaties gevonden"
-              : `${visibleRows} van ${totalRows} specificaties`}
-          </p>
-        )}
+        <label
+          htmlFor={filledOnlyId}
+          className="inline-flex cursor-pointer items-center gap-3 text-sm text-kv-navy sm:rounded-xl sm:border sm:border-kv-border sm:bg-kv-surface sm:px-3 sm:py-2 sm:transition-colors sm:hover:border-kv-teal/50"
+        >
+          <input
+            id={filledOnlyId}
+            type="checkbox"
+            checked={showFilledOnly}
+            onChange={(event) => setShowFilledOnly(event.target.checked)}
+            className="peer sr-only"
+          />
+          <span
+            aria-hidden="true"
+            className="relative h-6 w-11 rounded-full bg-kv-border shadow-inner transition-colors duration-200 peer-checked:bg-kv-teal peer-focus-visible:ring-2 peer-focus-visible:ring-kv-teal/30 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-kv-surface"
+          >
+            <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-kv-surface shadow-sm transition-transform duration-200 peer-checked:translate-x-5" />
+          </span>
+          <span className="sm:hidden">Alleen ingevuld</span>
+          <span className="hidden sm:inline">Toon alleen ingevulde rijen</span>
+        </label>
       </div>
+      {(isFiltering || showFilledOnly) && (
+        <p className="px-3 text-sm text-kv-muted sm:px-0" role="status" aria-live="polite">
+          {visibleRows === 0
+            ? "Geen specificaties gevonden"
+            : `${visibleRows} van ${totalRows} specificaties`}
+        </p>
+      )}
 
       {visibleRows === 0 && (isFiltering || showFilledOnly) ? (
-        <p className="rounded-xl border border-kv-border bg-kv-bg/60 px-4 py-6 text-center text-sm text-kv-muted">
+        <p className="mx-3 rounded-xl border border-kv-border bg-kv-bg/60 px-4 py-6 text-center text-sm text-kv-muted sm:mx-0">
           {isFiltering
             ? `Geen specificaties gevonden voor "${trimmedQuery}". Probeer een andere zoekterm of een groepsnaam zoals "Veiligheid".`
             : "Geen ingevulde specificaties gevonden. Zet de filter uit om alle rijen te tonen."}

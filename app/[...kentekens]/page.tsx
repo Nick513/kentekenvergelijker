@@ -77,12 +77,12 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
 
       <SiteHeader />
 
-      <main className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-        <header className="mb-8 max-w-3xl space-y-3">
-          <h1 className="text-3xl font-bold tracking-tight text-kv-navy sm:text-4xl">
+      <main className="kv-container py-8 sm:py-14">
+        <header className="mb-6 max-w-3xl space-y-3 sm:mb-8">
+          <h1 className="text-2xl font-bold tracking-tight break-words text-kv-navy sm:text-3xl md:text-4xl">
             Kenteken vergelijken: {parsed.kentekens.join(", ")}
           </h1>
-          <p className="text-lg leading-8 text-kv-muted">
+          <p className="text-base leading-7 text-kv-muted sm:text-lg sm:leading-8">
             Vergelijk de auto&apos;s achter de kentekens. Zie model, uitvoering,
             opties en uitrusting naast elkaar in één overzichtelijke tabel.
           </p>

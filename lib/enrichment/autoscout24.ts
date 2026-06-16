@@ -329,6 +329,8 @@ const FEATURE_MAP: Record<string, string> = {
   // rain_sensor
   "regen sensor": "rain_sensor",
   "regensensor": "rain_sensor",
+  "regensensoren": "rain_sensor",
+  "regendetectie": "rain_sensor",
   // roof_rails
   "dak rails": "roof_rails",
   "dakreling": "roof_rails",

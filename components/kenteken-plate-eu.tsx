@@ -17,15 +17,19 @@ const STAR_POSITIONS = [
 ] as const;
 
 type KentekenPlateEuStripProps = {
-  size?: "default" | "chip";
+  size?: "default" | "chip" | "compact";
 };
 
 export function KentekenPlateEuStrip({ size = "default" }: KentekenPlateEuStripProps) {
+  const sizeClass =
+    size === "compact"
+      ? "kv-plate-eu kv-plate-eu--compact"
+      : size === "chip"
+        ? "kv-plate-eu kv-plate-eu--chip"
+        : "kv-plate-eu";
+
   return (
-    <div
-      aria-hidden="true"
-      className={size === "chip" ? "kv-plate-eu kv-plate-eu--chip" : "kv-plate-eu"}
-    >
+    <div aria-hidden="true" className={sizeClass}>
       <svg className="kv-plate-eu-stars" viewBox="0 0 24 20" aria-hidden="true">
         <g fill="currentColor">
           {STAR_POSITIONS.map((star) => (
