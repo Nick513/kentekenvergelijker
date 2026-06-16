@@ -4,6 +4,7 @@ import { getCachedRdwFuel, getCachedRdwVehicle } from "@/lib/rdw/cache";
 import { mapRdwToSnapshot } from "@/lib/rdw/map";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 import { normalizeKenteken } from "@/lib/kenteken";
+import { loadPlateEnrichment } from "@/lib/enrichment/store";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
 import { buildComparisonGroups } from "@/lib/specifications/resolve";
 import { loadCatalogForPlates } from "@/lib/vehicles/catalog";
@@ -13,6 +14,7 @@ export type ComparisonBuildResult = {
   plates: PlateFetchResult[];
   hasNotFound: boolean;
   hasErrors: boolean;
+  initiallyEnriched: boolean;
 };
 
 export async function fetchPlate(licensePlate: string): Promise<PlateFetchResult> {
@@ -57,12 +59,40 @@ export async function buildComparison(
     Promise.all(formattedKentekens.map((kenteken) => fetchPlate(kenteken))),
   ]);
 
-  const catalogs = await loadCatalogForPlates(plates);
+  const okPlates = plates.filter(
+    (p): p is PlateFetchResult & { status: "ok" } => p.status === "ok",
+  );
+
+  const [catalogs, cachedEnrichments] = await Promise.all([
+    loadCatalogForPlates(plates),
+    Promise.all(okPlates.map((p) => loadPlateEnrichment(p.snapshot.licensePlate))),
+  ]);
+
+  const allEnriched =
+    okPlates.length > 0 &&
+    cachedEnrichments.every((e) => e !== null && e.size > 0);
+
+  if (allEnriched) {
+    let enrichedIndex = 0;
+    const alignedEnriched = plates.map((plate) => {
+      if (plate.status !== "ok") return null;
+      return cachedEnrichments[enrichedIndex++] ?? null;
+    });
+
+    return {
+      groups: buildComparisonGroups(specifications, plates, alignedEnriched, catalogs),
+      plates,
+      hasNotFound: plates.some((p) => p.status === "not_found"),
+      hasErrors: plates.some((p) => p.status === "error"),
+      initiallyEnriched: true,
+    };
+  }
 
   return {
     groups: buildComparisonGroups(specifications, plates, [], catalogs),
     plates,
-    hasNotFound: plates.some((plate) => plate.status === "not_found"),
-    hasErrors: plates.some((plate) => plate.status === "error"),
+    hasNotFound: plates.some((p) => p.status === "not_found"),
+    hasErrors: plates.some((p) => p.status === "error"),
+    initiallyEnriched: false,
   };
 }

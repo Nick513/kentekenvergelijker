@@ -91,6 +91,7 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         <ComparisonEnrichment
           kentekens={parsed.kentekens}
           initialGroups={comparison.groups}
+          initiallyEnriched={comparison.initiallyEnriched}
           hasNotFound={comparison.hasNotFound}
           hasErrors={comparison.hasErrors}
         />
