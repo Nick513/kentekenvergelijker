@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   applyTheme,
+  persistTheme,
   resolveTheme,
-  THEME_STORAGE_KEY,
   type Theme,
 } from "@/lib/theme";
 
@@ -53,12 +53,7 @@ export function ThemeToggle() {
   function toggleTheme() {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
 
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-    } catch {
-      // Ignore storage failures; theme still applies for this session.
-    }
-
+    persistTheme(nextTheme);
     applyTheme(nextTheme);
     setTheme(nextTheme);
   }

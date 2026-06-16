@@ -4,6 +4,7 @@
 
 /* House style: docs/design-system.md — palette extracted from brand logo */
 :root {
+  color-scheme: light;
   --kv-navy: #183878;
   --kv-navy-bg: #183878;
   --kv-navy-light: #104878;
@@ -37,6 +38,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --kv-navy: #c5d8ea;
   --kv-navy-bg: #0a1628;
   --kv-navy-light: #48a8b0;

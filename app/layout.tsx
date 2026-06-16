@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import {
   SITE_DESCRIPTION,
@@ -9,7 +9,7 @@ import {
   SITE_URL,
 } from "@/lib/site";
 import { Providers } from "@/components/providers";
-import { themeInitScript } from "@/lib/theme";
+import { isTheme, THEME_STORAGE_KEY, themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -75,21 +75,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeCookie = (await cookies()).get(THEME_STORAGE_KEY)?.value;
+  const serverTheme = isTheme(themeCookie) ? themeCookie : null;
+
   return (
     <html
       lang="nl"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased${serverTheme === "dark" ? " dark" : ""}`}
       suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-full bg-kv-bg font-sans text-kv-navy">
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeInitScript}
-        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>
