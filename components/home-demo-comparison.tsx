@@ -31,7 +31,7 @@ export async function HomeDemoComparison() {
           </p>
         </div>
 
-        <div className="kv-card overflow-hidden p-0">
+        <div className="kv-card overflow-hidden p-0 pt-3 sm:pt-0">
           <ComparisonTable
             kentekens={DEMO_KENTEKENS}
             groups={groups}
