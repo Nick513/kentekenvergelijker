@@ -13,6 +13,7 @@ type SearchableComparisonTableProps = {
   groups: ComparisonGroup[];
   caption?: string;
   isLoading?: boolean;
+  stickyPlates?: boolean;
 };
 
 function SearchIcon() {
@@ -39,6 +40,7 @@ export function SearchableComparisonTable({
   groups,
   caption,
   isLoading = false,
+  stickyPlates = false,
 }: SearchableComparisonTableProps) {
   const searchId = useId();
   const filledOnlyId = useId();
@@ -145,6 +147,7 @@ export function SearchableComparisonTable({
             kentekens={kentekens}
             groups={filteredGroups}
             caption={caption}
+            stickyPlates={stickyPlates}
           />
         </div>
       )}

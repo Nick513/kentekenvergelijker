@@ -42,6 +42,7 @@ export function ComparisonPreview({
         groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
         isLoading={isEnriching}
+        stickyPlates
       />
 
       <DataDisclaimer className="mt-6" />

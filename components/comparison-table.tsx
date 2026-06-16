@@ -27,6 +27,7 @@ type ComparisonTableProps = {
   kentekens: string[];
   groups: ComparisonGroup[];
   caption?: string;
+  stickyPlates?: boolean;
 };
 
 const SPEC_COLUMN_WIDTH = "11rem";
@@ -143,7 +144,12 @@ function StickyPlateBar({
   );
 }
 
-export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableProps) {
+export function ComparisonTable({
+  kentekens,
+  groups,
+  caption,
+  stickyPlates = false,
+}: ComparisonTableProps) {
   const columnCount = kentekens.length + 1;
   const tableMinWidth = `max(100%, calc(${SPEC_COLUMN_WIDTH} + ${kentekens.length} * ${PLATE_COLUMN_MIN_WIDTH}))`;
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -153,6 +159,10 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
   const [barGeometry, setBarGeometry] = useState({ left: 0, width: 0 });
 
   useLayoutEffect(() => {
+    if (!stickyPlates) {
+      return;
+    }
+
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) {
       return;
@@ -175,9 +185,13 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
       window.removeEventListener("resize", updateGeometry);
       window.removeEventListener("scroll", updateGeometry);
     };
-  }, []);
+  }, [stickyPlates]);
 
   useEffect(() => {
+    if (!stickyPlates) {
+      return;
+    }
+
     const headerRow = headerRowRef.current;
     if (!headerRow) {
       return;
@@ -211,9 +225,13 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
       observer?.disconnect();
       window.removeEventListener("resize", connect);
     };
-  }, [groups, kentekens]);
+  }, [groups, kentekens, stickyPlates]);
 
   const handleTableScroll = () => {
+    if (!stickyPlates) {
+      return;
+    }
+
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) {
       return;
@@ -224,7 +242,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
 
   return (
     <>
-      {showStickyPlates && barGeometry.width > 0 ? (
+      {stickyPlates && showStickyPlates && barGeometry.width > 0 ? (
         <StickyPlateBar
           kentekens={kentekens}
           tableMinWidth={tableMinWidth}
@@ -235,7 +253,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
 
       <div
         ref={scrollContainerRef}
-        onScroll={handleTableScroll}
+        onScroll={stickyPlates ? handleTableScroll : undefined}
         className="kv-comparison-table-scroll w-full overflow-x-auto rounded-xl border border-kv-border"
       >
         <table
