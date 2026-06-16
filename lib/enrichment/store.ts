@@ -8,6 +8,10 @@ import type {
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+// Background refreshes only run when data is older than this. Prevents every
+// page load from hammering external sources when data is already fresh.
+const BACKGROUND_REFRESH_COOLDOWN_MS = 4 * 60 * 60 * 1000;
+
 function rowToMap(specs: Record<string, EnrichedSpecValue>): EnrichedSpecMap {
   const map: EnrichedSpecMap = new Map();
   for (const [key, value] of Object.entries(specs)) {
@@ -37,6 +41,25 @@ export async function loadPlateEnrichment(
   }
 
   return rowToMap(data.specs as Record<string, EnrichedSpecValue>);
+}
+
+/**
+ * Returns true when a background refresh should run for this plate:
+ * - Never enriched, OR
+ * - Enriched but the data is older than the background refresh cooldown.
+ * Returns false when the data is fresh enough that re-scraping would just
+ * generate unnecessary traffic to external sources.
+ */
+export async function plateNeedsBackgroundRefresh(licensePlate: string): Promise<boolean> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("plate_enrichment_cache")
+    .select("fetched_at")
+    .eq("license_plate", licensePlate)
+    .single();
+
+  if (error || !data) return true;
+  return Date.now() - new Date(data.fetched_at).getTime() > BACKGROUND_REFRESH_COOLDOWN_MS;
 }
 
 /** Load existing enrichment bypassing the TTL — used when merging before save. */

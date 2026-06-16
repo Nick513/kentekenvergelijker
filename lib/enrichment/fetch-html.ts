@@ -66,6 +66,12 @@ function secFetchSite(targetUrl: string, referer?: string): string {
 export type FetchOptions = {
   /** URL that logically preceded this request (search page → detail page, etc.) */
   referer?: string;
+  /**
+   * Override the User-Agent header. Some sites (e.g. autoweek.nl) block
+   * browser-spoofed UAs from server environments based on TLS fingerprinting,
+   * but serve content to neutral tool UAs like python-requests.
+   */
+  userAgent?: string;
 };
 
 export async function fetchHtml(
@@ -76,7 +82,7 @@ export async function fetchHtml(
   const site = secFetchSite(url, options.referer);
 
   const headers: Record<string, string> = {
-    "User-Agent": profile.userAgent,
+    "User-Agent": options.userAgent ?? profile.userAgent,
     Accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-Language": "nl-NL,nl;q=0.9,en-US;q=0.8,en;q=0.7",

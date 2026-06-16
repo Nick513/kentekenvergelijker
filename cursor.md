@@ -6,6 +6,8 @@ Never expose how the app works in UI copy, metadata, SEO text, or error messages
 
 Do not mention data sources, APIs, registers, databases, caches, or third-party providers (for example RDW, Carbase, Supabase). Describe outcomes from the user's perspective only: kenteken lookup, specifications, comparison results, availability, and disclaimers.
 
+**Never link to any data source from the app.** No hrefs, redirects, or references to autoweek.nl, autoscout24.nl, gaspedaal.nl, marktplaats.nl, or any other site the app scrapes data from. This includes tooltips, attribution text, "more info" links, and any other visitor-visible element. Absolute non-negotiable.
+
 Internal docs (`docs/`), code comments, and backend modules may reference implementation details. Keep those out of anything a visitor can see.
 
 ## Design system

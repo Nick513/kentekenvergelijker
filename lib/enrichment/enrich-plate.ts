@@ -4,6 +4,7 @@ import { searchCarbase } from "@/lib/enrichment/carbase";
 import { searchTextListings } from "@/lib/enrichment/listings";
 import {
   loadPlateEnrichment,
+  plateNeedsBackgroundRefresh,
   savePlateEnrichment,
   savePlateListingSnapshot,
 } from "@/lib/enrichment/store";
@@ -25,6 +26,21 @@ export async function enrichPlate(
         specs: cached,
         fetchedAt: new Date().toISOString(),
       };
+    }
+  } else {
+    // Background refresh: only re-scrape when data is stale. If the cache was
+    // written recently, return it as-is to avoid hammering external sources on
+    // every page load.
+    const needsRefresh = await plateNeedsBackgroundRefresh(licensePlate);
+    if (!needsRefresh) {
+      const cached = await loadPlateEnrichment(licensePlate);
+      if (cached) {
+        return {
+          licensePlate,
+          specs: cached,
+          fetchedAt: new Date().toISOString(),
+        };
+      }
     }
   }
 

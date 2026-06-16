@@ -93,19 +93,7 @@ export function SpecVerificationModal({
             </p>
           </>
         )}
-        {sourceUrl ? (
-          <p className="mt-3 text-sm leading-7 text-kv-muted">
-            <a
-              href={sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
-              onClick={onClose}
-            >
-              Bekijk de typespecificaties
-            </a>
-          </p>
-        ) : null}
+        {null}
         <div className="mt-8 flex justify-end">
           <button
             type="button"

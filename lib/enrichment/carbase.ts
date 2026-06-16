@@ -234,6 +234,7 @@ const NEDC_LABEL_MAP: Record<string, string> = {
   "verbruik gecombineerd": "fuel_consumption_combined_nedc",
   "verbruik binnen bebouwde kom": "fuel_consumption_urban_nedc",
   "verbruik buiten bebouwde kom": "fuel_consumption_extra_urban_nedc",
+  "co2-uitstoot": "co2_emission_nedc_g_km",
   "stroomverbruik": "electricity_consumption_nedc",
   "actieradius": "electric_range_nedc",
 };
@@ -241,6 +242,7 @@ const NEDC_LABEL_MAP: Record<string, string> = {
 /** Labels inside a WLTP consumption section. */
 const WLTP_LABEL_MAP: Record<string, string> = {
   "verbruik gecombineerd": "fuel_consumption_combined_wltp",
+  "co2-uitstoot": "co2_emission_g_km",
   "stroomverbruik": "electricity_consumption_wltp",
   "actieradius": "electric_range_wltp",
 };
@@ -272,23 +274,22 @@ function normalize(text: string): string {
 
 type VersionLink = { href: string; label: string };
 
-function extractVersionLinks($: cheerio.CheerioAPI, modelPathname: string): VersionLink[] {
+// Autoweek embeds version links as /auto/{id}/{slug}/ inside the carbase model page.
+// The old /carbase/{brand}/{model}/{generation}/{variant}/ URLs no longer exist.
+const AUTO_VERSION_RE = /^\/auto\/\d+\//;
+
+function extractVersionLinks($: cheerio.CheerioAPI, _modelPathname: string): VersionLink[] {
   const seen = new Set<string>();
   const links: VersionLink[] = [];
 
-  $("a[href]").each((_, el) => {
+  // Target the version rows specifically to avoid picking up unrelated /auto/ links.
+  $(".carbase-version-row a[href], .carbase-versions-body a[href]").each((_, el) => {
     const raw = $(el).attr("href") ?? "";
     const href = raw.startsWith("http") ? raw : `${BASE}${raw}`;
     const label = $(el).text().trim();
-
-    if (!href.includes(BASE)) return;
     const path = new URL(href).pathname;
-    if (
-      !path.startsWith(modelPathname) ||
-      path === modelPathname ||
-      seen.has(path) ||
-      !label
-    ) return;
+
+    if (!AUTO_VERSION_RE.test(path) || seen.has(path) || !label) return;
 
     seen.add(path);
     links.push({ href, label });
@@ -476,6 +477,9 @@ function makeSpec(rawValue: string, versionUrl: string) {
 // Public entrypoint
 // ---------------------------------------------------------------------------
 
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const jitter = (min: number, max: number) => min + Math.random() * (max - min);
+
 export async function searchCarbase(
   snapshot: VehicleSnapshot,
 ): Promise<EnrichedSpecMap> {
@@ -484,7 +488,15 @@ export async function searchCarbase(
   const modelPathname = `/carbase/${brandSlug}/${modelSlug}/`;
   const modelUrl = `${BASE}${modelPathname}`;
 
-  const modelHtml = await fetchHtml(modelUrl, { referer: "https://www.google.nl/" });
+  // autoweek.nl shows a GDPR consent gate to browser UAs (Chrome/Firefox/Safari)
+  // but skips it for non-browser clients. okhttp is a common Android HTTP client
+  // and goes through without triggering the gate.
+  const fetchOpts = { userAgent: "okhttp/4.12.0" };
+
+  // Random entry delay so concurrent plate fetches don't all hit autoweek at once.
+  await sleep(jitter(0, 1200));
+
+  const modelHtml = await fetchHtml(modelUrl, fetchOpts);
   if (!modelHtml) return new Map();
 
   const $model = cheerio.load(modelHtml);
@@ -504,7 +516,10 @@ export async function searchCarbase(
 
   if (!bestLink) return new Map();
 
-  const versionHtml = await fetchHtml(bestLink.href, { referer: modelUrl });
+  // Pause between the two page fetches to look like casual browsing.
+  await sleep(jitter(400, 1000));
+
+  const versionHtml = await fetchHtml(bestLink.href, fetchOpts);
   if (!versionHtml) return new Map();
 
   const $version = cheerio.load(versionHtml);
