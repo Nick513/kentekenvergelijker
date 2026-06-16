@@ -41,12 +41,39 @@ export function SearchableComparisonTable({
   isLoading = false,
 }: SearchableComparisonTableProps) {
   const searchId = useId();
+  const filledOnlyId = useId();
   const [query, setQuery] = useState("");
+  const [showFilledOnly, setShowFilledOnly] = useState(false);
 
-  const filteredGroups = useMemo(
+  const searchFilteredGroups = useMemo(
     () => filterComparisonGroups(groups, query),
     [groups, query],
   );
+  const filteredGroups = useMemo(() => {
+    if (!showFilledOnly) {
+      return searchFilteredGroups;
+    }
+
+    return searchFilteredGroups
+      .map((group) => ({
+        ...group,
+        rows: group.rows.filter((row) =>
+          row.values.some((cell) => {
+            if (typeof cell.value === "boolean") {
+              return cell.value;
+            }
+
+            const trimmedValue = cell.value.trim();
+            if (trimmedValue === "" || trimmedValue === "-") {
+              return false;
+            }
+
+            return trimmedValue !== "0";
+          }),
+        ),
+      }))
+      .filter((group) => group.rows.length > 0);
+  }, [searchFilteredGroups, showFilledOnly]);
   const totalRows = useMemo(() => countComparisonRows(groups), [groups]);
   const visibleRows = useMemo(
     () => countComparisonRows(filteredGroups),
@@ -58,37 +85,59 @@ export function SearchableComparisonTable({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <label htmlFor={searchId} className="sr-only">
-          Zoek specificaties
-        </label>
-        <div className="relative w-full sm:max-w-md">
-          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-            <SearchIcon />
-          </span>
-          <input
-            id={searchId}
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Zoek specificaties..."
-            autoComplete="off"
-            className="kv-search-input w-full rounded-xl border border-kv-border bg-kv-surface py-2.5 pr-4 pl-10 text-sm text-kv-navy shadow-sm transition-colors placeholder:text-kv-muted focus:border-kv-teal focus:ring-2 focus:ring-kv-teal/20 focus:outline-none"
-          />
+      <div className="rounded-xl border border-kv-border bg-kv-bg/40 p-3 sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label htmlFor={searchId} className="sr-only">
+            Zoek specificaties
+          </label>
+          <div className="relative w-full sm:flex-1">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+              <SearchIcon />
+            </span>
+            <input
+              id={searchId}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Zoek specificaties..."
+              autoComplete="off"
+              className="kv-search-input w-full rounded-xl border border-kv-border bg-kv-surface py-2.5 pr-4 pl-10 text-sm text-kv-navy shadow-sm transition-colors placeholder:text-kv-muted focus:border-kv-teal focus:ring-2 focus:ring-kv-teal/20 focus:outline-none"
+            />
+          </div>
+          <label
+            htmlFor={filledOnlyId}
+            className="inline-flex cursor-pointer items-center gap-3 rounded-xl border border-kv-border bg-kv-surface px-3 py-2 text-sm text-kv-navy transition-colors hover:border-kv-teal/50"
+          >
+            <input
+              id={filledOnlyId}
+              type="checkbox"
+              checked={showFilledOnly}
+              onChange={(event) => setShowFilledOnly(event.target.checked)}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden="true"
+              className="relative h-6 w-11 rounded-full bg-kv-border shadow-inner transition-colors duration-200 peer-checked:bg-kv-teal peer-focus-visible:ring-2 peer-focus-visible:ring-kv-teal/30 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-kv-surface"
+            >
+              <span className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-kv-surface shadow-sm transition-transform duration-200 peer-checked:translate-x-5" />
+            </span>
+            Toon alleen ingevulde rijen
+          </label>
         </div>
-        {isFiltering ? (
-          <p className="text-sm text-kv-muted" role="status" aria-live="polite">
+        {(isFiltering || showFilledOnly) && (
+          <p className="mt-3 text-sm text-kv-muted" role="status" aria-live="polite">
             {visibleRows === 0
               ? "Geen specificaties gevonden"
               : `${visibleRows} van ${totalRows} specificaties`}
           </p>
-        ) : null}
+        )}
       </div>
 
-      {isFiltering && visibleRows === 0 ? (
+      {visibleRows === 0 && (isFiltering || showFilledOnly) ? (
         <p className="rounded-xl border border-kv-border bg-kv-bg/60 px-4 py-6 text-center text-sm text-kv-muted">
-          Geen specificaties gevonden voor &ldquo;{trimmedQuery}&rdquo;. Probeer
-          een andere zoekterm of een groepsnaam zoals &ldquo;Veiligheid&rdquo;.
+          {isFiltering
+            ? `Geen specificaties gevonden voor "${trimmedQuery}". Probeer een andere zoekterm of een groepsnaam zoals "Veiligheid".`
+            : "Geen ingevulde specificaties gevonden. Zet de filter uit om alle rijen te tonen."}
         </p>
       ) : (
         <div className={isLoading ? "opacity-70 transition-opacity" : undefined}>
