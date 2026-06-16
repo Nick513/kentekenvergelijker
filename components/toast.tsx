@@ -10,12 +10,6 @@ import {
   type ReactNode,
 } from "react";
 
-declare global {
-  interface Window {
-    __kvToast?: (message: string) => void;
-  }
-}
-
 type ToastAction = {
   label: string;
   onClick: () => void;
@@ -51,18 +45,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const id = nextId.current++;
     setToasts((current) => [...current, { id, message, action: options?.action }]);
   }, []);
-
-  useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
-
-    window.__kvToast = (message: string) => {
-      showToast(message);
-    };
-
-    return () => {
-      delete window.__kvToast;
-    };
-  }, [showToast]);
 
   return (
     <ToastContext.Provider value={{ showToast }}>
