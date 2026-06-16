@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeKey } from "@/hooks/use-escape-key";
 
 type NavItem = {
   href: string;
@@ -65,20 +66,7 @@ export function MobileNav({ items }: MobileNavProps) {
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open]);
+  useEscapeKey(() => setOpen(false), open);
 
   function closeMenu() {
     setOpen(false);

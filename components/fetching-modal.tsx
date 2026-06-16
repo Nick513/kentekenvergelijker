@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeKey } from "@/hooks/use-escape-key";
 
 type FetchingModalProps = {
   open: boolean;
@@ -14,6 +15,8 @@ export function FetchingModal({ open, onDismiss }: FetchingModalProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEscapeKey(onDismiss, open);
 
   useEffect(() => {
     if (!open) return;

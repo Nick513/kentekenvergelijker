@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useEscapeKey } from "@/hooks/use-escape-key";
 import type { SpecVerification } from "@/lib/enrichment/types";
 
 type SpecVerificationModalProps = {
@@ -22,6 +23,8 @@ export function SpecVerificationModal({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEscapeKey(onClose, open);
 
   useEffect(() => {
     if (!open) {
