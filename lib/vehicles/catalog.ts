@@ -707,25 +707,6 @@ type CatalogContext = {
   catalogKeyById: Map<string, string>;
 };
 
-async function loadLinkedConfigurationIds(
-  supabase: ReturnType<typeof createSupabaseServerClient>,
-  configurationKey: string,
-): Promise<string[]> {
-  if (!configurationKey) {
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from("configuration_links")
-    .select("vehicle_configuration_id")
-    .eq("configuration_key", configurationKey);
-
-  if (error) {
-    throw new Error(`Failed to load configuration links: ${error.message}`);
-  }
-
-  return (data ?? []).map((row) => row.vehicle_configuration_id);
-}
 
 function fuelsMatch(rdwFuel: string, catalogFuel: string): boolean {
   const rdw = normalize(rdwFuel);
@@ -860,56 +841,25 @@ async function resolveCatalogContext(
     if (next.length > 0) matchedIds = next;
   }
 
-  const linkedIds = await loadLinkedConfigurationIds(
-    supabase,
-    snapshot.configurationKey,
+  const trimGroups = groupIdsByTrim(matchedIds, modelMatches);
+  const { trimSlug, confidence } = resolveTrimSlug(
+    snapshot,
+    trimGroups,
+    modelMatches,
+    rows,
+    fuelById,
+    catalogKeyById,
   );
-  const linkedMatches = matchedIds.filter((id) => linkedIds.includes(id));
-  let primaryId: string | null;
 
-  if (linkedMatches.length > 0) {
-    primaryId = pickExactConfigurationId(
-      snapshot,
-      linkedMatches,
-      modelMatches,
-      rows,
-      fuelById,
-      catalogKeyById,
-      null,
-    );
-  } else {
-    const trimGroups = groupIdsByTrim(matchedIds, modelMatches);
-    const { trimSlug, confidence } = resolveTrimSlug(
-      snapshot,
-      trimGroups,
-      modelMatches,
-      rows,
-      fuelById,
-      catalogKeyById,
-    );
-
-    if (!trimSlug || confidence < MIN_TRIM_CONFIDENCE_SCORE) {
-      primaryId = pickExactConfigurationId(
-        snapshot,
-        matchedIds,
-        modelMatches,
-        rows,
-        fuelById,
-        catalogKeyById,
-        null,
-      );
-    } else {
-      primaryId = pickExactConfigurationId(
-        snapshot,
-        matchedIds,
-        modelMatches,
-        rows,
-        fuelById,
-        catalogKeyById,
-        trimSlug,
-      );
-    }
-  }
+  const primaryId = pickExactConfigurationId(
+    snapshot,
+    matchedIds,
+    modelMatches,
+    rows,
+    fuelById,
+    catalogKeyById,
+    trimSlug && confidence >= MIN_TRIM_CONFIDENCE_SCORE ? trimSlug : null,
+  );
 
   return { primaryId, modelMatches, rows, catalogKeyById };
 }
