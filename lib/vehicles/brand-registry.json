@@ -1,0 +1,2886 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-16T09:35:14.985Z",
+  "source": {
+    "dataset": "m9d7-ebf2",
+    "filter": "voertuigsoort = Personenauto",
+    "minCount": 1
+  },
+  "summary": {
+    "activeBrandCount": 74,
+    "legacyRareBrandCount": 109,
+    "legacyRareOnRoadCount": 102,
+    "rdwUnclassifiedCount": 275,
+    "totalRdwMerken": 1441
+  },
+  "active": [
+    {
+      "canonical": "Volkswagen",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Volkswagen",
+        "VW",
+        "VW-PORSCHE"
+      ],
+      "registeredCount": 1249794
+    },
+    {
+      "canonical": "Toyota",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Toyota"
+      ],
+      "registeredCount": 779871
+    },
+    {
+      "canonical": "Peugeot",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Peugeot"
+      ],
+      "registeredCount": 656481
+    },
+    {
+      "canonical": "Opel",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Opel"
+      ],
+      "registeredCount": 654363
+    },
+    {
+      "canonical": "Renault",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Renault"
+      ],
+      "registeredCount": 647961
+    },
+    {
+      "canonical": "Ford",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Ford"
+      ],
+      "registeredCount": 627972
+    },
+    {
+      "canonical": "BMW",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "BMW",
+        "BMW I",
+        "BMW/ALPINA",
+        "BMW-GLAS"
+      ],
+      "registeredCount": 511882
+    },
+    {
+      "canonical": "Kia",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Kia"
+      ],
+      "registeredCount": 501098
+    },
+    {
+      "canonical": "Mercedes-Benz",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Mercedes-Benz",
+        "MERCEDES-AMG",
+        "DAIMLER BENZ",
+        "DAIMLERCHRYSLER AG"
+      ],
+      "registeredCount": 472691
+    },
+    {
+      "canonical": "Volvo",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Volvo"
+      ],
+      "registeredCount": 457323
+    },
+    {
+      "canonical": "Audi",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Audi",
+        "AUDI-NSU",
+        "AUDI/PORSCHE",
+        "QUATTRO"
+      ],
+      "registeredCount": 423657
+    },
+    {
+      "canonical": "Citroen",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Citroen"
+      ],
+      "registeredCount": 382567
+    },
+    {
+      "canonical": "Hyundai",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Hyundai"
+      ],
+      "registeredCount": 363334
+    },
+    {
+      "canonical": "Fiat",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Fiat"
+      ],
+      "registeredCount": 311761
+    },
+    {
+      "canonical": "Skoda",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Skoda"
+      ],
+      "registeredCount": 309826
+    },
+    {
+      "canonical": "Suzuki",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Suzuki"
+      ],
+      "registeredCount": 294437
+    },
+    {
+      "canonical": "Nissan",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Nissan"
+      ],
+      "registeredCount": 263007
+    },
+    {
+      "canonical": "Seat",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Seat"
+      ],
+      "registeredCount": 234149
+    },
+    {
+      "canonical": "Mazda",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Mazda"
+      ],
+      "registeredCount": 203557
+    },
+    {
+      "canonical": "Mini",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Mini"
+      ],
+      "registeredCount": 161948
+    },
+    {
+      "canonical": "Dacia",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Dacia"
+      ],
+      "registeredCount": 87032
+    },
+    {
+      "canonical": "Tesla",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Tesla",
+        "TESLA MOTORS"
+      ],
+      "registeredCount": 136609
+    },
+    {
+      "canonical": "Cupra",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Cupra"
+      ],
+      "registeredCount": 29725
+    },
+    {
+      "canonical": "Land Rover",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Land Rover"
+      ],
+      "registeredCount": 54952
+    },
+    {
+      "canonical": "Jaguar",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Jaguar",
+        "JAGUAR CARS",
+        "JAGUAR LAND ROVER"
+      ],
+      "registeredCount": 26672
+    },
+    {
+      "canonical": "Lexus",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Lexus"
+      ],
+      "registeredCount": 31190
+    },
+    {
+      "canonical": "Honda",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Honda"
+      ],
+      "registeredCount": 78038
+    },
+    {
+      "canonical": "Mitsubishi",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Mitsubishi"
+      ],
+      "registeredCount": 138325
+    },
+    {
+      "canonical": "Jeep",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Jeep"
+      ],
+      "registeredCount": 34025
+    },
+    {
+      "canonical": "DS",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "DS",
+        "DS AUTOMOBILES"
+      ],
+      "registeredCount": 9753
+    },
+    {
+      "canonical": "Smart",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Smart",
+        "MICRO COMPACT CAR SMART"
+      ],
+      "registeredCount": 20174
+    },
+    {
+      "canonical": "Alfa Romeo",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Alfa Romeo"
+      ],
+      "registeredCount": 49966
+    },
+    {
+      "canonical": "Porsche",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Porsche"
+      ],
+      "registeredCount": 63565
+    },
+    {
+      "canonical": "Subaru",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Subaru"
+      ],
+      "registeredCount": 23686
+    },
+    {
+      "canonical": "Polestar",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Polestar"
+      ],
+      "registeredCount": 16611
+    },
+    {
+      "canonical": "MG",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "MG",
+        "MG"
+      ],
+      "registeredCount": 67576
+    },
+    {
+      "canonical": "BYD",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "BYD"
+      ],
+      "registeredCount": 13796
+    },
+    {
+      "canonical": "Leapmotor",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Leapmotor"
+      ],
+      "registeredCount": 3040
+    },
+    {
+      "canonical": "Xpeng",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Xpeng"
+      ],
+      "registeredCount": 3645
+    },
+    {
+      "canonical": "Omoda",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Omoda"
+      ],
+      "registeredCount": 768
+    },
+    {
+      "canonical": "Jaecoo",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Jaecoo"
+      ],
+      "registeredCount": 2009
+    },
+    {
+      "canonical": "Aiways",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Aiways"
+      ],
+      "registeredCount": 816
+    },
+    {
+      "canonical": "Seres",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Seres"
+      ],
+      "registeredCount": 198
+    },
+    {
+      "canonical": "Lynk & Co",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "LYNK&CO"
+      ],
+      "registeredCount": 35395
+    },
+    {
+      "canonical": "Genesis",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Genesis"
+      ],
+      "registeredCount": 70
+    },
+    {
+      "canonical": "Ineos",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Ineos"
+      ],
+      "registeredCount": 4
+    },
+    {
+      "canonical": "Alpine",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Alpine"
+      ],
+      "registeredCount": 729
+    },
+    {
+      "canonical": "Lotus",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Lotus"
+      ],
+      "registeredCount": 1611
+    },
+    {
+      "canonical": "Maserati",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Maserati"
+      ],
+      "registeredCount": 3533
+    },
+    {
+      "canonical": "Bentley",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Bentley"
+      ],
+      "registeredCount": 3159
+    },
+    {
+      "canonical": "Rolls-Royce",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Rolls-Royce",
+        "ROLLS ROYCE"
+      ],
+      "registeredCount": 1560
+    },
+    {
+      "canonical": "Aston Martin",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Aston Martin"
+      ],
+      "registeredCount": 2117
+    },
+    {
+      "canonical": "Ferrari",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Ferrari"
+      ],
+      "registeredCount": 4391
+    },
+    {
+      "canonical": "Lamborghini",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Lamborghini",
+        "AUTOMOBILI LAMBORGHINI S.",
+        "LAMBORGHINI"
+      ],
+      "registeredCount": 1880
+    },
+    {
+      "canonical": "Abarth",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Abarth"
+      ],
+      "registeredCount": 248
+    },
+    {
+      "canonical": "Chrysler",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Chrysler"
+      ],
+      "registeredCount": 8621
+    },
+    {
+      "canonical": "Dodge",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Dodge"
+      ],
+      "registeredCount": 4843
+    },
+    {
+      "canonical": "Cadillac",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Cadillac"
+      ],
+      "registeredCount": 4037
+    },
+    {
+      "canonical": "Chevrolet",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Chevrolet"
+      ],
+      "registeredCount": 56699
+    },
+    {
+      "canonical": "Lincoln",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Lincoln"
+      ],
+      "registeredCount": 1395
+    },
+    {
+      "canonical": "Nio",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Nio"
+      ],
+      "registeredCount": 890
+    },
+    {
+      "canonical": "Zeekr",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Zeekr"
+      ],
+      "registeredCount": 3306
+    },
+    {
+      "canonical": "VinFast",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "VinFast"
+      ],
+      "registeredCount": 35
+    },
+    {
+      "canonical": "Rivian",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Rivian"
+      ],
+      "registeredCount": 3
+    },
+    {
+      "canonical": "Maxus",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Maxus"
+      ],
+      "registeredCount": 32
+    },
+    {
+      "canonical": "DFSK",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "DFSK"
+      ],
+      "registeredCount": 157
+    },
+    {
+      "canonical": "Great Wall",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Great Wall"
+      ],
+      "registeredCount": 1
+    },
+    {
+      "canonical": "Haval",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Haval"
+      ],
+      "registeredCount": 4
+    },
+    {
+      "canonical": "Chery",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Chery"
+      ],
+      "registeredCount": 33
+    },
+    {
+      "canonical": "Geely",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Geely"
+      ],
+      "registeredCount": 39
+    },
+    {
+      "canonical": "Ora",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "Ora"
+      ],
+      "registeredCount": 1
+    },
+    {
+      "canonical": "JAC",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "JAC"
+      ],
+      "registeredCount": 29
+    },
+    {
+      "canonical": "BAIC",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "BAIC"
+      ],
+      "registeredCount": 4
+    },
+    {
+      "canonical": "SsangYong",
+      "tier": "active",
+      "marketStatus": "current",
+      "rdwMerken": [
+        "SsangYong"
+      ],
+      "registeredCount": 689
+    }
+  ],
+  "legacyRare": [
+    {
+      "canonical": "Daihatsu",
+      "tier": "legacy_rare",
+      "marketStatus": "exited_nl",
+      "notes": null,
+      "rdwMerken": [
+        "DAIHATSU"
+      ],
+      "registeredCount": 40642
+    },
+    {
+      "canonical": "Saab",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": "Production ended 2012",
+      "rdwMerken": [
+        "SAAB"
+      ],
+      "registeredCount": 32280
+    },
+    {
+      "canonical": "Lancia",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": "No new passenger cars in NL",
+      "rdwMerken": [
+        "LANCIA"
+      ],
+      "registeredCount": 9931
+    },
+    {
+      "canonical": "Triumph",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "TRIUMPH"
+      ],
+      "registeredCount": 6245
+    },
+    {
+      "canonical": "Auto Union",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "AUTO UNION"
+      ],
+      "registeredCount": 5951
+    },
+    {
+      "canonical": "Rover",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ROVER"
+      ],
+      "registeredCount": 5866
+    },
+    {
+      "canonical": "Daewoo",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "DAEWOO"
+      ],
+      "registeredCount": 4033
+    },
+    {
+      "canonical": "DAF",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": "Passenger cars ended 1970s; trucks remain separate",
+      "rdwMerken": [
+        "DAF"
+      ],
+      "registeredCount": 3985
+    },
+    {
+      "canonical": "Pontiac",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "PONTIAC"
+      ],
+      "registeredCount": 2743
+    },
+    {
+      "canonical": "Austin",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "AUSTIN"
+      ],
+      "registeredCount": 2683
+    },
+    {
+      "canonical": "Willys",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "WILLYS"
+      ],
+      "registeredCount": 1369
+    },
+    {
+      "canonical": "Daimler",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": "Historic British marque, not Mercedes parent",
+      "rdwMerken": [
+        "DAIMLER"
+      ],
+      "registeredCount": 1318
+    },
+    {
+      "canonical": "Morris",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "MORRIS"
+      ],
+      "registeredCount": 1280
+    },
+    {
+      "canonical": "Datsun",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": "Revived as sub-brand; RDW still lists historic Datsun",
+      "rdwMerken": [
+        "DATSUN"
+      ],
+      "registeredCount": 1228
+    },
+    {
+      "canonical": "Oldsmobile",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "OLDSMOBILE"
+      ],
+      "registeredCount": 1188
+    },
+    {
+      "canonical": "Lada",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "LADA"
+      ],
+      "registeredCount": 993
+    },
+    {
+      "canonical": "Trabant",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "TRABANT"
+      ],
+      "registeredCount": 948
+    },
+    {
+      "canonical": "Infiniti",
+      "tier": "legacy_rare",
+      "marketStatus": "exited_eu",
+      "notes": null,
+      "rdwMerken": [
+        "INFINITI"
+      ],
+      "registeredCount": 906
+    },
+    {
+      "canonical": "Morgan",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "MORGAN"
+      ],
+      "registeredCount": 740
+    },
+    {
+      "canonical": "Mercury",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "MERCURY"
+      ],
+      "registeredCount": 724
+    },
+    {
+      "canonical": "Simca",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "SIMCA"
+      ],
+      "registeredCount": 646
+    },
+    {
+      "canonical": "Plymouth",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "PLYMOUTH"
+      ],
+      "registeredCount": 642
+    },
+    {
+      "canonical": "NSU",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "N.S.U."
+      ],
+      "registeredCount": 598
+    },
+    {
+      "canonical": "Autobianchi",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "AUTO BIANCHI"
+      ],
+      "registeredCount": 584
+    },
+    {
+      "canonical": "Matra",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "MATRA"
+      ],
+      "registeredCount": 464
+    },
+    {
+      "canonical": "TVR",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "TVR"
+      ],
+      "registeredCount": 454
+    },
+    {
+      "canonical": "Alpine-Renault",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ALPINE-RENAULT"
+      ],
+      "registeredCount": 414
+    },
+    {
+      "canonical": "Vauxhall",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": "UK brand; distinct RDW merk from Opel imports",
+      "rdwMerken": [
+        "VAUXHALL"
+      ],
+      "registeredCount": 409
+    },
+    {
+      "canonical": "Bedford",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "BEDFORD"
+      ],
+      "registeredCount": 380
+    },
+    {
+      "canonical": "Donkervoort",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "DONKERVOORT"
+      ],
+      "registeredCount": 361
+    },
+    {
+      "canonical": "Talbot",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "TALBOT"
+      ],
+      "registeredCount": 323
+    },
+    {
+      "canonical": "Austin-Healey",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "AUSTIN-HEALEY"
+      ],
+      "registeredCount": 307
+    },
+    {
+      "canonical": "Westfield",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "WESTFIELD"
+      ],
+      "registeredCount": 268
+    },
+    {
+      "canonical": "Sunbeam",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "SUNBEAM"
+      ],
+      "registeredCount": 251
+    },
+    {
+      "canonical": "Hummer",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "HUMMER"
+      ],
+      "registeredCount": 233
+    },
+    {
+      "canonical": "Reliant",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "RELIANT"
+      ],
+      "registeredCount": 225
+    },
+    {
+      "canonical": "Jensen",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "JENSEN"
+      ],
+      "registeredCount": 211
+    },
+    {
+      "canonical": "Wolseley",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "WOLSELEY"
+      ],
+      "registeredCount": 204
+    },
+    {
+      "canonical": "AMC",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "AMC",
+        "AMERICAN MOTORS"
+      ],
+      "registeredCount": 203
+    },
+    {
+      "canonical": "Riley",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "RILEY"
+      ],
+      "registeredCount": 191
+    },
+    {
+      "canonical": "Studebaker",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "STUDEBAKER"
+      ],
+      "registeredCount": 189
+    },
+    {
+      "canonical": "Fisker",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "FISKER"
+      ],
+      "registeredCount": 184
+    },
+    {
+      "canonical": "Panhard",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "PANHARD"
+      ],
+      "registeredCount": 163
+    },
+    {
+      "canonical": "Packard",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "PACKARD"
+      ],
+      "registeredCount": 159
+    },
+    {
+      "canonical": "Wartburg",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "WARTBURG"
+      ],
+      "registeredCount": 153
+    },
+    {
+      "canonical": "Zastava",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ZASTAVA"
+      ],
+      "registeredCount": 153
+    },
+    {
+      "canonical": "Borgward",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "BORGWARD"
+      ],
+      "registeredCount": 150
+    },
+    {
+      "canonical": "Caterham",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "CATERHAM"
+      ],
+      "registeredCount": 137
+    },
+    {
+      "canonical": "Singer",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "SINGER"
+      ],
+      "registeredCount": 133
+    },
+    {
+      "canonical": "Alvis",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ALVIS"
+      ],
+      "registeredCount": 133
+    },
+    {
+      "canonical": "Innocenti",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "INNOCENTI"
+      ],
+      "registeredCount": 124
+    },
+    {
+      "canonical": "Kaiser",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "KAISER"
+      ],
+      "registeredCount": 123
+    },
+    {
+      "canonical": "DeLorean",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "DE LOREAN"
+      ],
+      "registeredCount": 116
+    },
+    {
+      "canonical": "DeSoto",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "DESOTO",
+        "DE SOTO"
+      ],
+      "registeredCount": 94
+    },
+    {
+      "canonical": "Armstrong Siddeley",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ARMSTRONG SIDDELEY"
+      ],
+      "registeredCount": 78
+    },
+    {
+      "canonical": "Hillman",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "HILLMAN"
+      ],
+      "registeredCount": 77
+    },
+    {
+      "canonical": "De Tomaso",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "DE TOMASO"
+      ],
+      "registeredCount": 77
+    },
+    {
+      "canonical": "Isuzu",
+      "tier": "legacy_rare",
+      "marketStatus": "exited_nl",
+      "notes": "Passenger cars largely exited; pickups remain",
+      "rdwMerken": [
+        "ISUZU"
+      ],
+      "registeredCount": 73
+    },
+    {
+      "canonical": "Wiesmann",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "WIESMANN"
+      ],
+      "registeredCount": 72
+    },
+    {
+      "canonical": "Nash",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "NASH"
+      ],
+      "registeredCount": 65
+    },
+    {
+      "canonical": "Polski Fiat",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "POLSKI FIAT"
+      ],
+      "registeredCount": 64
+    },
+    {
+      "canonical": "Hudson",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "HUDSON"
+      ],
+      "registeredCount": 60
+    },
+    {
+      "canonical": "Excalibur",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "EXCALIBUR"
+      ],
+      "registeredCount": 59
+    },
+    {
+      "canonical": "Tatra",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "TATRA"
+      ],
+      "registeredCount": 58
+    },
+    {
+      "canonical": "Marcos",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "MARCOS"
+      ],
+      "registeredCount": 54
+    },
+    {
+      "canonical": "Lagonda",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "LAGONDA"
+      ],
+      "registeredCount": 53
+    },
+    {
+      "canonical": "Glas",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "GLAS"
+      ],
+      "registeredCount": 41
+    },
+    {
+      "canonical": "FSO",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "FSO"
+      ],
+      "registeredCount": 38
+    },
+    {
+      "canonical": "Rambler",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "RAMBLER"
+      ],
+      "registeredCount": 35
+    },
+    {
+      "canonical": "Standard",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "STANDARD"
+      ],
+      "registeredCount": 33
+    },
+    {
+      "canonical": "Bristol",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "BRISTOL"
+      ],
+      "registeredCount": 31
+    },
+    {
+      "canonical": "Bitter",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "BITTER"
+      ],
+      "registeredCount": 30
+    },
+    {
+      "canonical": "Edsel",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "EDSEL"
+      ],
+      "registeredCount": 30
+    },
+    {
+      "canonical": "Facel Vega",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "FACEL VEGA"
+      ],
+      "registeredCount": 26
+    },
+    {
+      "canonical": "Checker",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "CHECKER"
+      ],
+      "registeredCount": 22
+    },
+    {
+      "canonical": "Spyker",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "SPYKER"
+      ],
+      "registeredCount": 20
+    },
+    {
+      "canonical": "Stutz",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "STUTZ"
+      ],
+      "registeredCount": 20
+    },
+    {
+      "canonical": "Moskvitch",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "MOSKVITCH"
+      ],
+      "registeredCount": 17
+    },
+    {
+      "canonical": "Eagle",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "EAGLE"
+      ],
+      "registeredCount": 17
+    },
+    {
+      "canonical": "Geo",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "GEO"
+      ],
+      "registeredCount": 17
+    },
+    {
+      "canonical": "Ariel",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "ARIEL"
+      ],
+      "registeredCount": 14
+    },
+    {
+      "canonical": "Vanden Plas",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "VANDEN PLAS"
+      ],
+      "registeredCount": 13
+    },
+    {
+      "canonical": "Saturn",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "SATURN"
+      ],
+      "registeredCount": 13
+    },
+    {
+      "canonical": "Ginetta",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "GINETTA"
+      ],
+      "registeredCount": 13
+    },
+    {
+      "canonical": "Bond",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "BOND"
+      ],
+      "registeredCount": 11
+    },
+    {
+      "canonical": "Scion",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "SCION"
+      ],
+      "registeredCount": 10
+    },
+    {
+      "canonical": "Yugo",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "YUGO"
+      ],
+      "registeredCount": 9
+    },
+    {
+      "canonical": "Pierce-Arrow",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "PIERCE-ARROW"
+      ],
+      "registeredCount": 9
+    },
+    {
+      "canonical": "Franklin",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "FRANKLIN"
+      ],
+      "registeredCount": 8
+    },
+    {
+      "canonical": "Iso",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ISO"
+      ],
+      "registeredCount": 7
+    },
+    {
+      "canonical": "Horch",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "HORCH"
+      ],
+      "registeredCount": 6
+    },
+    {
+      "canonical": "Holden",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "HOLDEN"
+      ],
+      "registeredCount": 6
+    },
+    {
+      "canonical": "Cord",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "CORD"
+      ],
+      "registeredCount": 6
+    },
+    {
+      "canonical": "Wanderer",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "WANDERER"
+      ],
+      "registeredCount": 3
+    },
+    {
+      "canonical": "Invicta",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "INVICTA"
+      ],
+      "registeredCount": 3
+    },
+    {
+      "canonical": "Monteverdi",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "MONTEVERDI"
+      ],
+      "registeredCount": 3
+    },
+    {
+      "canonical": "Noble",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "NOBLE"
+      ],
+      "registeredCount": 2
+    },
+    {
+      "canonical": "BAC",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "BAC"
+      ],
+      "registeredCount": 2
+    },
+    {
+      "canonical": "Zenos",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "ZENOS"
+      ],
+      "registeredCount": 2
+    },
+    {
+      "canonical": "Proton",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "PROTON"
+      ],
+      "registeredCount": 1
+    },
+    {
+      "canonical": "Saleen",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [
+        "SALEEN"
+      ],
+      "registeredCount": 1
+    },
+    {
+      "canonical": "Duesenberg",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [
+        "DUESENBERG"
+      ],
+      "registeredCount": 1
+    },
+    {
+      "canonical": "DKW",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    },
+    {
+      "canonical": "Perodua",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    },
+    {
+      "canonical": "Rover Group",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    },
+    {
+      "canonical": "Austin Rover",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    },
+    {
+      "canonical": "Vector",
+      "tier": "legacy_rare",
+      "marketStatus": "discontinued",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    },
+    {
+      "canonical": "Panoz",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    },
+    {
+      "canonical": "Radical",
+      "tier": "legacy_rare",
+      "marketStatus": "niche",
+      "notes": null,
+      "rdwMerken": [],
+      "registeredCount": 0
+    }
+  ],
+  "rdwUnclassified": [
+    {
+      "rdwMerk": "FORD-CNG-TECHNIK",
+      "registeredCount": 3975
+    },
+    {
+      "rdwMerk": "BUICK",
+      "registeredCount": 1952
+    },
+    {
+      "rdwMerk": "CHALLENGER",
+      "registeredCount": 1893
+    },
+    {
+      "rdwMerk": "IVECO",
+      "registeredCount": 1191
+    },
+    {
+      "rdwMerk": "G.M.C.",
+      "registeredCount": 757
+    },
+    {
+      "rdwMerk": "DONGFENG",
+      "registeredCount": 731
+    },
+    {
+      "rdwMerk": "TOTH ES FIAI",
+      "registeredCount": 365
+    },
+    {
+      "rdwMerk": "MC LAREN",
+      "registeredCount": 251
+    },
+    {
+      "rdwMerk": "MICRO COMPACT CAR",
+      "registeredCount": 251
+    },
+    {
+      "rdwMerk": "CONCORDE",
+      "registeredCount": 244
+    },
+    {
+      "rdwMerk": "AUTOSTAR",
+      "registeredCount": 229
+    },
+    {
+      "rdwMerk": "BAVARIA",
+      "registeredCount": 218
+    },
+    {
+      "rdwMerk": "D.K.W.",
+      "registeredCount": 208
+    },
+    {
+      "rdwMerk": "ITINEO",
+      "registeredCount": 199
+    },
+    {
+      "rdwMerk": "MONCAYO",
+      "registeredCount": 198
+    },
+    {
+      "rdwMerk": "LUCID MOTORS",
+      "registeredCount": 194
+    },
+    {
+      "rdwMerk": "HANOMAG-HENSCHEL",
+      "registeredCount": 192
+    },
+    {
+      "rdwMerk": "SEA",
+      "registeredCount": 188
+    },
+    {
+      "rdwMerk": "LA STRADA",
+      "registeredCount": 186
+    },
+    {
+      "rdwMerk": "LADA-VAZ",
+      "registeredCount": 169
+    },
+    {
+      "rdwMerk": "M.A.N.",
+      "registeredCount": 166
+    },
+    {
+      "rdwMerk": "KG MOBILITY",
+      "registeredCount": 166
+    },
+    {
+      "rdwMerk": "CI",
+      "registeredCount": 166
+    },
+    {
+      "rdwMerk": "FAW",
+      "registeredCount": 160
+    },
+    {
+      "rdwMerk": "GMC",
+      "registeredCount": 159
+    },
+    {
+      "rdwMerk": "PUCH",
+      "registeredCount": 154
+    },
+    {
+      "rdwMerk": "DERCKS",
+      "registeredCount": 153
+    },
+    {
+      "rdwMerk": "FORSTER",
+      "registeredCount": 147
+    },
+    {
+      "rdwMerk": "DREAMER",
+      "registeredCount": 144
+    },
+    {
+      "rdwMerk": "MAN",
+      "registeredCount": 138
+    },
+    {
+      "rdwMerk": "WILLYS OVERLAND",
+      "registeredCount": 137
+    },
+    {
+      "rdwMerk": "UAZ",
+      "registeredCount": 132
+    },
+    {
+      "rdwMerk": "SANTANA",
+      "registeredCount": 128
+    },
+    {
+      "rdwMerk": "PILGRIM",
+      "registeredCount": 119
+    },
+    {
+      "rdwMerk": "BUGATTI",
+      "registeredCount": 115
+    },
+    {
+      "rdwMerk": "TOURNE MOBIL",
+      "registeredCount": 115
+    },
+    {
+      "rdwMerk": "DAIMLERCHRYSLER (USA)",
+      "registeredCount": 114
+    },
+    {
+      "rdwMerk": "FLEURETTE",
+      "registeredCount": 113
+    },
+    {
+      "rdwMerk": "BINZ",
+      "registeredCount": 113
+    },
+    {
+      "rdwMerk": "VOYAH",
+      "registeredCount": 107
+    },
+    {
+      "rdwMerk": "BERTONE",
+      "registeredCount": 106
+    },
+    {
+      "rdwMerk": "HOTCHKISS",
+      "registeredCount": 103
+    },
+    {
+      "rdwMerk": "MORELO",
+      "registeredCount": 101
+    },
+    {
+      "rdwMerk": "PLA",
+      "registeredCount": 100
+    },
+    {
+      "rdwMerk": "P.L.A.",
+      "registeredCount": 99
+    },
+    {
+      "rdwMerk": "VM",
+      "registeredCount": 96
+    },
+    {
+      "rdwMerk": "DUTTON",
+      "registeredCount": 94
+    },
+    {
+      "rdwMerk": "IAV",
+      "registeredCount": 94
+    },
+    {
+      "rdwMerk": "GMC-MIDAS",
+      "registeredCount": 93
+    },
+    {
+      "rdwMerk": "RANGEROVER",
+      "registeredCount": 92
+    },
+    {
+      "rdwMerk": "DAX COBRA",
+      "registeredCount": 92
+    },
+    {
+      "rdwMerk": "DAX",
+      "registeredCount": 91
+    },
+    {
+      "rdwMerk": "INTERNATIONAL",
+      "registeredCount": 81
+    },
+    {
+      "rdwMerk": "FONT VENDOME",
+      "registeredCount": 77
+    },
+    {
+      "rdwMerk": "HOME CAR",
+      "registeredCount": 76
+    },
+    {
+      "rdwMerk": "XGO",
+      "registeredCount": 75
+    },
+    {
+      "rdwMerk": "MOOVEO",
+      "registeredCount": 75
+    },
+    {
+      "rdwMerk": "MCLOUIS",
+      "registeredCount": 75
+    },
+    {
+      "rdwMerk": "GOGGOMOBIL",
+      "registeredCount": 73
+    },
+    {
+      "rdwMerk": "IMPERIAL",
+      "registeredCount": 73
+    },
+    {
+      "rdwMerk": "STEYR-PUCH",
+      "registeredCount": 72
+    },
+    {
+      "rdwMerk": "MOBIL PARTNER",
+      "registeredCount": 71
+    },
+    {
+      "rdwMerk": "WESTFALEN MOBIL",
+      "registeredCount": 69
+    },
+    {
+      "rdwMerk": "EIGENBOUW",
+      "registeredCount": 69
+    },
+    {
+      "rdwMerk": "SPARTAN",
+      "registeredCount": 68
+    },
+    {
+      "rdwMerk": "THINK",
+      "registeredCount": 67
+    },
+    {
+      "rdwMerk": "ALLIED VEHICLES LTD",
+      "registeredCount": 67
+    },
+    {
+      "rdwMerk": "LEYLAND",
+      "registeredCount": 63
+    },
+    {
+      "rdwMerk": "HUMBER",
+      "registeredCount": 62
+    },
+    {
+      "rdwMerk": "A.M.C.",
+      "registeredCount": 62
+    },
+    {
+      "rdwMerk": "CHATEAU",
+      "registeredCount": 61
+    },
+    {
+      "rdwMerk": "GENERAL MOTORS-GMC",
+      "registeredCount": 60
+    },
+    {
+      "rdwMerk": "ROBIN HOOD",
+      "registeredCount": 60
+    },
+    {
+      "rdwMerk": "MEGA",
+      "registeredCount": 60
+    },
+    {
+      "rdwMerk": "BRAVIA",
+      "registeredCount": 59
+    },
+    {
+      "rdwMerk": "AMC JEEP",
+      "registeredCount": 58
+    },
+    {
+      "rdwMerk": "GAZ",
+      "registeredCount": 56
+    },
+    {
+      "rdwMerk": "FIAT-FLEURETTE",
+      "registeredCount": 56
+    },
+    {
+      "rdwMerk": "CHRYSLER-SIMCA",
+      "registeredCount": 56
+    },
+    {
+      "rdwMerk": "MATRA SPORTS",
+      "registeredCount": 55
+    },
+    {
+      "rdwMerk": "AMPHICAR",
+      "registeredCount": 53
+    },
+    {
+      "rdwMerk": "VAZ",
+      "registeredCount": 52
+    },
+    {
+      "rdwMerk": "PININFARINA",
+      "registeredCount": 51
+    },
+    {
+      "rdwMerk": "PANTHER",
+      "registeredCount": 51
+    },
+    {
+      "rdwMerk": "SYLVA",
+      "registeredCount": 49
+    },
+    {
+      "rdwMerk": "CRISTALL",
+      "registeredCount": 48
+    },
+    {
+      "rdwMerk": "EURAMOBIL",
+      "registeredCount": 47
+    },
+    {
+      "rdwMerk": "MINERVA",
+      "registeredCount": 46
+    },
+    {
+      "rdwMerk": "FIAT/BAVARIA",
+      "registeredCount": 43
+    },
+    {
+      "rdwMerk": "MAGIRUS-DEUTZ",
+      "registeredCount": 43
+    },
+    {
+      "rdwMerk": "ARCA",
+      "registeredCount": 42
+    },
+    {
+      "rdwMerk": "ACURA",
+      "registeredCount": 42
+    },
+    {
+      "rdwMerk": "AHORN",
+      "registeredCount": 41
+    },
+    {
+      "rdwMerk": "GLOBECAR",
+      "registeredCount": 41
+    },
+    {
+      "rdwMerk": "SACHSENRING",
+      "registeredCount": 41
+    },
+    {
+      "rdwMerk": "STEYR D PUCH",
+      "registeredCount": 40
+    },
+    {
+      "rdwMerk": "WINNEBAGO",
+      "registeredCount": 40
+    },
+    {
+      "rdwMerk": "ILUSION",
+      "registeredCount": 39
+    },
+    {
+      "rdwMerk": "CHALLANGER",
+      "registeredCount": 37
+    },
+    {
+      "rdwMerk": "IIC",
+      "registeredCount": 37
+    },
+    {
+      "rdwMerk": "PRINCESS",
+      "registeredCount": 37
+    },
+    {
+      "rdwMerk": "HANOMAG",
+      "registeredCount": 37
+    },
+    {
+      "rdwMerk": "COMMER",
+      "registeredCount": 36
+    },
+    {
+      "rdwMerk": "DEEPAL",
+      "registeredCount": 35
+    },
+    {
+      "rdwMerk": "VANDEN PLAS PRINCESS",
+      "registeredCount": 35
+    },
+    {
+      "rdwMerk": "UNIMOG",
+      "registeredCount": 34
+    },
+    {
+      "rdwMerk": "MK INDY",
+      "registeredCount": 34
+    },
+    {
+      "rdwMerk": "LE VOYAGEUR",
+      "registeredCount": 33
+    },
+    {
+      "rdwMerk": "A.C.",
+      "registeredCount": 33
+    },
+    {
+      "rdwMerk": "VOLGA",
+      "registeredCount": 33
+    },
+    {
+      "rdwMerk": "FIAT DUCATO AFFINITY",
+      "registeredCount": 33
+    },
+    {
+      "rdwMerk": "HAMMOND & THIEDE",
+      "registeredCount": 32
+    },
+    {
+      "rdwMerk": "MAESSS",
+      "registeredCount": 31
+    },
+    {
+      "rdwMerk": "ESTEREL",
+      "registeredCount": 31
+    },
+    {
+      "rdwMerk": "NECKAR",
+      "registeredCount": 31
+    },
+    {
+      "rdwMerk": "BOSMAL",
+      "registeredCount": 30
+    },
+    {
+      "rdwMerk": "ROSENGART",
+      "registeredCount": 30
+    },
+    {
+      "rdwMerk": "RANGER",
+      "registeredCount": 30
+    },
+    {
+      "rdwMerk": "API CZ",
+      "registeredCount": 30
+    },
+    {
+      "rdwMerk": "QUANTUM",
+      "registeredCount": 30
+    },
+    {
+      "rdwMerk": "MAYBACH",
+      "registeredCount": 29
+    },
+    {
+      "rdwMerk": "BARKAS",
+      "registeredCount": 28
+    },
+    {
+      "rdwMerk": "ESSEX",
+      "registeredCount": 28
+    },
+    {
+      "rdwMerk": "SHELBY",
+      "registeredCount": 28
+    },
+    {
+      "rdwMerk": "BOMBARDIER",
+      "registeredCount": 28
+    },
+    {
+      "rdwMerk": "SIATA",
+      "registeredCount": 28
+    },
+    {
+      "rdwMerk": "REMETZ",
+      "registeredCount": 27
+    },
+    {
+      "rdwMerk": "I.V.R.",
+      "registeredCount": 27
+    },
+    {
+      "rdwMerk": "ISO RIVOLTA",
+      "registeredCount": 27
+    },
+    {
+      "rdwMerk": "AMILCAR",
+      "registeredCount": 27
+    },
+    {
+      "rdwMerk": "LDV",
+      "registeredCount": 27
+    },
+    {
+      "rdwMerk": "KIA MOTORS",
+      "registeredCount": 26
+    },
+    {
+      "rdwMerk": "J.B.A.",
+      "registeredCount": 26
+    },
+    {
+      "rdwMerk": "TIGER",
+      "registeredCount": 26
+    },
+    {
+      "rdwMerk": "DELAHAYE",
+      "registeredCount": 25
+    },
+    {
+      "rdwMerk": "CLENET",
+      "registeredCount": 25
+    },
+    {
+      "rdwMerk": "FSM",
+      "registeredCount": 25
+    },
+    {
+      "rdwMerk": "MATHIS",
+      "registeredCount": 25
+    },
+    {
+      "rdwMerk": "RENAULT SPORT",
+      "registeredCount": 25
+    },
+    {
+      "rdwMerk": "LANDWIND",
+      "registeredCount": 24
+    },
+    {
+      "rdwMerk": "NILSSON",
+      "registeredCount": 24
+    },
+    {
+      "rdwMerk": "ELIOS",
+      "registeredCount": 24
+    },
+    {
+      "rdwMerk": "RAM",
+      "registeredCount": 24
+    },
+    {
+      "rdwMerk": "MOHR",
+      "registeredCount": 23
+    },
+    {
+      "rdwMerk": "ZELFBOUW",
+      "registeredCount": 23
+    },
+    {
+      "rdwMerk": "CORVETTE",
+      "registeredCount": 22
+    },
+    {
+      "rdwMerk": "CARBODIES",
+      "registeredCount": 22
+    },
+    {
+      "rdwMerk": "PHOENIX",
+      "registeredCount": 22
+    },
+    {
+      "rdwMerk": "ALFA",
+      "registeredCount": 21
+    },
+    {
+      "rdwMerk": "SCANIA",
+      "registeredCount": 21
+    },
+    {
+      "rdwMerk": "BOS S",
+      "registeredCount": 21
+    },
+    {
+      "rdwMerk": "SIMCA-FIAT",
+      "registeredCount": 21
+    },
+    {
+      "rdwMerk": "DELAGE",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "BOOM",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "CHEVROLET-ITASCA",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "ALFA LANCIA",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "CONCORDE REISEMOBILE GMBH",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "HEALEY",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "KIAMASTER",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "DODGE BROTHERS",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "ZIE BIJZONDERHEDEN",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "AUBURN",
+      "registeredCount": 20
+    },
+    {
+      "rdwMerk": "LLOYD",
+      "registeredCount": 19
+    },
+    {
+      "rdwMerk": "PUMA",
+      "registeredCount": 19
+    },
+    {
+      "rdwMerk": "CHENARD & WALCKER",
+      "registeredCount": 19
+    },
+    {
+      "rdwMerk": "LA LICORNE",
+      "registeredCount": 19
+    },
+    {
+      "rdwMerk": "TROJAN",
+      "registeredCount": 19
+    },
+    {
+      "rdwMerk": "YUCON",
+      "registeredCount": 19
+    },
+    {
+      "rdwMerk": "STERKENS",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "DE DION BOUTON",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "DREAM",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "MESSERSCHMITT",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "CHEVROLET-ROCKWOOD",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "WHITE",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "ONBEKEND",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "E.B.S.",
+      "registeredCount": 18
+    },
+    {
+      "rdwMerk": "PANHARD-LEVASSOR",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "MAX",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "CBT",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "GTM",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "INDUSAUTO",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "MOKE",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "AUTO-SLEEPERS",
+      "registeredCount": 17
+    },
+    {
+      "rdwMerk": "AERO",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "FISHER FURY",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "SALMSON",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "CS",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "GMC-EDSON",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "JAGO",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "VESPA",
+      "registeredCount": 16
+    },
+    {
+      "rdwMerk": "GELAENDEF.GES.GFG(A)",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "RAMBLER RENAULT",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "IVECO/CONCORDE",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "ROBETA",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "AIRSTREAM",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "FIAT/ABARTH",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "MIDAS",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "KARMA",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "PEUGEOT BOXER/GLOBE-TRAVE",
+      "registeredCount": 15
+    },
+    {
+      "rdwMerk": "CHEVROLET-EDSON",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "DODGE-MIDAS",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "GREAT WALL MOTOR COMPANY",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "CITROEN-DS",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "DONNET ZEDEL",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "MEGA MOBIL",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "RODRIGUEZ LOPEZ AUTO",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "ADLER",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "THOR",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "KAISER-JEEP",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "MOWAG",
+      "registeredCount": 14
+    },
+    {
+      "rdwMerk": "MAHINDRA",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "FIAT/CHALLENGER",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "EUNOS",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "NOTIN",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "HUISKAMP",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "DOMINO",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "GARDNER DOUGLAS",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "CITROEN FLEURETTE",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "TEILHOL",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "LEVC",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "EUROMOBIL",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "SPIJKER",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "RENAULT TECH",
+      "registeredCount": 13
+    },
+    {
+      "rdwMerk": "VAN HOOL",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "YUEDA-HUMAN HORIZONS",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "BARTAN",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "VIGNALE",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "HUPMOBILE",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "REO",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "REWACO",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "GM DAEWOO",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "VALIANT",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "INTERNATIONAL HARVESTER",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "AUSTIN-MORRIS",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "RUITER",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "MIA",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "C.I.",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "MARLIN",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "STANLEY",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "EXECUTIVE COACH BUILDERS",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "ARMBRUSTER/STAGEWAY",
+      "registeredCount": 12
+    },
+    {
+      "rdwMerk": "DODGE-LINDY",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "MATRA BONNET",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "IVECO FIAT",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "I.F.A.",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "ARBGEM. DB/HHF",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "LEYLAND INNOCENTI",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "CISITALIA",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "VIELHAUSER MENSCH VM",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "SUPERIOR",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "AM GENERAL",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "WILLYS KNIGHT",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "MEV",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "KONINGS",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "SUPERFORMANCE",
+      "registeredCount": 11
+    },
+    {
+      "rdwMerk": "BAVARIA CAMP",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "SAVIEM-RENAULT",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "MILAN",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "BRABUS",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "CHEVROLET DAEWOO",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "GRAHAM-PAIGE",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "CALLEY",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "MK",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "TRANSEUROP ENGINEERING",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "BOONACKER",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "TALBOT-LAGO",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "EAGLE COACH COMPANY",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "MERLIN",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "SAM",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "SUNBEAM-TALBOT",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "RANDGER",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "HESS EN EISENHARDT",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "AMERICAN LA FRANCE",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "BREMACH",
+      "registeredCount": 10
+    },
+    {
+      "rdwMerk": "PILGRIM-SUMO",
+      "registeredCount": 10
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import type {
   RdwVehicleRecord,
   VehicleSnapshot,
 } from "@/lib/rdw/types";
+import { resolveCanonicalBrand } from "@/lib/vehicles/brand-registry";
 
 function parseOptionalInt(value: string | undefined): number | null {
   if (!value) return null;
@@ -205,7 +206,7 @@ export function mapRdwToSnapshot(
 
   return {
     licensePlate,
-    brand: vehicle.merk?.trim() ?? "Onbekend",
+    brand: resolveCanonicalBrand(vehicle.merk),
     modelName: vehicle.handelsbenaming?.trim() ?? "Onbekend",
     vehicleType: vehicle.voertuigsoort?.trim() ?? null,
     bodyType: vehicle.inrichting

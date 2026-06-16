@@ -16,7 +16,8 @@
     "scrape:batch": "node --env-file=.env.local scripts/scrape-batch.mjs",
     "validate:scraped": "node --env-file=.env.local scripts/validate-scraped-specs.mjs",
     "link:suggest": "node --env-file=.env.local scripts/link-configurations.mjs",
-    "link:apply": "node --env-file=.env.local scripts/link-configurations-apply.mjs"
+    "link:apply": "node --env-file=.env.local scripts/link-configurations-apply.mjs",
+    "generate:brand-registry": "node --env-file=.env.local scripts/generate-brand-registry.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
