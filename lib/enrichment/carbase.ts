@@ -7,8 +7,6 @@ const BASE = "https://www.autoweek.nl";
 
 // ---------------------------------------------------------------------------
 // Label maps: Dutch carbase label → spec key
-// The three maps handle context where the same label means different things
-// across sections (e.g. "verbruik gecombineerd" under NEDC vs WLTP).
 // ---------------------------------------------------------------------------
 
 /** Labels that are unambiguous regardless of section. */
@@ -30,6 +28,15 @@ const SPEC_LABEL_MAP: Record<string, string> = {
   "carrosserie": "body_type",
   "aantal zitplaatsen": "seat_count",
   "aantal deuren": "door_count",
+
+  // TYPEGOEDKEURING (for variant/version matching)
+  "typegoedkeuringsnummer": "type_approval_number",
+  "eu-typegoedkeuringsnummer": "type_approval_number",
+  "typegoedkeuring": "type_approval_number",
+  "variant": "eu_variant_code",
+  "versie": "eu_version_code",
+  "variantcode": "eu_variant_code",
+  "versiecode": "eu_version_code",
 
   // MOTORISERING
   "aandrijflijn": "drivetrain_fuel",
@@ -229,7 +236,7 @@ const SPEC_LABEL_MAP: Record<string, string> = {
   "carrosserie garantie": "body_warranty",
 };
 
-/** Labels inside a NEDC consumption section that would otherwise be ambiguous. */
+/** Labels inside a NEDC consumption section. */
 const NEDC_LABEL_MAP: Record<string, string> = {
   "verbruik gecombineerd": "fuel_consumption_combined_nedc",
   "verbruik binnen bebouwde kom": "fuel_consumption_urban_nedc",
@@ -247,7 +254,6 @@ const WLTP_LABEL_MAP: Record<string, string> = {
   "actieradius": "electric_range_wltp",
 };
 
-// Values that indicate data is unavailable — skip them entirely.
 const SKIP_VALUES = new Set([
   "-", "–", "—", "n.b.", "n.v.t.", "nvt", "n/a",
   "niet beschikbaar", "niet van toepassing", "onbekend",
@@ -272,34 +278,74 @@ function normalize(text: string): string {
   return text.toLowerCase().trim().replace(/\s+/g, " ");
 }
 
-type VersionLink = { href: string; label: string };
+type VersionLink = {
+  href: string;
+  label: string;
+  /** Production year range extracted from the model overview row (if available). */
+  yearFrom?: number;
+  yearTo?: number;
+};
 
-// Autoweek embeds version links as /auto/{id}/{slug}/ inside the carbase model page.
-// The old /carbase/{brand}/{model}/{generation}/{variant}/ URLs no longer exist.
 const AUTO_VERSION_RE = /^\/auto\/\d+\//;
 
-function extractVersionLinks($: cheerio.CheerioAPI, _modelPathname: string): VersionLink[] {
+function extractVersionLinks($: cheerio.CheerioAPI): VersionLink[] {
   const seen = new Set<string>();
   const links: VersionLink[] = [];
 
-  // Target the version rows specifically to avoid picking up unrelated /auto/ links.
-  $(".carbase-version-row a[href], .carbase-versions-body a[href]").each((_, el) => {
-    const raw = $(el).attr("href") ?? "";
+  $(".carbase-version-row, .carbase-versions-body tr").each((_, row) => {
+    const $row = $(row);
+
+    // Find the version link inside the row (must match /auto/<id>/ pattern)
+    const a = $row.find("a[href]").toArray().find((el) => {
+      const raw = $(el).attr("href") ?? "";
+      const path = raw.startsWith("http") ? new URL(raw).pathname : raw;
+      return AUTO_VERSION_RE.test(path);
+    });
+    if (!a) return;
+
+    const raw = $(a).attr("href") ?? "";
     const href = raw.startsWith("http") ? raw : `${BASE}${raw}`;
-    const label = $(el).text().trim();
+    const label = $(a).text().trim();
     const path = new URL(href).pathname;
 
-    if (!AUTO_VERSION_RE.test(path) || seen.has(path) || !label) return;
+    if (seen.has(path) || !label) return;
+
+    // Try to extract a year range from the row text (e.g. "2020 - 2023" or "2020 - heden")
+    const rowText = $row.text();
+    const yearMatch = rowText.match(/(\d{4})\s*[-–—]\s*(\d{4}|heden)/i);
+    const yearFrom = yearMatch ? Number(yearMatch[1]) : undefined;
+    const yearTo = yearMatch
+      ? yearMatch[2].toLowerCase() === "heden"
+        ? new Date().getFullYear()
+        : Number(yearMatch[2])
+      : undefined;
 
     seen.add(path);
-    links.push({ href, label });
+    links.push({ href, label, yearFrom, yearTo });
   });
+
+  // Fallback: anchor-only approach (no year range) when row selection yields nothing
+  if (links.length === 0) {
+    $(".carbase-version-row a[href], .carbase-versions-body a[href]").each((_, el) => {
+      const raw = $(el).attr("href") ?? "";
+      const href = raw.startsWith("http") ? raw : `${BASE}${raw}`;
+      const label = $(el).text().trim();
+      const path = new URL(href).pathname;
+      if (!AUTO_VERSION_RE.test(path) || seen.has(path) || !label) return;
+      seen.add(path);
+      links.push({ href, label });
+    });
+  }
 
   return links;
 }
 
-function scoreVersion(label: string, snapshot: VehicleSnapshot): number {
-  const norm = normalize(label);
+// ---------------------------------------------------------------------------
+// Phase-1 scoring: label + year range signals (no extra fetches)
+// ---------------------------------------------------------------------------
+
+function scoreVersion(link: VersionLink, snapshot: VehicleSnapshot): number {
+  const norm = normalize(link.label);
   let score = 0;
 
   if (snapshot.engineDisplacementCc) {
@@ -339,15 +385,184 @@ function scoreVersion(label: string, snapshot: VehicleSnapshot): number {
     if (variantAlpha.length >= 4 && normAlpha.includes(variantAlpha)) score += 4;
   }
 
+  // Year scoring: prefer extracted year range (reliable) over label text (rare)
   if (snapshot.firstRegistrationYear) {
     const y = snapshot.firstRegistrationYear;
-    const rangeMatch = norm.match(/(\d{4})-(\d{4})/);
-    if (rangeMatch) {
-      const from = Number(rangeMatch[1]);
-      const to = Number(rangeMatch[2]);
-      if (y >= from && y <= to) score += 2;
+
+    if (link.yearFrom !== undefined && link.yearTo !== undefined) {
+      if (y >= link.yearFrom && y <= link.yearTo) {
+        score += 3;
+        // Bonus for tight ranges — they're more specific about the exact model year
+        if (link.yearTo - link.yearFrom <= 2) score += 1;
+      } else {
+        // Hard penalty: registration year outside the version's production window
+        score -= 4;
+      }
+    } else {
+      // Fallback: year range or exact year in label text
+      const rangeMatch = norm.match(/(\d{4})-(\d{4})/);
+      if (rangeMatch) {
+        const from = Number(rangeMatch[1]);
+        const to = Number(rangeMatch[2]);
+        if (y >= from && y <= to) score += 2;
+      }
+      if (norm.includes(String(y))) score += 1;
     }
-    if (norm.includes(String(y))) score += 1;
+  }
+
+  return score;
+}
+
+// ---------------------------------------------------------------------------
+// Trim-tier diversity: ensures premium trims aren't crowded out by base-tier ties
+// ---------------------------------------------------------------------------
+
+/**
+ * Assigns a trim tier (0-5) based on keywords in the version label.
+ * Used to ensure candidate diversity when many versions tie on phase-1 score.
+ */
+function trimTier(label: string): number {
+  const l = label.toLowerCase();
+  if (/premium|ultimate|luxury|shine|xclusive|executive|prestige/.test(l)) return 5;
+  if (/smart|elegance|n line|sport line|gt line|style|technology|innovation/.test(l)) return 4;
+  if (/\bcomfort\b/.test(l)) return 3;
+  if (/motion|emotion/.test(l)) return 2;
+  if (/\bdrive\b|\baccess\b|\bentry\b/.test(l)) return 1;
+  return 0;
+}
+
+type ScoredLink = VersionLink & { score: number };
+
+/**
+ * Selects up to `max` candidates from `eligible` using trim-tier diversity.
+ * Guarantees that each represented tier gets at least one slot, so a Premium
+ * variant is never crowded out by multiple Comfort entries of the same score.
+ */
+function selectCandidates(eligible: ScoredLink[], max: number): ScoredLink[] {
+  if (eligible.length <= max) return eligible;
+
+  const selected: ScoredLink[] = [];
+  const usedHrefs = new Set<string>();
+
+  // Group by tier; within each group order is preserved (highest phase-1 score first)
+  const buckets = new Map<number, ScoredLink[]>();
+  for (const c of eligible) {
+    const tier = trimTier(c.label);
+    if (!buckets.has(tier)) buckets.set(tier, []);
+    buckets.get(tier)!.push(c);
+  }
+
+  // Pick one representative per tier (highest tier first)
+  for (const tier of [5, 4, 3, 2, 1, 0]) {
+    if (selected.length >= max) break;
+    const bucket = buckets.get(tier);
+    if (bucket?.length) {
+      selected.push(bucket[0]);
+      usedHrefs.add(bucket[0].href);
+    }
+  }
+
+  // Fill any remaining slots from eligible in original order
+  for (const c of eligible) {
+    if (selected.length >= max) break;
+    if (!usedHrefs.has(c.href)) {
+      selected.push(c);
+      usedHrefs.add(c.href);
+    }
+  }
+
+  return selected;
+}
+
+// ---------------------------------------------------------------------------
+// Phase-2 deep scoring: signals extracted from the fetched version page
+// ---------------------------------------------------------------------------
+
+/** Parse Dutch-formatted currency text (e.g. "€ 24.442") into an integer. */
+function parseDutchCurrency(text: string): number | null {
+  // Dutch thousands separator is "." — strip it and the currency symbol
+  const cleaned = text.replace(/[€\s]/g, "").replace(/\./g, "");
+  const num = Number(cleaned);
+  return Number.isFinite(num) && num > 0 ? num : null;
+}
+
+/**
+ * Extract the year-specific list price from carbase's "HISTORISCHE NIEUWPRIJZEN" table.
+ * These match the RDW catalogusprijs far more reliably than the current-year fiscal price,
+ * which drifts upward as the manufacturer updates pricing.
+ */
+function extractHistoricalPrice(html: string, year: number): number | null {
+  const match = html.match(
+    new RegExp(`Nieuwprijs\\s+${year}[^<]*<\\/td>\\s*<td>([^<]+)`),
+  );
+  if (!match) return null;
+  return parseDutchCurrency(match[1]);
+}
+
+/** Normalise a type approval number for comparison (strip trailing codes). */
+function normalizeApproval(raw: string): string {
+  // e.g. "e5*2007/46*0121*01" → compare first three segments
+  return raw.toLowerCase().replace(/\s+/g, "").split("*").slice(0, 3).join("*");
+}
+
+/**
+ * Score a fetched version page against the RDW snapshot.
+ * Higher = more likely to be the correct trim.
+ *
+ * @param specs   Structured specs extracted from the page
+ * @param rawHtml Raw HTML of the version page (for code-level substring search)
+ * @param snapshot RDW snapshot for the vehicle
+ */
+function scoreDeep(
+  specs: EnrichedSpecMap,
+  rawHtml: string,
+  snapshot: VehicleSnapshot,
+): number {
+  let score = 0;
+
+  // Signal 1: list price proximity
+  // Priority 1a — year-specific historical price from carbase's "HISTORISCHE NIEUWPRIJZEN"
+  // table. This matches the RDW catalogusprijs (the price at time of registration) far more
+  // reliably than the current "nieuwprijs fiscaal", which drifts as manufacturers update
+  // pricing year-over-year.
+  // Priority 1b — fall back to current fiscal price if no historical entry exists.
+  if (snapshot.catalogPrice) {
+    const historicalPrice = snapshot.firstRegistrationYear
+      ? extractHistoricalPrice(rawHtml, snapshot.firstRegistrationYear)
+      : null;
+    const referencePrice = historicalPrice ?? (() => {
+      const spec = specs.get("fiscal_list_price");
+      return spec?.valueText ? parseDutchCurrency(spec.valueText) : null;
+    })();
+
+    if (referencePrice !== null) {
+      const diff = Math.abs(referencePrice - snapshot.catalogPrice) / snapshot.catalogPrice;
+      if (diff < 0.01) score += 12;       // near-exact — very likely correct trim
+      else if (diff < 0.05) score += 7;
+      else if (diff < 0.15) score += 2;
+      else score -= 5;                     // >15% off — probably wrong trim
+    }
+  }
+
+  // Signal 2: EU type approval number
+  // Shared across a model generation, so alone it only confirms the right generation.
+  // Combined with variant/version codes below it gets much more specific.
+  const typeSpec = specs.get("type_approval_number");
+  if (typeSpec?.valueText && snapshot.typeApprovalNumber) {
+    const pageVal = normalizeApproval(typeSpec.valueText);
+    const rdwVal = normalizeApproval(snapshot.typeApprovalNumber);
+    if (pageVal === rdwVal) score += 4;
+    else if (pageVal.startsWith(rdwVal) || rdwVal.startsWith(pageVal)) score += 2;
+  }
+
+  // Signal 3: RDW variant code (e.g. "B5P71") in page text
+  // Carbase sometimes lists EU variant/version codes in their technical specs table.
+  // These are unique per trim configuration.
+  if (snapshot.variant && snapshot.variant.length >= 4) {
+    if (rawHtml.includes(snapshot.variant)) score += 8;
+  }
+  if (snapshot.rdwConfigurationCode && snapshot.rdwConfigurationCode.length >= 4) {
+    if (rawHtml.includes(snapshot.rdwConfigurationCode)) score += 8;
   }
 
   return score;
@@ -357,7 +572,6 @@ function scoreVersion(label: string, snapshot: VehicleSnapshot): number {
 // Section-aware spec extraction
 // ---------------------------------------------------------------------------
 
-/** Classify a heading text into a section context used for label disambiguation. */
 function classifySectionContext(text: string): string {
   const t = text.toLowerCase().trim();
   if (t.includes("wltp")) return "wltp";
@@ -390,14 +604,13 @@ function extractSpecsFromPage($: cheerio.CheerioAPI, versionUrl: string): Enrich
     const specKey = lookupSpecKey(label);
     if (!specKey) return;
 
-    // Parking sensors: one label, potentially two spec keys
     if (label === "parkeersensoren") {
       const hasRear = v.includes("achter") || !v.includes("alleen voor");
-      const hasfront = v.includes("voor");
+      const hasFront = v.includes("voor");
       if (hasRear && !specs.has("parking_sensors_rear")) {
         specs.set("parking_sensors_rear", makeSpec(rawV, versionUrl));
       }
-      if (hasfront && !specs.has("parking_sensors_front")) {
+      if (hasFront && !specs.has("parking_sensors_front")) {
         specs.set("parking_sensors_front", makeSpec(rawV, versionUrl));
       }
       return;
@@ -407,19 +620,16 @@ function extractSpecsFromPage($: cheerio.CheerioAPI, versionUrl: string): Enrich
     specs.set(specKey, makeSpec(rawV, versionUrl));
   }
 
-  // Walk elements in document order so section headers update context before specs.
   $("h1, h2, h3, h4, h5, h6, dl, table, li").each((_, el) => {
     const $el = $(el);
     const tag = ((el as unknown as { tagName?: string }).tagName ?? "").toLowerCase();
 
-    // Section headers update context
     if (/^h[1-6]$/.test(tag)) {
       const text = $el.text().trim();
       if (text) sectionContext = classifySectionContext(text);
       return;
     }
 
-    // Definition lists
     if (tag === "dl") {
       const dts = $el.find("dt").toArray();
       const dds = $el.find("dd").toArray();
@@ -429,7 +639,6 @@ function extractSpecsFromPage($: cheerio.CheerioAPI, versionUrl: string): Enrich
       return;
     }
 
-    // Tables (process the whole table at once to avoid double-visiting rows)
     if (tag === "table") {
       $el.find("tr").each((_, tr) => {
         const $tr = $(tr);
@@ -444,7 +653,6 @@ function extractSpecsFromPage($: cheerio.CheerioAPI, versionUrl: string): Enrich
       return;
     }
 
-    // List items with colon separator, skipping items nested inside tables/dls
     if (tag === "li" && $el.closest("table, dl").length === 0) {
       const text = $el.clone().find("ul, ol").remove().end().text();
       const colon = text.indexOf(":");
@@ -480,42 +688,43 @@ function makeSpec(rawValue: string, versionUrl: string) {
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const jitter = (min: number, max: number) => min + Math.random() * (max - min);
 
+/** Maximum candidates to deep-score when phase-1 produces ties. */
+const MAX_DEEP_CANDIDATES = 5;
+
+/**
+ * Combined deep score above which we consider the match confident enough to
+ * stop fetching further candidates (avoids unnecessary extra page loads).
+ */
+const CONFIDENT_DEEP_SCORE = 10;
+
 export async function searchCarbase(
   snapshot: VehicleSnapshot,
 ): Promise<EnrichedSpecMap> {
   const brandSlug = slugify(snapshot.brand);
-  // RDW handelsbenaming sometimes includes the brand prefix (e.g. "MAZDA MX-30").
-  // Strip it so we get the correct carbase slug ("mx-30" not "mazda-mx-30").
   const brandPrefix = snapshot.brand.toLowerCase() + " ";
   const modelNameClean = snapshot.modelName.toLowerCase().startsWith(brandPrefix)
     ? snapshot.modelName.slice(snapshot.brand.length + 1)
     : snapshot.modelName;
   const modelSlug = slugify(modelNameClean);
-  const modelPathname = `/carbase/${brandSlug}/${modelSlug}/`;
-  const modelUrl = `${BASE}${modelPathname}`;
+  const modelUrl = `${BASE}/carbase/${brandSlug}/${modelSlug}/`;
 
-  // autoweek.nl shows a GDPR consent gate to browser UAs (Chrome/Firefox/Safari)
-  // but skips it for non-browser clients. okhttp is a common Android HTTP client
-  // and goes through without triggering the gate.
   const fetchOpts = { userAgent: "okhttp/4.12.0" };
 
-  // Random entry delay so concurrent plate fetches don't all hit autoweek at once.
   await sleep(jitter(0, 1200));
 
   let modelHtml = await fetchHtml(modelUrl, fetchOpts);
   if (!modelHtml) return new Map();
 
   let $model = cheerio.load(modelHtml);
-  let versionLinks = extractVersionLinks($model, modelPathname);
+  let versionLinks = extractVersionLinks($model);
 
-  // Fallback: some brands use the brand name as the model slug on autoweek
-  // (e.g. MINI ONE lives at /carbase/mini/mini/ because "One" is a trim, not a model).
+  // Fallback: some brands use brand name as model slug (e.g. MINI ONE → /carbase/mini/mini/)
   if (versionLinks.length === 0 && modelSlug !== brandSlug) {
-    const fallbackPathname = `/carbase/${brandSlug}/${brandSlug}/`;
-    const fallbackHtml = await fetchHtml(`${BASE}${fallbackPathname}`, fetchOpts);
+    const fallbackUrl = `${BASE}/carbase/${brandSlug}/${brandSlug}/`;
+    const fallbackHtml = await fetchHtml(fallbackUrl, fetchOpts);
     if (fallbackHtml) {
       const $fb = cheerio.load(fallbackHtml);
-      const fallbackLinks = extractVersionLinks($fb, fallbackPathname);
+      const fallbackLinks = extractVersionLinks($fb);
       if (fallbackLinks.length > 0) {
         $model = $fb;
         versionLinks = fallbackLinks;
@@ -525,25 +734,56 @@ export async function searchCarbase(
 
   if (versionLinks.length === 0) return new Map();
 
-  // Pick the highest-scoring version
-  let bestLink: VersionLink | null = null;
-  let bestScore = -1;
-  for (const link of versionLinks) {
-    const score = scoreVersion(link.label, snapshot);
-    if (score > bestScore) {
-      bestScore = score;
-      bestLink = link;
-    }
+  // ---------------------------------------------------------------------------
+  // Phase 1: score all candidates on label + year range signals
+  // ---------------------------------------------------------------------------
+
+  const scored: ScoredLink[] = versionLinks
+    .map((link) => ({ ...link, score: scoreVersion(link, snapshot) }))
+    .sort((a, b) => b.score - a.score);
+
+  const topScore = scored[0].score;
+
+  // Candidates within 1 point of the top score are considered ambiguous
+  const eligible = scored.filter((c) => c.score >= Math.max(0, topScore - 1));
+
+  // Fast path: unambiguous winner — nothing within 1 point of top score
+  if (eligible.length === 1) {
+    await sleep(jitter(400, 1000));
+    const html = await fetchHtml(eligible[0].href, fetchOpts);
+    if (!html) return new Map();
+    return extractSpecsFromPage(cheerio.load(html), eligible[0].href);
   }
 
-  if (!bestLink) return new Map();
+  // ---------------------------------------------------------------------------
+  // Phase 2: deep-score a diverse set of candidates using page-level signals
+  // ---------------------------------------------------------------------------
 
-  // Pause between the two page fetches to look like casual browsing.
-  await sleep(jitter(400, 1000));
+  const candidates = selectCandidates(eligible, MAX_DEEP_CANDIDATES);
 
-  const versionHtml = await fetchHtml(bestLink.href, fetchOpts);
-  if (!versionHtml) return new Map();
+  let bestSpecs: EnrichedSpecMap | null = null;
+  let bestTotal = -Infinity;
 
-  const $version = cheerio.load(versionHtml);
-  return extractSpecsFromPage($version, bestLink.href);
+  for (let i = 0; i < candidates.length; i++) {
+    if (i > 0) await sleep(jitter(400, 800));
+
+    const candidate = candidates[i];
+    const html = await fetchHtml(candidate.href, fetchOpts);
+    if (!html) continue;
+
+    const $ = cheerio.load(html);
+    const specs = extractSpecsFromPage($, candidate.href);
+    const deepScore = scoreDeep(specs, html, snapshot);
+    const total = candidate.score + deepScore;
+
+    if (total > bestTotal) {
+      bestTotal = total;
+      bestSpecs = specs;
+    }
+
+    // Early exit: a confident match was found (exact price or variant code match)
+    if (deepScore >= CONFIDENT_DEEP_SCORE) break;
+  }
+
+  return bestSpecs ?? new Map();
 }
