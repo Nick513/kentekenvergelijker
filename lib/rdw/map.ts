@@ -252,7 +252,8 @@ export function formatPowerKw(powerKw: number | null): string {
   const formatted = new Intl.NumberFormat("nl-NL", {
     maximumFractionDigits: 0,
   }).format(powerKw);
-  return `${formatted} kW`;
+  const pk = Math.round(powerKw * 1.35962);
+  return `${formatted} kW (${pk} pk)`;
 }
 
 export function formatCatalogPrice(price: number | null): string {
