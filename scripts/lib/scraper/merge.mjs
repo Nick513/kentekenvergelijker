@@ -4,6 +4,7 @@
 // own rows (Plan B also serves trim discovery).
 
 import { buildCatalogKey } from "./catalog-key.mjs";
+import { EVENT_CODES } from "./scrape-report.mjs";
 
 function safeCatalogKey(config) {
   try {
@@ -19,14 +20,59 @@ function safeCatalogKey(config) {
   }
 }
 
-function indexConfig(byKey, config, skipped) {
-  const key = safeCatalogKey(config);
-  if (!key) {
-    skipped.push(config);
-    return null;
-  }
+function describeConfig(config) {
+  return {
+    brand: config.brand,
+    modelName: config.modelName,
+    generation: config.generation,
+    trimName: config.trimName,
+    engineName: config.engineName,
+    sourceTag: config.sourceTag,
+  };
+}
 
-  if (!byKey.has(key)) {
+/**
+ * @param {Array<object>} primaryConfigs configurations from manufacturer source
+ * @param {Array<object>} planBConfigs configurations from Plan B sources
+ * @param {{ logger?: { record?: Function }, phase?: string }} [options]
+ * @returns {{ configurations: Array<object>, skipped: Array<object>, duplicates: Array<object>, gapFills: number }}
+ */
+export function mergeConfigurations(primaryConfigs, planBConfigs, options = {}) {
+  const { logger, phase = "merge" } = options;
+  const byKey = new Map();
+  const skipped = [];
+  const duplicates = [];
+  let gapFills = 0;
+
+  for (const config of primaryConfigs) {
+    const key = safeCatalogKey(config);
+    if (!key) {
+      skipped.push({ ...describeConfig(config), reason: "invalid_catalog_key" });
+      logger?.record?.(
+        "warn",
+        EVENT_CODES.MERGE_INVALID_CATALOG_KEY,
+        `Invalid catalog key for ${config.brand} ${config.modelName} ${config.trimName} ${config.engineName}`,
+        { phase, ...describeConfig(config) },
+      );
+      continue;
+    }
+
+    if (byKey.has(key)) {
+      duplicates.push({
+        catalogKey: key,
+        reason: "duplicate_catalog_key",
+        kept: "first",
+        ...describeConfig(config),
+      });
+      logger?.record?.(
+        "warn",
+        EVENT_CODES.MERGE_DUPLICATE_CATALOG_KEY,
+        `Duplicate catalog key ${key} (${config.sourceTag ?? "unknown"})`,
+        { catalogKey: key, phase, source: config.sourceTag },
+      );
+      continue;
+    }
+
     const specMap = new Map();
     for (const spec of config.specs) {
       specMap.set(spec.spec_key, { ...spec, source: spec.source ?? config.sourceTag });
@@ -34,25 +80,29 @@ function indexConfig(byKey, config, skipped) {
     byKey.set(key, { catalogKey: key, config, specMap });
   }
 
-  return byKey.get(key);
-}
-
-/**
- * @param {Array<object>} primaryConfigs configurations from manufacturer source
- * @param {Array<object>} planBConfigs configurations from Plan B sources
- * @returns {{ configurations: Array<object>, skipped: Array<object> }}
- */
-export function mergeConfigurations(primaryConfigs, planBConfigs) {
-  const byKey = new Map();
-  const skipped = [];
-
-  for (const config of primaryConfigs) {
-    indexConfig(byKey, config, skipped);
-  }
-
   for (const config of planBConfigs) {
-    const entry = indexConfig(byKey, config, skipped);
-    if (!entry) continue;
+    const key = safeCatalogKey(config);
+    if (!key) {
+      skipped.push({ ...describeConfig(config), reason: "invalid_catalog_key" });
+      logger?.record?.(
+        "warn",
+        EVENT_CODES.MERGE_INVALID_CATALOG_KEY,
+        `Invalid catalog key from Plan B for ${config.trimName} ${config.engineName}`,
+        { phase, ...describeConfig(config) },
+      );
+      continue;
+    }
+
+    let entry = byKey.get(key);
+    if (!entry) {
+      const specMap = new Map();
+      for (const spec of config.specs) {
+        specMap.set(spec.spec_key, { ...spec, source: spec.source ?? config.sourceTag });
+      }
+      entry = { catalogKey: key, config, specMap };
+      byKey.set(key, entry);
+      continue;
+    }
 
     for (const spec of config.specs) {
       if (!entry.specMap.has(spec.spec_key)) {
@@ -60,8 +110,18 @@ export function mergeConfigurations(primaryConfigs, planBConfigs) {
           ...spec,
           source: spec.source ?? config.sourceTag,
         });
+        gapFills += 1;
       }
     }
+  }
+
+  if (gapFills > 0) {
+    logger?.record?.(
+      "info",
+      EVENT_CODES.MERGE_GAP_FILL,
+      `Plan B gap-filled ${gapFills} empty spec slots`,
+      { phase, gapFills },
+    );
   }
 
   const configurations = [...byKey.values()].map((entry) => ({
@@ -74,7 +134,7 @@ export function mergeConfigurations(primaryConfigs, planBConfigs) {
     specs: [...entry.specMap.values()],
   }));
 
-  return { configurations, skipped };
+  return { configurations, skipped, duplicates, gapFills };
 }
 
 function isHybridEngine(engineName) {

@@ -1,8 +1,8 @@
-// Batch catalog scraper. Runs the scrape pipeline across a list of brand/model
+// Batch catalog scraper. Runs the brochure-first pipeline across brand/model
 // targets (default: scripts/lib/scraper/targets.json).
 //
-// Default behavior is brochure-first: Plan B listing sources are disabled unless
-// explicitly enabled with --plan-b.
+// Default behavior is brochure-only for all brands in brand-registry.json.
+// Plan B listing sources are disabled unless explicitly enabled with --plan-b.
 //
 // Usage:
 //   node --env-file=.env.local scripts/scrape-batch.mjs [--file path] [--dry-run] [--plan-b]
@@ -13,10 +13,16 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { loadSpecCatalog } from "./lib/scraper/field-map.mjs";
 import { createCatalogClient } from "./lib/scraper/db-writer.mjs";
-import { logger } from "./lib/scraper/logger.mjs";
 import { writeRunLog } from "./lib/scraper/run-log.mjs";
 import { DEFAULT_PLAN_B_ORDER, runScrape } from "./lib/scraper/run.mjs";
 import { slugify } from "./lib/scraper/catalog-key.mjs";
+import {
+  aggregateBatchIssues,
+  createPipelineLogger,
+  createScrapeReport,
+  EVENT_CODES,
+  formatBatchReport,
+} from "./lib/scraper/scrape-report.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_TARGETS = path.join(moduleDir, "lib", "scraper", "targets.json");
@@ -27,7 +33,6 @@ function parseCliArgs() {
       file: { type: "string", default: DEFAULT_TARGETS },
       "dry-run": { type: "boolean", default: false },
       "plan-b": { type: "boolean", default: false },
-      // Legacy switch kept for backwards compatibility.
       "no-plan-b": { type: "boolean", default: false },
       "plan-b-sources": { type: "string", default: DEFAULT_PLAN_B_ORDER.join(",") },
       "only-missing": { type: "boolean", default: false },
@@ -110,6 +115,9 @@ async function main() {
   const parsed = JSON.parse(await readFile(args.file, "utf8"));
   const targets = parsed.targets ?? [];
 
+  const batchReport = createScrapeReport({ scope: "batch" });
+  const logger = createPipelineLogger(batchReport);
+
   if (targets.length === 0) {
     logger.warn(`No targets found in ${args.file}`);
     return;
@@ -127,27 +135,34 @@ async function main() {
 
   const supabase = createCatalogClient();
   const specCatalog = await loadSpecCatalog(supabase);
-  logger.info(`Loaded ${specCatalog.size} specification keys`);
-  logger.info(`Batch: ${targets.length} targets`);
+
   logger.info(
-    planBEnabled
-      ? `Plan B enabled (${planBSources.join(", ")})`
-      : "Plan B disabled (brochure-only mode)",
+    `Batch start: ${targets.length} targets from ${args.file}`,
+    EVENT_CODES.BATCH_START,
+    {
+      targetCount: targets.length,
+      targetsFile: args.file,
+      planBEnabled,
+      planBSources,
+      onlyMissing,
+      skipMinSpecs,
+      refreshOlderThanDays,
+      dryRun: args["dry-run"],
+      force,
+      specCatalogSize: specCatalog.size,
+    },
   );
-  if (onlyMissing) {
-    logger.info(
-      `Skip mode enabled (minSpecs=${skipMinSpecs}, freshness=${refreshOlderThanDays}d${force ? ", force=true" : ""})`,
-    );
-  }
 
   const runs = [];
   let totalConfigurations = 0;
   let totalSpecsWritten = 0;
   let skippedTargets = 0;
+  let ranTargets = 0;
+  let failedTargets = 0;
 
   for (const target of targets) {
     if (!target.brand || !target.model || !target.generation) {
-      logger.warn(`Skipping invalid target: ${JSON.stringify(target)}`);
+      logger.warn(`Skipping invalid target: ${JSON.stringify(target)}`, null, { target });
       continue;
     }
 
@@ -169,13 +184,26 @@ async function main() {
         if (hasConfigurations && hasEnoughSpecs && isFresh) {
           skippedTargets += 1;
           logger.info(
-            `Skip ${target.brand} ${target.model} (${target.generation}): existing=${existing.configurationCount}, avgSpecs=${existing.averageSpecsPerConfiguration.toFixed(1)}, lastFetch=${existing.latestFetchedAt?.toISOString()}`,
+            `Skip ${target.brand} ${target.model} (${target.generation}): fresh and covered`,
+            EVENT_CODES.TARGET_SKIP,
+            {
+              brand: target.brand,
+              model: target.model,
+              generation: target.generation,
+              reason: "fresh-and-covered",
+              configurationCount: existing.configurationCount,
+              averageSpecsPerConfiguration: Number.parseFloat(
+                existing.averageSpecsPerConfiguration.toFixed(1),
+              ),
+              latestFetchedAt: existing.latestFetchedAt?.toISOString() ?? null,
+            },
           );
           runs.push({
             brand: target.brand,
             model: target.model,
             generation: target.generation,
             skipped: true,
+            outcome: "skipped",
             reason: "fresh-and-covered",
             existingCoverage: {
               configurationCount: existing.configurationCount,
@@ -185,7 +213,8 @@ async function main() {
               latestFetchedAt: existing.latestFetchedAt?.toISOString() ?? null,
             },
             counts: {
-              manufacturerConfigurations: 0,
+              adapterConfigurations: 0,
+              brochureConfigurations: 0,
               planBConfigurations: 0,
               mergedConfigurations: 0,
               skipped: 0,
@@ -198,6 +227,7 @@ async function main() {
         }
       }
 
+      ranTargets += 1;
       const summary = await runScrape({
         brand: target.brand,
         model: target.model,
@@ -205,43 +235,78 @@ async function main() {
         planBEnabled,
         planBSources,
         dryRun: args["dry-run"],
+        minSpecs: skipMinSpecs,
         supabase,
         specCatalog,
-        logger,
       });
       runs.push(summary);
       totalConfigurations += summary.counts.mergedConfigurations;
       totalSpecsWritten += summary.counts.totalSpecsWritten;
+      if (summary.outcome === "error") {
+        failedTargets += 1;
+      }
     } catch (error) {
+      failedTargets += 1;
+      const message = error instanceof Error ? error.message : String(error);
       logger.error(
-        `${target.brand} ${target.model}: run failed (${error instanceof Error ? error.message : error})`,
+        `${target.brand} ${target.model}: run failed (${message})`,
+        EVENT_CODES.TARGET_ERROR,
+        { brand: target.brand, model: target.model, generation: target.generation },
       );
       runs.push({
         brand: target.brand,
         model: target.model,
         generation: target.generation,
-        error: error instanceof Error ? error.message : String(error),
+        outcome: "error",
+        error: message,
       });
     }
   }
 
-  const logPath = await writeRunLog({
+  const { issuesByCode, summary: outcomeSummary } = aggregateBatchIssues(runs);
+
+  const batchLog = {
     batch: true,
     dryRun: args["dry-run"],
     planBEnabled,
+    planBSources,
+    onlyMissing,
+    skipMinSpecs,
+    refreshOlderThanDays,
+    force,
     targetCount: targets.length,
-    totals: { totalConfigurations, totalSpecsWritten, skippedTargets },
+    totals: {
+      targetCount: targets.length,
+      ran: ranTargets,
+      skippedTargets,
+      failedTargets,
+      totalConfigurations,
+      totalSpecsWritten,
+    },
+    summary: outcomeSummary,
+    issuesByCode,
+    batchReport: batchReport.toJSON(),
     runs,
-  });
+  };
 
-  logger.info(`Run log: ${logPath}`);
+  const logPath = await writeRunLog(batchLog);
+  batchLog.logPath = logPath;
+
+  console.log(formatBatchReport(batchLog));
+
   logger.info(
-    `Batch done. targets=${targets.length} configurations=${totalConfigurations} specsWritten=${totalSpecsWritten}`,
+    `Batch complete`,
+    EVENT_CODES.BATCH_COMPLETE,
+    {
+      logPath,
+      ...batchLog.totals,
+      summary: outcomeSummary,
+    },
   );
 }
 
 main().catch((error) => {
-  logger.error("Batch scrape failed.");
-  logger.error(error instanceof Error ? error.stack ?? error.message : String(error));
+  console.error(`[${new Date().toISOString()}] ERROR Batch scrape failed.`);
+  console.error(error instanceof Error ? error.stack ?? error.message : String(error));
   process.exit(1);
 });

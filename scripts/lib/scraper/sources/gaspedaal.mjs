@@ -80,11 +80,10 @@ async function fetchTrimItems(brandSlug, modelSlug, slug, generation, logger) {
 
     let html;
     try {
-      html = await fetchText(url);
+      html = await fetchText(url, { logger, source: "gaspedaal" });
     } catch (error) {
-      logger?.warn?.(
-        `Gaspedaal: fetch failed ${url} (${error instanceof Error ? error.message : error})`,
-      );
+      logger?.recordFetchError?.(error, { url, source: "gaspedaal" });
+      logger?.warn?.(`Gaspedaal: fetch failed ${url}`);
       break;
     }
 
@@ -115,11 +114,16 @@ export async function scrape(ctx) {
 
   let indexHtml;
   try {
-    indexHtml = await fetchText(`${BASE_URL}/${brandSlug}/${modelSlug}`);
+    indexHtml = await fetchText(`${BASE_URL}/${brandSlug}/${modelSlug}`, {
+      logger,
+      source: "gaspedaal",
+    });
   } catch (error) {
-    logger?.warn?.(
-      `Gaspedaal: index fetch failed (${error instanceof Error ? error.message : error})`,
-    );
+    logger?.recordFetchError?.(error, {
+      url: `${BASE_URL}/${brandSlug}/${modelSlug}`,
+      source: "gaspedaal",
+    });
+    logger?.warn?.(`Gaspedaal: index fetch failed`);
     return [];
   }
 

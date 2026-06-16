@@ -1,5 +1,5 @@
 {
-  "note": "Brand/model/generation targets for the batch scraper. Plan B (Gaspedaal) works for any brand/model; manufacturer brochure specs are only added where a per-brand adapter exists (currently Hyundai). Edit this list to expand coverage.",
+  "note": "Brand/model/generation targets for the batch scraper. Brochure discovery runs for every brand in lib/vehicles/brand-registry.json (generic PDF parser + brand adapters like Hyundai). Plan B listing sources are opt-in via --plan-b.",
   "targets": [
     { "brand": "Hyundai", "model": "i20", "generation": "2020-plus" },
     { "brand": "Hyundai", "model": "i10", "generation": "2020-plus" },

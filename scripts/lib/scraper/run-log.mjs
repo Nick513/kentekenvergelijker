@@ -1,5 +1,6 @@
-// Write a JSON run summary under scripts/output/ (gitignored). Used by the
-// scrape CLI so each run leaves an auditable record of what was written.
+// Write a JSON run summary under scripts/output/ (gitignored). Each run log
+// includes structured events (issuesByCode, per-target diagnostics, outcomes)
+// for full pipeline feedback.
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";

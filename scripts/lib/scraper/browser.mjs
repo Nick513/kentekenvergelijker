@@ -4,6 +4,7 @@
 
 import puppeteerExtra from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { EVENT_CODES } from "./scrape-report.mjs";
 
 let pluginRegistered = false;
 
@@ -40,16 +41,23 @@ export async function withBrowser(fn) {
  * Navigate to a URL with a stealth browser and return the rendered HTML.
  *
  * @param {string} url
- * @param {{ waitUntil?: import("puppeteer").PuppeteerLifeCycleEvent, timeoutMs?: number }} [options]
+ * @param {{ waitUntil?: import("puppeteer").PuppeteerLifeCycleEvent, timeoutMs?: number, logger?: { recordFetchError?: Function, info?: Function }, source?: string }} [options]
  * @returns {Promise<string>}
  */
 export async function fetchRenderedHtml(url, options = {}) {
-  const { waitUntil = "networkidle2", timeoutMs = 45000 } = options;
+  const { waitUntil = "networkidle2", timeoutMs = 45000, logger, source } = options;
 
-  return withBrowser(async (browser) => {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 900 });
-    await page.goto(url, { waitUntil, timeout: timeoutMs });
-    return page.content();
-  });
+  try {
+    const html = await withBrowser(async (browser) => {
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1280, height: 900 });
+      await page.goto(url, { waitUntil, timeout: timeoutMs });
+      return page.content();
+    });
+    logger?.info?.(`Browser fetch OK ${url}`, EVENT_CODES.HTTP_FETCH_OK, { url, source });
+    return html;
+  } catch (error) {
+    logger?.recordFetchError?.(error, { url, source });
+    throw error;
+  }
 }
