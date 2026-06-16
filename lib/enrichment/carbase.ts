@@ -484,7 +484,13 @@ export async function searchCarbase(
   snapshot: VehicleSnapshot,
 ): Promise<EnrichedSpecMap> {
   const brandSlug = slugify(snapshot.brand);
-  const modelSlug = slugify(snapshot.modelName);
+  // RDW handelsbenaming sometimes includes the brand prefix (e.g. "MAZDA MX-30").
+  // Strip it so we get the correct carbase slug ("mx-30" not "mazda-mx-30").
+  const brandPrefix = snapshot.brand.toLowerCase() + " ";
+  const modelNameClean = snapshot.modelName.toLowerCase().startsWith(brandPrefix)
+    ? snapshot.modelName.slice(snapshot.brand.length + 1)
+    : snapshot.modelName;
+  const modelSlug = slugify(modelNameClean);
   const modelPathname = `/carbase/${brandSlug}/${modelSlug}/`;
   const modelUrl = `${BASE}${modelPathname}`;
 
@@ -496,11 +502,27 @@ export async function searchCarbase(
   // Random entry delay so concurrent plate fetches don't all hit autoweek at once.
   await sleep(jitter(0, 1200));
 
-  const modelHtml = await fetchHtml(modelUrl, fetchOpts);
+  let modelHtml = await fetchHtml(modelUrl, fetchOpts);
   if (!modelHtml) return new Map();
 
-  const $model = cheerio.load(modelHtml);
-  const versionLinks = extractVersionLinks($model, modelPathname);
+  let $model = cheerio.load(modelHtml);
+  let versionLinks = extractVersionLinks($model, modelPathname);
+
+  // Fallback: some brands use the brand name as the model slug on autoweek
+  // (e.g. MINI ONE lives at /carbase/mini/mini/ because "One" is a trim, not a model).
+  if (versionLinks.length === 0 && modelSlug !== brandSlug) {
+    const fallbackPathname = `/carbase/${brandSlug}/${brandSlug}/`;
+    const fallbackHtml = await fetchHtml(`${BASE}${fallbackPathname}`, fetchOpts);
+    if (fallbackHtml) {
+      const $fb = cheerio.load(fallbackHtml);
+      const fallbackLinks = extractVersionLinks($fb, fallbackPathname);
+      if (fallbackLinks.length > 0) {
+        $model = $fb;
+        versionLinks = fallbackLinks;
+      }
+    }
+  }
+
   if (versionLinks.length === 0) return new Map();
 
   // Pick the highest-scoring version

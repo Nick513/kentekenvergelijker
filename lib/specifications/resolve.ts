@@ -61,9 +61,14 @@ function formatCatalogValue(
     case "date":
       return value.valueText ?? UNAVAILABLE;
     default:
-      if (value.valueText) return value.valueText;
+      if (value.valueText) {
+        const t = value.valueText.toLowerCase().trim();
+        if (t === "ja" && value.valueBoolean === true) return true;
+        if (t === "nee" && value.valueBoolean === false) return false;
+        return value.valueText;
+      }
       if (value.valueNumeric !== null) return String(value.valueNumeric);
-      if (value.valueBoolean !== null) return value.valueBoolean ? "ja" : "nee";
+      if (value.valueBoolean !== null) return value.valueBoolean;
       return UNAVAILABLE;
   }
 }
