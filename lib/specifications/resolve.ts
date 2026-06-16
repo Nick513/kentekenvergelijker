@@ -251,26 +251,16 @@ export function buildComparisonGroups(
   return [...groups.values()];
 }
 
-export function rowHasUnverifiedValues(row: { values: ComparisonCell[] }): boolean {
-  return row.values.some(
-    (cell) =>
-      cell.verification !== null &&
-      cell.verification !== undefined &&
-      isUnverifiedForDisplay(cell.verification) &&
-      cell.value !== UNAVAILABLE &&
-      cell.value !== false,
+export function cellIsUnverifiedForDisplay(cell: ComparisonCell): boolean {
+  return (
+    cell.verification !== null &&
+    cell.verification !== undefined &&
+    isUnverifiedForDisplay(cell.verification) &&
+    cell.value !== UNAVAILABLE &&
+    cell.value !== false
   );
 }
 
-export function filterEmptyComparisonGroups(
-  groups: ComparisonGroup[],
-): ComparisonGroup[] {
-  return groups
-    .map((group) => ({
-      ...group,
-      rows: group.rows.filter((row) =>
-        row.values.some((cell) => cell.value !== UNAVAILABLE),
-      ),
-    }))
-    .filter((group) => group.rows.length > 0);
+export function rowHasUnverifiedValues(row: { values: ComparisonCell[] }): boolean {
+  return row.values.some(cellIsUnverifiedForDisplay);
 }

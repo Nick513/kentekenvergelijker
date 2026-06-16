@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { ComparisonGroup } from "@/components/comparison-table";
-import { filterEmptyComparisonGroups } from "@/lib/specifications/resolve";
 import { ComparisonPreview } from "@/components/comparison-preview";
 
 type ComparisonEnrichmentProps = {
@@ -45,7 +44,7 @@ export function ComparisonEnrichment({
 
       const payload = (await response.json()) as EnrichResponse;
       if (payload.groups) {
-        setGroups(filterEmptyComparisonGroups(payload.groups));
+        setGroups(payload.groups);
       }
     } catch {
       setEnrichError(true);

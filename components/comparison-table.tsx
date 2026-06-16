@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { KentekenPlateChip } from "@/components/kenteken-plate-chip";
 import { SpecVerificationModal } from "@/components/spec-verification-modal";
 import type { SpecVerification } from "@/lib/enrichment/types";
-import { rowHasUnverifiedValues } from "@/lib/specifications/resolve";
+import { cellIsUnverifiedForDisplay } from "@/lib/specifications/resolve";
 
 export type ComparisonCellValue = string | boolean;
 
@@ -38,7 +38,7 @@ const SPEC_COLUMN_CLASS =
 const PLATE_COLUMN_CLASS =
   "min-w-0 px-3 align-top break-words [overflow-wrap:anywhere]";
 
-function UnverifiedRowHint() {
+function UnverifiedValueHint() {
   const [open, setOpen] = useState(false);
 
   return (
@@ -60,9 +60,12 @@ function UnverifiedRowHint() {
 
 function ComparisonCellContent({ cell }: { cell: ComparisonCell }) {
   const { value } = cell;
+  const showUnverifiedHint = cellIsUnverifiedForDisplay(cell);
+
+  let content: ReactNode;
 
   if (typeof value === "boolean") {
-    return value ? (
+    content = value ? (
       <span className="font-bold text-kv-green" aria-label="Ja">
         ✓
       </span>
@@ -71,16 +74,21 @@ function ComparisonCellContent({ cell }: { cell: ComparisonCell }) {
         -
       </span>
     );
-  }
-
-  if (value === "-") {
-    return <span className="text-kv-muted">-</span>;
+  } else if (value === "-") {
+    content = <span className="text-kv-muted">-</span>;
+  } else {
+    content = (
+      <span className="block break-words text-kv-navy [overflow-wrap:anywhere]">
+        {value}
+      </span>
+    );
   }
 
   return (
-    <span className="block break-words text-kv-navy [overflow-wrap:anywhere]">
-      {value}
-    </span>
+    <>
+      {content}
+      {showUnverifiedHint ? <UnverifiedValueHint /> : null}
+    </>
   );
 }
 
@@ -137,7 +145,6 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
             </tr>
             {group.rows.map((row, rowIndex) => {
               const rowClass = rowBackgroundClass(rowIndex);
-              const showUnverifiedHint = rowHasUnverifiedValues(row);
 
               return (
                 <tr key={row.label} className={rowClass}>
@@ -145,8 +152,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
                     scope="row"
                     className={`${SPEC_COLUMN_CLASS} ${rowClass} border-t border-kv-border py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
                   >
-                    <span>{row.label}</span>
-                    {showUnverifiedHint ? <UnverifiedRowHint /> : null}
+                    {row.label}
                   </th>
                   {row.values.map((cell, valueIndex) => (
                     <td

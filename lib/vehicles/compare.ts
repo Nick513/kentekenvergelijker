@@ -5,10 +5,7 @@ import { mapRdwToSnapshot } from "@/lib/rdw/map";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 import { normalizeKenteken } from "@/lib/kenteken";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
-import {
-  buildComparisonGroups,
-  filterEmptyComparisonGroups,
-} from "@/lib/specifications/resolve";
+import { buildComparisonGroups } from "@/lib/specifications/resolve";
 import { loadCatalogForPlates } from "@/lib/vehicles/catalog";
 
 export type ComparisonBuildResult = {
@@ -63,9 +60,7 @@ export async function buildComparison(
   const catalogs = await loadCatalogForPlates(plates);
 
   return {
-    groups: filterEmptyComparisonGroups(
-      buildComparisonGroups(specifications, plates, [], catalogs),
-    ),
+    groups: buildComparisonGroups(specifications, plates, [], catalogs),
     plates,
     hasNotFound: plates.some((plate) => plate.status === "not_found"),
     hasErrors: plates.some((plate) => plate.status === "error"),

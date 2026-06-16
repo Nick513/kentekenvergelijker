@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mergeEnrichedSpecs } from "@/lib/enrichment/keywords";
 import type { EnrichedSpecMap } from "@/lib/enrichment/types";
-import { rowHasUnverifiedValues } from "@/lib/specifications/resolve";
+import { cellIsUnverifiedForDisplay, rowHasUnverifiedValues } from "@/lib/specifications/resolve";
 
 function specMap(
   entries: Array<[string, Partial<import("@/lib/enrichment/types").EnrichedSpecValue>]>,
@@ -41,24 +41,42 @@ describe("mergeEnrichedSpecs", () => {
   });
 });
 
-describe("rowHasUnverifiedValues", () => {
-  it("flags trim_inferred boolean rows", () => {
+describe("cellIsUnverifiedForDisplay", () => {
+  it("flags trim_inferred boolean cells", () => {
     expect(
-      rowHasUnverifiedValues({
-        values: [{ value: true, verification: "trim_inferred" }],
-      }),
+      cellIsUnverifiedForDisplay({ value: true, verification: "trim_inferred" }),
     ).toBe(true);
   });
 
-  it("does not flag listing_claim rows", () => {
+  it("does not flag listing_claim cells", () => {
     expect(
-      rowHasUnverifiedValues({
-        values: [{ value: true, verification: "listing_claim" }],
-      }),
+      cellIsUnverifiedForDisplay({ value: true, verification: "listing_claim" }),
     ).toBe(false);
   });
 
   it("ignores unavailable and false cells", () => {
+    expect(
+      cellIsUnverifiedForDisplay({ value: "-", verification: "trim_inferred" }),
+    ).toBe(false);
+    expect(
+      cellIsUnverifiedForDisplay({ value: false, verification: "trim_inferred" }),
+    ).toBe(false);
+  });
+});
+
+describe("rowHasUnverifiedValues", () => {
+  it("is true when any cell is unverified", () => {
+    expect(
+      rowHasUnverifiedValues({
+        values: [
+          { value: "Handgeschakeld", verification: "verified" },
+          { value: "Automaat", verification: "trim_inferred" },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it("is false when all cells are verified or absent", () => {
     expect(
       rowHasUnverifiedValues({
         values: [

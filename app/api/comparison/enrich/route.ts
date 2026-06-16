@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { enrichPlates } from "@/lib/enrichment/enrich-plate";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
-import {
-  buildComparisonGroups,
-  filterEmptyComparisonGroups,
-} from "@/lib/specifications/resolve";
+import { buildComparisonGroups } from "@/lib/specifications/resolve";
 import { fetchPlate } from "@/lib/vehicles/compare";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 
@@ -56,7 +53,7 @@ export async function POST(request: Request) {
   );
 
   return NextResponse.json({
-    groups: filterEmptyComparisonGroups(groups),
+    groups,
     status: "complete",
   });
 }
