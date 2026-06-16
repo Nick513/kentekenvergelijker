@@ -9,15 +9,39 @@ const sampleGroups: ComparisonGroup[] = [
   {
     title: "Algemeen",
     rows: [
-      { label: "Merk & model", values: ["VW Golf", "VW Golf"] },
-      { label: "Carrosserie", values: ["Hatchback", "Hatchback"] },
+      {
+        label: "Merk & model",
+        values: [
+          { value: "VW Golf", verification: "verified" },
+          { value: "VW Golf", verification: "verified" },
+        ],
+      },
+      {
+        label: "Carrosserie",
+        values: [
+          { value: "Hatchback", verification: "verified" },
+          { value: "Hatchback", verification: "verified" },
+        ],
+      },
     ],
   },
   {
     title: "Veiligheid & assistentie",
     rows: [
-      { label: "ABS", values: [true, true] },
-      { label: "Lane assist", values: [false, true] },
+      {
+        label: "ABS",
+        values: [
+          { value: true, verification: "trim_inferred" },
+          { value: true, verification: "trim_inferred" },
+        ],
+      },
+      {
+        label: "Lane assist",
+        values: [
+          { value: false, verification: null },
+          { value: true, verification: "listing_claim" },
+        ],
+      },
     ],
   },
 ];

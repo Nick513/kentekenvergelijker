@@ -1,18 +1,51 @@
-import type { ComparisonGroup } from "@/components/comparison-table";
+import type { ComparisonCell, ComparisonGroup } from "@/components/comparison-table";
 import type { ComparisonSpecification } from "@/lib/specifications/types";
 
-const DEMO_VALUES: Record<string, [string | boolean, string | boolean]> = {
-  brand_model: ["Volkswagen Golf", "Volkswagen Golf"],
-  trim_package: ["Life", "Style"],
-  first_registration_year: ["2019", "2021"],
-  fuel_type: ["Benzine", "Benzine"],
-  power_kw: ["110 pk", "130 pk"],
-  heated_seats: [false, true],
-  adaptive_cruise_control: [false, true],
-  navigation: [true, true],
-  led_headlights: [false, true],
-  parking_sensors_rear: [true, true],
-  parking_sensors_front: [false, true],
+const DEMO_VALUES: Record<string, [ComparisonCell, ComparisonCell]> = {
+  brand_model: [
+    { value: "Volkswagen Golf", verification: "verified" },
+    { value: "Volkswagen Golf", verification: "verified" },
+  ],
+  trim_package: [
+    { value: "Life", verification: "trim_inferred" },
+    { value: "Style", verification: "trim_inferred" },
+  ],
+  first_registration_year: [
+    { value: "2019", verification: "verified" },
+    { value: "2021", verification: "verified" },
+  ],
+  fuel_type: [
+    { value: "Benzine", verification: "verified" },
+    { value: "Benzine", verification: "verified" },
+  ],
+  power_kw: [
+    { value: "110 pk", verification: "verified" },
+    { value: "130 pk", verification: "verified" },
+  ],
+  heated_seats: [
+    { value: false, verification: null },
+    { value: true, verification: "listing_claim" },
+  ],
+  adaptive_cruise_control: [
+    { value: false, verification: null },
+    { value: true, verification: "listing_claim" },
+  ],
+  navigation: [
+    { value: true, verification: "trim_inferred" },
+    { value: true, verification: "trim_inferred" },
+  ],
+  led_headlights: [
+    { value: false, verification: null },
+    { value: true, verification: "listing_claim" },
+  ],
+  parking_sensors_rear: [
+    { value: true, verification: "trim_inferred" },
+    { value: true, verification: "trim_inferred" },
+  ],
+  parking_sensors_front: [
+    { value: false, verification: null },
+    { value: true, verification: "listing_claim" },
+  ],
 };
 
 export function buildDemoComparisonGroups(

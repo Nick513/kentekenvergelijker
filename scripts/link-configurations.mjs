@@ -10,9 +10,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { createCatalogClient } from "./lib/scraper/db-writer.mjs";
-import { logger } from "./lib/scraper/logger.mjs";
-import { toCsv } from "./lib/scraper/csv.mjs";
+import { createCatalogClient } from "./lib/catalog/db.mjs";
+import { logger } from "./lib/catalog/logger.mjs";
+import { toCsv } from "./lib/catalog/csv.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = path.join(moduleDir, "output");
@@ -139,7 +139,7 @@ async function main() {
 
   const catalogs = await loadCatalogConfigurations(supabase, args);
   if (catalogs.length === 0) {
-    logger.warn("No scraped catalog configurations found. Run the scraper first.");
+    logger.warn("No catalog configurations found in the database.");
     return;
   }
 

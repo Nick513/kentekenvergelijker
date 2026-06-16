@@ -1,0 +1,26 @@
+{
+  "keywords": [
+    { "match": ["stoelverwarming", "stoelverw", "stoel verw", "stoel/stuurv"], "specKey": "heated_seats" },
+    { "match": ["stuurverwarming", "stuurverw"], "specKey": "heated_steering_wheel" },
+    { "match": ["navigatie", "navi", "nav."], "specKey": "navigation" },
+    { "match": ["apple carplay", "carplay"], "specKey": "apple_carplay" },
+    { "match": ["android auto"], "specKey": "android_auto" },
+    { "match": ["adaptive cruise", "adaptieve cruise"], "specKey": "adaptive_cruise_control" },
+    { "match": ["lane assist", "rijstrook", "rijstrookassistent"], "specKey": "lane_assist" },
+    { "match": ["cruise control", "cruise-control"], "specKey": "cruise_control" },
+    { "match": ["climate control", "climate", "clima", "airco"], "specKey": "dual_zone_climate_control" },
+    { "match": ["achteruitrijcamera", "achteruit rij camera"], "specKey": "parking_camera" },
+    { "match": ["pdc", "parkeersensor", "parkeersensoren"], "specKey": "parking_sensors_rear" },
+    { "match": ["trekhaak"], "specKey": "tow_hitch" },
+    { "match": ["panoramadak", "panorama dak"], "specKey": "panoramic_roof" },
+    { "match": ["schuifdak", "schuif-kanteldak"], "specKey": "sunroof" },
+    { "match": ["keyless", "keyless entry"], "specKey": "keyless_entry" },
+    { "match": ["led koplamp", "led verlichting", "led-koplamp"], "specKey": "led_headlights" },
+    { "match": ["leder", "lederen", "leer bekleding"], "specKey": "leather_upholstery" },
+    { "match": ["blind spot", "dodehoek"], "specKey": "blind_spot_monitor" },
+    { "match": ["draadloos opladen", "wireless charging"], "specKey": "wireless_phone_charging" },
+    { "match": ["elektrische achterklep"], "specKey": "electric_tailgate" },
+    { "match": ["head-up", "head up display", "hud"], "specKey": "head_up_display" },
+    { "match": ["parkeerassistent"], "specKey": "parking_assist" }
+  ]
+}

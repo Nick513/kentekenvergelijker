@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import ws from "ws";
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -18,7 +17,6 @@ async function main() {
 
   const supabase = createClient(url, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
-    realtime: { transport: ws },
   });
 
   const { count, error: countError } = await supabase
@@ -30,6 +28,18 @@ async function main() {
   }
 
   console.log(`  vehicle_configurations rows: ${count ?? 0}`);
+
+  const { error: plateTableError } = await supabase
+    .from("plate_specification_values")
+    .select("license_plate", { count: "exact", head: true });
+
+  if (plateTableError) {
+    throw new Error(
+      `plate_specification_values not available: ${plateTableError.message}. Apply migration 20260616134123_plate_enrichment.sql.`,
+    );
+  }
+
+  console.log("  plate_specification_values table: OK");
 
   const testCatalogKey = `test_${Date.now()}`;
   const testConfiguration = {

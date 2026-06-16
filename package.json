@@ -12,32 +12,24 @@
     "test:db": "node --env-file=.env.local scripts/test-db.mjs",
     "test:specs": "node --env-file=.env.local scripts/test-specifications.mjs",
     "fetch:rdw": "node --env-file=.env.local scripts/fetch-rdw.mjs",
-    "scrape:manufacturer": "node --env-file=.env.local scripts/scrape-manufacturer.mjs",
-    "scrape:batch": "node --env-file=.env.local scripts/scrape-batch.mjs",
-    "validate:scraped": "node --env-file=.env.local scripts/validate-scraped-specs.mjs",
     "verify:catalog": "node --env-file=.env.local scripts/verify-catalog-quality.mjs",
     "debug:plate": "node --env-file=.env.local scripts/debug-plate-catalog.mjs",
     "link:suggest": "node --env-file=.env.local scripts/link-configurations.mjs",
-    "link:apply": "node --env-file=.env.local scripts/link-configurations-apply.mjs",
-    "generate:brand-registry": "node --env-file=.env.local scripts/generate-brand-registry.mjs"
+    "link:apply": "node --env-file=.env.local scripts/link-configurations-apply.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.1",
     "cheerio": "^1.2.0",
     "next": "16.2.9",
-    "pdf-parse": "^1.1.1",
-    "puppeteer": "^25.1.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "ws": "^8.21.0"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",

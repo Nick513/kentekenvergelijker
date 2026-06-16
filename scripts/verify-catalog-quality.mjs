@@ -1,4 +1,4 @@
-// Catalog data quality checks: scrape depth, source conflicts, known plate regression.
+// Catalog data quality checks: coverage depth, source conflicts, known plate regression.
 //
 // Usage:
 //   node --env-file=.env.local scripts/verify-catalog-quality.mjs
@@ -7,9 +7,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createCatalogClient } from "./lib/scraper/db-writer.mjs";
-import { loadSpecCatalog } from "./lib/scraper/field-map.mjs";
-import { createPipelineLogger, createScrapeReport } from "./lib/scraper/scrape-report.mjs";
+import { createCatalogClient } from "./lib/catalog/db.mjs";
+import { loadSpecCatalog } from "./lib/catalog/spec-catalog.mjs";
+import { logger } from "./lib/catalog/logger.mjs";
 import {
   engineSlugFromCatalogKey,
   filterModelMatches,
@@ -31,8 +31,7 @@ const KNOWN_PLATES_PATH = path.join(
 const MIN_SPECS_PER_CONFIG = 8;
 const BROCHURE_SOURCE_PREFIX = "scraped_";
 
-async function checkScrapeDepth(supabase, specCatalog, report) {
-  const logger = createPipelineLogger(report);
+async function checkCatalogDepth(supabase) {
   const { data: configs, error } = await supabase
     .from("vehicle_configurations")
     .select("id, brand, model_name, catalog_key")
@@ -55,8 +54,6 @@ async function checkScrapeDepth(supabase, specCatalog, report) {
       thin += 1;
       logger.warn(
         `Thin coverage: ${config.catalog_key} has ${specCount} specs (min ${MIN_SPECS_PER_CONFIG})`,
-        "coverage.insufficient",
-        { catalogKey: config.catalog_key, specCount, threshold: MIN_SPECS_PER_CONFIG },
       );
     }
   }
@@ -64,8 +61,7 @@ async function checkScrapeDepth(supabase, specCatalog, report) {
   return { total, thin };
 }
 
-async function checkSourceConflicts(supabase, report) {
-  const logger = createPipelineLogger(report);
+async function checkSourceConflicts(supabase) {
   const { data: configs } = await supabase
     .from("vehicle_configurations")
     .select("id, catalog_key")
@@ -104,8 +100,6 @@ async function checkSourceConflicts(supabase, report) {
         conflicts += 1;
         logger.warn(
           `Source conflict on ${config.catalog_key} :: ${specKey} (brochure vs listing differ)`,
-          "validation.source_conflict",
-          { catalogKey: config.catalog_key, specKey },
         );
       }
     }
@@ -114,8 +108,7 @@ async function checkSourceConflicts(supabase, report) {
   return conflicts;
 }
 
-async function checkKnownPlates(supabase, knownPlates, report) {
-  const logger = createPipelineLogger(report);
+async function checkKnownPlates(supabase, knownPlates) {
   const failures = [];
 
   for (const plate of knownPlates) {
@@ -209,18 +202,10 @@ async function checkKnownPlates(supabase, knownPlates, report) {
       });
       logger.error(
         `Known plate failed: ${plate.kenteken} (${plate.label}) catalog=${resolvedConfig?.catalog_key ?? "none"} equipment=${JSON.stringify(Object.fromEntries(equipment))}`,
-        "validation.known_plate_failed",
-        {
-          kenteken: plate.kenteken,
-          resolvedCatalogKey: resolvedConfig?.catalog_key ?? null,
-          expectCatalogKey: plate.expectCatalogKey,
-        },
       );
     } else {
       logger.info(
         `Known plate OK: ${plate.kenteken} catalog=${resolvedConfig?.catalog_key}`,
-        "validation.known_plate_ok",
-        { kenteken: plate.kenteken, resolvedCatalogKey: resolvedConfig?.catalog_key },
       );
     }
   }
@@ -229,30 +214,20 @@ async function checkKnownPlates(supabase, knownPlates, report) {
 }
 
 async function main() {
-  const report = createScrapeReport({ scope: "verification" });
-  const logger = createPipelineLogger(report);
-
   const supabase = createCatalogClient();
   await loadSpecCatalog(supabase);
 
   const known = JSON.parse(await readFile(KNOWN_PLATES_PATH, "utf8"));
   const knownPlates = known.plates ?? [];
 
-  logger.info("Verification: scrape depth");
-  const depth = await checkScrapeDepth(supabase, null, report.child({ scope: "depth" }));
+  logger.info("Verification: catalog depth");
+  const depth = await checkCatalogDepth(supabase);
 
   logger.info("Verification: source conflicts");
-  const conflicts = await checkSourceConflicts(
-    supabase,
-    report.child({ scope: "conflicts" }),
-  );
+  const conflicts = await checkSourceConflicts(supabase);
 
   logger.info(`Verification: ${knownPlates.length} known plates`);
-  const plateFailures = await checkKnownPlates(
-    supabase,
-    knownPlates,
-    report.child({ scope: "plates" }),
-  );
+  const plateFailures = await checkKnownPlates(supabase, knownPlates);
 
   console.log("");
   console.log("=".repeat(72));

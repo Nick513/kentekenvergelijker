@@ -5,7 +5,10 @@ import { mapRdwToSnapshot } from "@/lib/rdw/map";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 import { normalizeKenteken } from "@/lib/kenteken";
 import { loadComparisonSpecifications } from "@/lib/specifications/load";
-import { buildComparisonGroups } from "@/lib/specifications/resolve";
+import {
+  buildComparisonGroups,
+  filterEmptyComparisonGroups,
+} from "@/lib/specifications/resolve";
 import { loadCatalogForPlates } from "@/lib/vehicles/catalog";
 
 export type ComparisonBuildResult = {
@@ -15,7 +18,7 @@ export type ComparisonBuildResult = {
   hasErrors: boolean;
 };
 
-async function fetchPlate(licensePlate: string): Promise<PlateFetchResult> {
+export async function fetchPlate(licensePlate: string): Promise<PlateFetchResult> {
   const normalized = normalizeKenteken(licensePlate);
 
   try {
@@ -60,7 +63,9 @@ export async function buildComparison(
   const catalogs = await loadCatalogForPlates(plates);
 
   return {
-    groups: buildComparisonGroups(specifications, plates, catalogs),
+    groups: filterEmptyComparisonGroups(
+      buildComparisonGroups(specifications, plates, [], catalogs),
+    ),
     plates,
     hasNotFound: plates.some((plate) => plate.status === "not_found"),
     hasErrors: plates.some((plate) => plate.status === "error"),

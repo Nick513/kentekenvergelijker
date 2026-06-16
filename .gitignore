@@ -38,7 +38,7 @@ yarn-error.log*
 supabase/.temp/
 supabase/.branches/
 
-# scraper run logs and fixtures
+# dev script artifacts
 /scripts/output/
 
 # vercel

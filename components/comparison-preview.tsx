@@ -9,6 +9,9 @@ type ComparisonPreviewProps = {
   groups: ComparisonGroup[];
   hasNotFound?: boolean;
   hasErrors?: boolean;
+  isEnriching?: boolean;
+  enrichError?: boolean;
+  onRetryEnrichment?: () => void;
 };
 
 export function ComparisonPreview({
@@ -16,6 +19,9 @@ export function ComparisonPreview({
   groups,
   hasNotFound = false,
   hasErrors = false,
+  isEnriching = false,
+  enrichError = false,
+  onRetryEnrichment,
 }: ComparisonPreviewProps) {
   return (
     <section
@@ -37,6 +43,25 @@ export function ComparisonPreview({
           ))}
           .
         </p>
+        {isEnriching ? (
+          <p className="text-sm text-kv-muted" role="status" aria-live="polite">
+            Advertentiegegevens worden opgezocht om specificaties te verrijken…
+          </p>
+        ) : null}
+        {enrichError ? (
+          <p className="text-sm text-kv-muted" role="status">
+            Extra specificaties zijn niet geladen.{" "}
+            {onRetryEnrichment ? (
+              <button
+                type="button"
+                onClick={onRetryEnrichment}
+                className="underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
+              >
+                Opnieuw proberen
+              </button>
+            ) : null}
+          </p>
+        ) : null}
         {hasNotFound ? (
           <p className="text-sm text-kv-muted" role="status">
             Een of meer kentekens zijn niet gevonden.
@@ -54,6 +79,7 @@ export function ComparisonPreview({
         kentekens={kentekens}
         groups={groups}
         caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
+        isLoading={isEnriching}
       />
 
       <DataDisclaimer className="mt-6" />

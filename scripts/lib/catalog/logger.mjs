@@ -1,4 +1,4 @@
-// Minimal console logger with level prefixes, shared across scraper scripts.
+// Minimal console logger for catalog dev scripts.
 
 function stamp(level) {
   return `[${new Date().toISOString()}] ${level}`;

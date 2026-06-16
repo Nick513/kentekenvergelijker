@@ -9,9 +9,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { createCatalogClient } from "./lib/scraper/db-writer.mjs";
-import { logger } from "./lib/scraper/logger.mjs";
-import { parseCsv } from "./lib/scraper/csv.mjs";
+import { createCatalogClient } from "./lib/catalog/db.mjs";
+import { logger } from "./lib/catalog/logger.mjs";
+import { parseCsv } from "./lib/catalog/csv.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_FILE = path.join(

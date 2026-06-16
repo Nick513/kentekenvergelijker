@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { ComparisonPreview } from "@/components/comparison-preview";
+import { ComparisonEnrichment } from "@/components/comparison-enrichment";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -88,9 +88,9 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
           </p>
         </header>
 
-        <ComparisonPreview
+        <ComparisonEnrichment
           kentekens={parsed.kentekens}
-          groups={comparison.groups}
+          initialGroups={comparison.groups}
           hasNotFound={comparison.hasNotFound}
           hasErrors={comparison.hasErrors}
         />

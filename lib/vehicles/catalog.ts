@@ -952,7 +952,7 @@ async function fetchCatalogForSnapshot(
   );
 }
 
-async function loadCatalogForSnapshot(
+export async function loadCatalogForSnapshot(
   snapshot: VehicleSnapshot,
 ): Promise<CatalogSpecMap> {
   const loader = () => fetchCatalogForSnapshot(snapshot);

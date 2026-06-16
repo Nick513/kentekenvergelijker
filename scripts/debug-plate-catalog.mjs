@@ -1,7 +1,7 @@
 // Debug catalog matching for a kenteken. Internal dev tool.
 // Usage: node --env-file=.env.local scripts/debug-plate-catalog.mjs N-434-PJ
 
-import { createCatalogClient } from "./lib/scraper/db-writer.mjs";
+import { createCatalogClient } from "./lib/catalog/db.mjs";
 import {
   filterByExactFuel,
   filterModelMatches,

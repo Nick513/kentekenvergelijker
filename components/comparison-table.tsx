@@ -1,10 +1,21 @@
+"use client";
+
+import { useState } from "react";
 import { KentekenPlateChip } from "@/components/kenteken-plate-chip";
+import { SpecVerificationModal } from "@/components/spec-verification-modal";
+import type { SpecVerification } from "@/lib/enrichment/types";
+import { rowHasUnverifiedValues } from "@/lib/specifications/resolve";
 
 export type ComparisonCellValue = string | boolean;
 
+export type ComparisonCell = {
+  value: ComparisonCellValue;
+  verification?: SpecVerification | null;
+};
+
 export type ComparisonRow = {
   label: string;
-  values: ComparisonCellValue[];
+  values: ComparisonCell[];
 };
 
 export type ComparisonGroup = {
@@ -27,7 +38,29 @@ const SPEC_COLUMN_CLASS =
 const PLATE_COLUMN_CLASS =
   "min-w-0 px-3 align-top break-words [overflow-wrap:anywhere]";
 
-function ComparisonCell({ value }: { value: ComparisonCellValue }) {
+function UnverifiedRowHint() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <span className="mt-1 block text-xs font-normal text-kv-muted">
+        Ongeverifieerd{" "}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
+        >
+          Wat betekent dit?
+        </button>
+      </span>
+      <SpecVerificationModal open={open} onClose={() => setOpen(false)} />
+    </>
+  );
+}
+
+function ComparisonCellContent({ cell }: { cell: ComparisonCell }) {
+  const { value } = cell;
+
   if (typeof value === "boolean") {
     return value ? (
       <span className="font-bold text-kv-green" aria-label="Ja">
@@ -44,7 +77,11 @@ function ComparisonCell({ value }: { value: ComparisonCellValue }) {
     return <span className="text-kv-muted">-</span>;
   }
 
-  return <span className="block break-words text-kv-navy [overflow-wrap:anywhere]">{value}</span>;
+  return (
+    <span className="block break-words text-kv-navy [overflow-wrap:anywhere]">
+      {value}
+    </span>
+  );
 }
 
 function rowBackgroundClass(rowIndex: number): string {
@@ -100,6 +137,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
             </tr>
             {group.rows.map((row, rowIndex) => {
               const rowClass = rowBackgroundClass(rowIndex);
+              const showUnverifiedHint = rowHasUnverifiedValues(row);
 
               return (
                 <tr key={row.label} className={rowClass}>
@@ -107,14 +145,15 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
                     scope="row"
                     className={`${SPEC_COLUMN_CLASS} ${rowClass} border-t border-kv-border py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
                   >
-                    {row.label}
+                    <span>{row.label}</span>
+                    {showUnverifiedHint ? <UnverifiedRowHint /> : null}
                   </th>
-                  {row.values.map((value, valueIndex) => (
+                  {row.values.map((cell, valueIndex) => (
                     <td
                       key={`${row.label}-${kentekens[valueIndex]}`}
                       className={`${PLATE_COLUMN_CLASS} border-t border-kv-border py-3`}
                     >
-                      <ComparisonCell value={value} />
+                      <ComparisonCellContent cell={cell} />
                     </td>
                   ))}
                 </tr>

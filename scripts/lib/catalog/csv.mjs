@@ -53,7 +53,6 @@ function parseLine(line) {
 }
 
 /**
- * Parse CSV text into an array of objects keyed by the header row.
  * @param {string} text
  * @returns {Array<Record<string, string>>}
  */

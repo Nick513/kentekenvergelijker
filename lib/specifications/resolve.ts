@@ -1,5 +1,4 @@
-import type { ComparisonCellValue } from "@/components/comparison-table";
-import type { ComparisonGroup } from "@/components/comparison-table";
+import type { ComparisonCell, ComparisonGroup } from "@/components/comparison-table";
 import {
   formatApkDate,
   formatBrandModel,
@@ -14,6 +13,8 @@ import {
   formatVolumeCc,
   formatYear,
 } from "@/lib/rdw/map";
+import type { EnrichedSpecMap, EnrichedSpecValue } from "@/lib/enrichment/types";
+import { isUnverifiedForDisplay } from "@/lib/enrichment/verification";
 import type { PlateFetchResult } from "@/lib/rdw/types";
 import type { CatalogSpecMap, CatalogSpecValue } from "@/lib/vehicles/catalog";
 import type {
@@ -23,18 +24,24 @@ import type {
 
 const UNAVAILABLE = "-";
 
-function unavailableCell(): ComparisonCellValue {
-  return UNAVAILABLE;
+function unavailableCell(): ComparisonCell {
+  return { value: UNAVAILABLE, verification: null };
+}
+
+function cellFromValue(
+  value: ComparisonCell["value"],
+  verification: ComparisonCell["verification"] = null,
+): ComparisonCell {
+  return { value, verification };
 }
 
 function formatCatalogValue(
   displayType: SpecificationDisplayType,
-  value: CatalogSpecValue,
-): ComparisonCellValue {
+  value: CatalogSpecValue | EnrichedSpecValue,
+): ComparisonCell["value"] {
   switch (displayType) {
     case "boolean":
-      // Omit-if-unknown: only true is shown; absence stays "-", never "Nee".
-      return value.valueBoolean === true ? true : unavailableCell();
+      return value.valueBoolean === true ? true : UNAVAILABLE;
     case "currency":
       return formatCatalogPrice(value.valueNumeric);
     case "power_kw":
@@ -52,102 +59,155 @@ function formatCatalogValue(
     case "year":
       return formatYear(value.valueNumeric);
     case "date":
-      return value.valueText ?? unavailableCell();
+      return value.valueText ?? UNAVAILABLE;
     default:
       if (value.valueText) return value.valueText;
       if (value.valueNumeric !== null) return String(value.valueNumeric);
-      return unavailableCell();
+      return UNAVAILABLE;
   }
 }
 
 function resolveRdwValue(
   valueKey: string,
   plate: PlateFetchResult & { status: "ok" },
-): ComparisonCellValue {
+): ComparisonCell {
   const snapshot = plate.snapshot;
 
+  let value: ComparisonCell["value"];
   switch (valueKey) {
     case "brand_model":
-      return formatBrandModel(snapshot);
+      value = formatBrandModel(snapshot);
+      break;
     case "primary_color":
-      return snapshot.primaryColor ?? "-";
+      value = snapshot.primaryColor ?? UNAVAILABLE;
+      break;
     case "first_registration_year":
-      return formatYear(snapshot.firstRegistrationYear);
+      value = formatYear(snapshot.firstRegistrationYear);
+      break;
     case "apk_expiry_date":
-      return formatApkDate(snapshot.apkExpiryDate);
+      value = formatApkDate(snapshot.apkExpiryDate);
+      break;
     case "catalog_price":
-      return formatCatalogPrice(snapshot.catalogPrice);
+      value = formatCatalogPrice(snapshot.catalogPrice);
+      break;
     case "vehicle_type":
-      return snapshot.vehicleType ?? "-";
+      value = snapshot.vehicleType ?? UNAVAILABLE;
+      break;
     case "body_type":
-      return snapshot.bodyType ?? "-";
+      value = snapshot.bodyType ?? UNAVAILABLE;
+      break;
     case "door_count":
-      return formatCount(snapshot.doorCount);
+      value = formatCount(snapshot.doorCount);
+      break;
     case "seat_count":
-      return formatCount(snapshot.seatCount);
+      value = formatCount(snapshot.seatCount);
+      break;
     case "vehicle_length_cm":
-      return formatLengthCm(snapshot.vehicleLengthCm);
+      value = formatLengthCm(snapshot.vehicleLengthCm);
+      break;
     case "vehicle_width_cm":
-      return formatLengthCm(snapshot.vehicleWidthCm);
+      value = formatLengthCm(snapshot.vehicleWidthCm);
+      break;
     case "vehicle_height_cm":
-      return formatLengthCm(snapshot.vehicleHeightCm);
+      value = formatLengthCm(snapshot.vehicleHeightCm);
+      break;
     case "wheelbase_cm":
-      return formatLengthCm(snapshot.wheelbaseCm);
+      value = formatLengthCm(snapshot.wheelbaseCm);
+      break;
     case "curb_weight_kg":
-      return formatMassKg(snapshot.curbWeightKg);
+      value = formatMassKg(snapshot.curbWeightKg);
+      break;
     case "empty_weight_kg":
-      return formatMassKg(snapshot.emptyWeightKg);
+      value = formatMassKg(snapshot.emptyWeightKg);
+      break;
     case "max_towing_weight_braked_kg":
-      return formatMassKg(snapshot.maxTowingWeightBrakedKg);
+      value = formatMassKg(snapshot.maxTowingWeightBrakedKg);
+      break;
     case "fuel_type":
-      return snapshot.fuelType ?? "-";
+      value = snapshot.fuelType ?? UNAVAILABLE;
+      break;
     case "power_kw":
-      return formatPowerKw(snapshot.powerKw);
+      value = formatPowerKw(snapshot.powerKw);
+      break;
     case "engine_displacement_cc":
-      return formatVolumeCc(snapshot.engineDisplacementCc);
+      value = formatVolumeCc(snapshot.engineDisplacementCc);
+      break;
     case "cylinder_count":
-      return formatCount(snapshot.cylinderCount);
+      value = formatCount(snapshot.cylinderCount);
+      break;
     case "electric_range_wltp":
-      return formatElectricRange(snapshot.electricRangeKm);
+      value = formatElectricRange(snapshot.electricRangeKm);
+      break;
     case "electric_consumption_wltp":
-      return formatElectricConsumption(snapshot.electricConsumptionWltp);
+      value = formatElectricConsumption(snapshot.electricConsumptionWltp);
+      break;
     case "co2_emission_g_km":
-      return formatCo2Emission(snapshot.co2EmissionGKm);
+      value = formatCo2Emission(snapshot.co2EmissionGKm);
+      break;
     case "emission_standard":
-      return snapshot.emissionStandard ?? "-";
+      value = snapshot.emissionStandard ?? UNAVAILABLE;
+      break;
     default:
-      return "-";
+      value = UNAVAILABLE;
   }
+
+  return cellFromValue(value, value === UNAVAILABLE ? null : "verified");
 }
 
 function resolvePlateValue(
   spec: ComparisonSpecification,
   plate: PlateFetchResult,
+  enriched: EnrichedSpecMap | null,
   catalog: CatalogSpecMap | null,
-): ComparisonCellValue {
+): ComparisonCell {
   if (plate.status === "not_found") {
-    return spec.displayType === "boolean" ? unavailableCell() : "Niet gevonden";
+    return cellFromValue(
+      spec.displayType === "boolean" ? UNAVAILABLE : "Niet gevonden",
+    );
   }
 
   if (plate.status === "error") {
     return unavailableCell();
   }
 
+  const enrichedValue = enriched?.get(spec.specKey) ?? null;
   const catalogValue = catalog?.get(spec.specKey) ?? null;
 
   if (spec.valueSource === "rdw") {
-    const rdwValue = resolveRdwValue(spec.valueKey, plate);
-    // Live RDW wins; catalog only fills a gap when RDW has no value.
-    if (rdwValue === UNAVAILABLE && catalogValue) {
-      return formatCatalogValue(spec.displayType, catalogValue);
+    const rdwCell = resolveRdwValue(spec.valueKey, plate);
+    if (rdwCell.value !== UNAVAILABLE) {
+      return rdwCell;
     }
-    return rdwValue;
+
+    const fallback = enrichedValue ?? catalogValue;
+    if (fallback) {
+      const formatted = formatCatalogValue(spec.displayType, fallback);
+      const verification =
+        enrichedValue?.verification ??
+        (catalogValue ? "trim_inferred" : null);
+      return cellFromValue(formatted, verification);
+    }
+
+    return rdwCell;
   }
 
   if (spec.valueSource === "catalog" || spec.valueSource === "equipment") {
-    if (catalogValue) {
-      return formatCatalogValue(spec.displayType, catalogValue);
+    if (enrichedValue) {
+      const formatted = formatCatalogValue(spec.displayType, enrichedValue);
+      if (formatted === UNAVAILABLE && spec.displayType === "boolean") {
+        return unavailableCell();
+      }
+      return cellFromValue(formatted, enrichedValue.verification);
     }
+
+    if (catalogValue) {
+      const formatted = formatCatalogValue(spec.displayType, catalogValue);
+      if (formatted === UNAVAILABLE && spec.displayType === "boolean") {
+        return unavailableCell();
+      }
+      return cellFromValue(formatted, "trim_inferred");
+    }
+
     return unavailableCell();
   }
 
@@ -157,6 +217,7 @@ function resolvePlateValue(
 export function buildComparisonGroups(
   specifications: ComparisonSpecification[],
   plates: PlateFetchResult[],
+  enrichedMaps: (EnrichedSpecMap | null)[] = [],
   catalogs: (CatalogSpecMap | null)[] = [],
 ): ComparisonGroup[] {
   const groups = new Map<string, ComparisonGroup>();
@@ -167,7 +228,12 @@ export function buildComparisonGroups(
     const row = {
       label: spec.label,
       values: plates.map((plate, index) =>
-        resolvePlateValue(spec, plate, catalogs[index] ?? null),
+        resolvePlateValue(
+          spec,
+          plate,
+          enrichedMaps[index] ?? null,
+          catalogs[index] ?? null,
+        ),
       ),
     };
 
@@ -183,4 +249,28 @@ export function buildComparisonGroups(
   }
 
   return [...groups.values()];
+}
+
+export function rowHasUnverifiedValues(row: { values: ComparisonCell[] }): boolean {
+  return row.values.some(
+    (cell) =>
+      cell.verification !== null &&
+      cell.verification !== undefined &&
+      isUnverifiedForDisplay(cell.verification) &&
+      cell.value !== UNAVAILABLE &&
+      cell.value !== false,
+  );
+}
+
+export function filterEmptyComparisonGroups(
+  groups: ComparisonGroup[],
+): ComparisonGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      rows: group.rows.filter((row) =>
+        row.values.some((cell) => cell.value !== UNAVAILABLE),
+      ),
+    }))
+    .filter((group) => group.rows.length > 0);
 }

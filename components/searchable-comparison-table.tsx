@@ -12,6 +12,7 @@ type SearchableComparisonTableProps = {
   kentekens: string[];
   groups: ComparisonGroup[];
   caption?: string;
+  isLoading?: boolean;
 };
 
 function SearchIcon() {
@@ -37,6 +38,7 @@ export function SearchableComparisonTable({
   kentekens,
   groups,
   caption,
+  isLoading = false,
 }: SearchableComparisonTableProps) {
   const searchId = useId();
   const [query, setQuery] = useState("");
@@ -89,11 +91,13 @@ export function SearchableComparisonTable({
           een andere zoekterm of een groepsnaam zoals &ldquo;Veiligheid&rdquo;.
         </p>
       ) : (
-        <ComparisonTable
-          kentekens={kentekens}
-          groups={filteredGroups}
-          caption={caption}
-        />
+        <div className={isLoading ? "opacity-70 transition-opacity" : undefined}>
+          <ComparisonTable
+            kentekens={kentekens}
+            groups={filteredGroups}
+            caption={caption}
+          />
+        </div>
       )}
     </div>
   );
