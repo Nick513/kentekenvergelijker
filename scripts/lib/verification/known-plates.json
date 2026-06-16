@@ -1,0 +1,14 @@
+{
+  "note": "Regression plates for catalog quality verification. Each entry documents a real kenteken where we know the expected trim/equipment from owner knowledge or brochure.",
+  "plates": [
+    {
+      "kenteken": "N-434-PJ",
+      "label": "Hyundai i20 mild hybrid Premium",
+      "expectTrimSlug": "premium",
+      "expectEngineSlug": "1-0-hybride",
+      "expectCatalogKey": "hyundai|i20|2020-plus|premium|1-0-hybride",
+      "mustHaveEquipment": ["heated_seats"],
+      "notes": "Brochure lists verwarmbare voorstoelen on Premium; catalogusprijs should score Premium over Comfort"
+    }
+  ]
+}

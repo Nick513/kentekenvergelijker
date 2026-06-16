@@ -8,6 +8,76 @@ const CATALOG_PRICE_TOLERANCE = 2500;
 const LIST_PRICE_TOLERANCE = 4000;
 /** Fallback when fiscal_list_price is missing; catalogusprijs ≈ rijklaarprijs minus BPM. */
 const FISCAL_TO_LIST_RATIO = 0.8203;
+/** Below this trim score we refuse to guess uitvoering (show RDW only for catalog gaps). */
+const MIN_TRIM_CONFIDENCE_SCORE = 0.3;
+
+/** Never gap-fill these from a fuel sibling; use primary row or live RDW only. */
+const ENGINE_BOUND_SPEC_KEYS = new Set([
+  "fuel_type",
+  "power_kw",
+  "co2_emission_g_km",
+  "engine_displacement_cc",
+  "cylinder_count",
+  "electric_range_wltp",
+  "electric_consumption_wltp",
+  "electric_range_nedc",
+  "electricity_consumption_nedc",
+  "fuel_consumption_combined_nedc",
+  "fuel_consumption_urban_nedc",
+  "fuel_consumption_extra_urban_nedc",
+  "curb_weight_kg",
+  "empty_weight_kg",
+  "max_payload",
+  "max_permissible_weight",
+  "max_front_axle_weight",
+  "max_rear_axle_weight",
+  "company_car_tax",
+  "energy_label",
+  "list_price_ready_to_drive",
+  "fiscal_list_price",
+  "delivery_costs",
+  "propulsion_system",
+  "max_power_engine",
+  "max_torque_engine",
+  "max_power_total",
+  "max_torque_total",
+  "top_speed",
+  "acceleration_0_100",
+  "transmission",
+  "rpm_at_100_kmh",
+  "rpm_at_130_kmh",
+]);
+
+/** Trim-standard equipment; safe to inherit within the same uitvoering. */
+const EQUIPMENT_SPEC_KEYS = new Set([
+  "trim_package",
+  "adaptive_cruise_control",
+  "lane_assist",
+  "lane_keep_assist",
+  "blind_spot_monitor",
+  "traffic_sign_recognition",
+  "autonomous_emergency_braking",
+  "parking_assist",
+  "heated_seats",
+  "heated_steering_wheel",
+  "leather_upholstery",
+  "dual_zone_climate_control",
+  "electric_seats",
+  "keyless_entry",
+  "electric_tailgate",
+  "panoramic_roof",
+  "sunroof",
+  "led_headlights",
+  "adaptive_headlights",
+  "parking_sensors_front",
+  "parking_sensors_rear",
+  "parking_camera",
+  "tow_hitch",
+  "navigation",
+  "apple_carplay",
+  "android_auto",
+  "wireless_phone_charging",
+]);
 
 export type CatalogSpecValue = {
   valueText: string | null;
@@ -68,10 +138,6 @@ function withinGeneration(
   return true;
 }
 
-function serializeValue(row: SpecValueRow): string {
-  return JSON.stringify([row.value_text, row.value_numeric, row.value_boolean]);
-}
-
 function toCatalogValue(row: SpecValueRow): CatalogSpecValue {
   return {
     valueText: row.value_text,
@@ -114,20 +180,119 @@ function trimSlugFromModelName(modelName: string): string | null {
   return null;
 }
 
+function engineSlugFromCatalogKey(catalogKey: string): string {
+  return catalogKey.split("|")[4] ?? "";
+}
+
+function isHybridEngineSlug(engineSlug: string): boolean {
+  const normalized = normalize(engineSlug);
+  return (
+    normalized.includes("hybride") ||
+    normalized.includes("hybrid") ||
+    normalized.includes("mhev") ||
+    normalized.includes("phev")
+  );
+}
+
+function isHybridCatalogRow(
+  configId: string,
+  fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
+): boolean {
+  const fuel = fuelById.get(configId);
+  if (fuel && isHybridFuel(fuel)) {
+    return true;
+  }
+  return isHybridEngineSlug(engineSlugFromCatalogKey(catalogKeyById.get(configId) ?? ""));
+}
+
+function isPetrolCatalogRow(
+  configId: string,
+  fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
+): boolean {
+  if (isHybridCatalogRow(configId, fuelById, catalogKeyById)) {
+    return false;
+  }
+  const fuel = fuelById.get(configId);
+  if (fuel && isPetrolFuel(fuel)) {
+    return true;
+  }
+  const engineSlug = normalize(engineSlugFromCatalogKey(catalogKeyById.get(configId) ?? ""));
+  return engineSlug.includes("benzine");
+}
+
+function catalogKeyByIdFromMatches(
+  modelMatches: ConfigurationRow[],
+): Map<string, string> {
+  return new Map(modelMatches.map((row) => [row.id, row.catalog_key]));
+}
+
 function pickPrimaryConfigId(
   configIds: string[],
   fuelType: string | null,
   fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
 ): string | null {
   if (isHybridFuel(fuelType)) {
-    const hybrid = configIds.find((id) => isHybridFuel(fuelById.get(id)));
+    const hybrid = configIds.find((id) =>
+      isHybridCatalogRow(id, fuelById, catalogKeyById),
+    );
     if (hybrid) {
       return hybrid;
     }
   }
 
-  const petrol = configIds.find((id) => isPetrolFuel(fuelById.get(id)));
+  const petrol = configIds.find((id) =>
+    isPetrolCatalogRow(id, fuelById, catalogKeyById),
+  );
   return petrol ?? configIds[0] ?? null;
+}
+
+/** Brochure prices often sit on the petrol sibling; use it when the hybrid row has no price. */
+function pickPricingConfigId(
+  configIds: string[],
+  fuelType: string | null,
+  fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
+  specRows: SpecValueRow[],
+  pricingCandidateIds?: string[],
+): string | null {
+  const pricingPool = pricingCandidateIds ?? configIds;
+  const primaryId = pickPrimaryConfigId(
+    configIds,
+    fuelType,
+    fuelById,
+    catalogKeyById,
+  );
+  if (!primaryId) {
+    return null;
+  }
+
+  const hasPrice =
+    getNumericSpec(primaryId, "fiscal_list_price", specRows) !== null ||
+    getNumericSpec(primaryId, "list_price_ready_to_drive", specRows) !== null;
+
+  if (hasPrice) {
+    return primaryId;
+  }
+
+  const petrolSibling = pricingPool.find((id) =>
+    isPetrolCatalogRow(id, fuelById, catalogKeyById),
+  );
+  return petrolSibling ?? primaryId;
+}
+
+function pricingPoolForTrim(
+  trimSlug: string | null,
+  modelMatches: ConfigurationRow[],
+): string[] {
+  if (!trimSlug) {
+    return [];
+  }
+  return modelMatches
+    .filter((row) => trimSlugFromCatalogKey(row.catalog_key) === trimSlug)
+    .map((row) => row.id);
 }
 
 function getNumericSpec(
@@ -148,20 +313,41 @@ function getNumericSpec(
 function scoreTrimForSnapshot(
   snapshot: VehicleSnapshot,
   configIds: string[],
+  modelMatches: ConfigurationRow[],
   specRows: SpecValueRow[],
   fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
 ): number {
-  const primaryId = pickPrimaryConfigId(configIds, snapshot.fuelType, fuelById);
-  if (!primaryId) {
+  const trimSlug =
+    configIds.length > 0
+      ? trimSlugFromCatalogKey(catalogKeyById.get(configIds[0]) ?? "")
+      : null;
+  const pricingPool = pricingPoolForTrim(trimSlug, modelMatches);
+
+  const pricingId = pickPricingConfigId(
+    configIds,
+    snapshot.fuelType,
+    fuelById,
+    catalogKeyById,
+    specRows,
+    pricingPool.length > 0 ? pricingPool : configIds,
+  );
+  const primaryId = pickPrimaryConfigId(
+    configIds,
+    snapshot.fuelType,
+    fuelById,
+    catalogKeyById,
+  );
+  if (!pricingId && !primaryId) {
     return 0;
   }
 
   let score = 0;
 
-  if (snapshot.catalogPrice !== null) {
-    const fiscal = getNumericSpec(primaryId, "fiscal_list_price", specRows);
+  if (snapshot.catalogPrice !== null && pricingId) {
+    const fiscal = getNumericSpec(pricingId, "fiscal_list_price", specRows);
     const listPrice = getNumericSpec(
-      primaryId,
+      pricingId,
       "list_price_ready_to_drive",
       specRows,
     );
@@ -176,22 +362,27 @@ function scoreTrimForSnapshot(
     }
   }
 
+  const specSourceId = primaryId ?? pricingId;
+  if (!specSourceId) {
+    return score;
+  }
+
   if (snapshot.powerKw !== null) {
-    const power = getNumericSpec(primaryId, "power_kw", specRows);
+    const power = getNumericSpec(specSourceId, "power_kw", specRows);
     if (power !== null && Math.abs(power - snapshot.powerKw) <= 4) {
       score += 0.5;
     }
   }
 
   if (snapshot.co2EmissionGKm !== null) {
-    const co2 = getNumericSpec(primaryId, "co2_emission_g_km", specRows);
+    const co2 = getNumericSpec(specSourceId, "co2_emission_g_km", specRows);
     if (co2 !== null && Math.abs(co2 - snapshot.co2EmissionGKm) <= 15) {
       score += 0.4;
     }
   }
 
   if (snapshot.curbWeightKg !== null) {
-    const weight = getNumericSpec(primaryId, "curb_weight_kg", specRows);
+    const weight = getNumericSpec(specSourceId, "curb_weight_kg", specRows);
     if (weight !== null && Math.abs(weight - snapshot.curbWeightKg) <= 50) {
       score += 0.3;
     }
@@ -221,153 +412,300 @@ function groupIdsByTrim(
   return groups;
 }
 
-function applyTrimFilter(
-  matchedIds: string[],
-  candidateIds: string[],
+function scoreConfigurationForSnapshot(
+  snapshot: VehicleSnapshot,
+  configId: string,
   modelMatches: ConfigurationRow[],
-  trimSlug: string,
-  fuelType: string | null,
-  displacementCc: number | null,
+  specRows: SpecValueRow[],
   fuelById: Map<string, string>,
-  displacementById: Map<string, number>,
-): string[] {
-  const trimmed = matchedIds.filter((id) => {
-    const row = modelMatches.find((entry) => entry.id === id);
-    return row && trimSlugFromCatalogKey(row.catalog_key) === trimSlug;
-  });
+  catalogKeyById: Map<string, string>,
+): number {
+  const trimSlug = trimSlugFromCatalogKey(catalogKeyById.get(configId) ?? "");
+  const pricingPool = pricingPoolForTrim(trimSlug, modelMatches);
 
-  if (trimmed.length === 0) {
-    return matchedIds;
+  const pricingId = pickPricingConfigId(
+    [configId],
+    snapshot.fuelType,
+    fuelById,
+    catalogKeyById,
+    specRows,
+    pricingPool.length > 0 ? pricingPool : [configId],
+  );
+
+  let score = 0;
+
+  if (snapshot.catalogPrice !== null && pricingId) {
+    const fiscal = getNumericSpec(pricingId, "fiscal_list_price", specRows);
+    const listPrice = getNumericSpec(
+      pricingId,
+      "list_price_ready_to_drive",
+      specRows,
+    );
+
+    if (fiscal !== null) {
+      const diff = Math.abs(snapshot.catalogPrice - fiscal);
+      score += Math.max(0, 1 - diff / CATALOG_PRICE_TOLERANCE) * 2;
+    } else if (listPrice !== null) {
+      const estimatedList = snapshot.catalogPrice / FISCAL_TO_LIST_RATIO;
+      const diff = Math.abs(estimatedList - listPrice);
+      score += Math.max(0, 1 - diff / LIST_PRICE_TOLERANCE) * 1.5;
+    }
   }
 
-  let resolved = trimmed;
-
-  if (fuelType && isHybridFuel(fuelType) && displacementCc !== null) {
-    const petrolTrimSiblings = candidateIds.filter((id) => {
-      if (trimmed.includes(id)) {
-        return false;
-      }
-      const row = modelMatches.find((entry) => entry.id === id);
-      if (!row || trimSlugFromCatalogKey(row.catalog_key) !== trimSlug) {
-        return false;
-      }
-      const fuel = fuelById.get(id);
-      const displacement = displacementById.get(id);
-      if (fuel === undefined || displacement === undefined) {
-        return false;
-      }
-      return (
-        isPetrolFuel(fuel) &&
-        Math.abs(displacement - displacementCc) <= DISPLACEMENT_TOLERANCE_CC
-      );
-    });
-    resolved = [...new Set([...trimmed, ...petrolTrimSiblings])];
+  if (snapshot.powerKw !== null) {
+    const power = getNumericSpec(configId, "power_kw", specRows);
+    if (power !== null && Math.abs(power - snapshot.powerKw) <= 4) {
+      score += 0.5;
+    }
   }
 
-  return resolved;
+  if (snapshot.co2EmissionGKm !== null) {
+    const co2 = getNumericSpec(configId, "co2_emission_g_km", specRows);
+    if (co2 !== null && Math.abs(co2 - snapshot.co2EmissionGKm) <= 15) {
+      score += 0.4;
+    }
+  }
+
+  if (snapshot.curbWeightKg !== null) {
+    const weight = getNumericSpec(configId, "curb_weight_kg", specRows);
+    if (weight !== null && Math.abs(weight - snapshot.curbWeightKg) <= 50) {
+      score += 0.3;
+    }
+  }
+
+  return score;
 }
 
 /**
- * Reduce matched catalog rows to a single spec map.
- *
- * When a trim is resolved, equipment comes from that uitvoering (brochure rows
- * on the petrol sibling fill mild-hybrid gaps). Without a resolved trim,
- * equipment only shows when every still-matched trim agrees.
+ * Narrow candidates to the catalog row that matches this plate's fuel family.
+ * Never mixes hybrid + petrol rows: one physical car, one catalog_key.
  */
-function combineAgreeingSpecs(
+function filterByExactFuel(
+  candidateIds: string[],
+  rdwFuel: string | null,
+  fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
+): string[] {
+  if (!rdwFuel) return candidateIds;
+
+  const rdw = normalize(rdwFuel);
+  const isHybrid = isHybridFuel(rdwFuel);
+
+  if (isHybrid) {
+    const hybridMatches = candidateIds.filter((id) =>
+      isHybridCatalogRow(id, fuelById, catalogKeyById),
+    );
+    if (hybridMatches.length > 0) return hybridMatches;
+  }
+
+  for (const token of ["benzine", "diesel", "elektrisch", "lpg"]) {
+    if (!rdw.includes(token)) continue;
+    const matches = candidateIds.filter((id) => {
+      if (isHybridCatalogRow(id, fuelById, catalogKeyById)) {
+        return false;
+      }
+      const fuel = fuelById.get(id);
+      if (fuel === undefined) {
+        const engineSlug = normalize(engineSlugFromCatalogKey(catalogKeyById.get(id) ?? ""));
+        return engineSlug.includes(token);
+      }
+      const normalized = normalize(fuel);
+      return normalized.includes(token) && !normalized.includes("hybride");
+    });
+    if (matches.length > 0) return matches;
+  }
+
+  const loose = candidateIds.filter((id) => {
+    const fuel = fuelById.get(id);
+    return fuel !== undefined && fuelsMatch(rdwFuel, fuel);
+  });
+  return loose.length > 0 ? loose : candidateIds;
+}
+
+function pickExactConfigurationId(
+  snapshot: VehicleSnapshot,
+  candidateIds: string[],
+  modelMatches: ConfigurationRow[],
+  specRows: SpecValueRow[],
+  fuelById: Map<string, string>,
+  catalogKeyById: Map<string, string>,
+  trimSlug: string | null,
+): string | null {
+  let candidates = candidateIds;
+
+  if (trimSlug) {
+    const inTrim = candidates.filter((id) => {
+      const row = modelMatches.find((entry) => entry.id === id);
+      return row && trimSlugFromCatalogKey(row.catalog_key) === trimSlug;
+    });
+    if (inTrim.length > 0) {
+      candidates = inTrim;
+    }
+  }
+
+  candidates = filterByExactFuel(
+    candidates,
+    snapshot.fuelType,
+    fuelById,
+    catalogKeyById,
+  );
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+
+  let bestId: string | null = null;
+  let bestScore = -1;
+
+  for (const id of candidates) {
+    const score = scoreConfigurationForSnapshot(
+      snapshot,
+      id,
+      modelMatches,
+      specRows,
+      fuelById,
+      catalogKeyById,
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      bestId = id;
+    }
+  }
+
+  return bestId;
+}
+
+function specsFromSingleConfiguration(
+  configId: string,
   rows: SpecValueRow[],
-  matchedCount: number,
-  equipmentKeys: Set<string>,
-  options: {
-    resolvedTrim?: boolean;
-    fuelById?: Map<string, string>;
-  } = {},
 ): Record<string, CatalogSpecValue> {
-  const { resolvedTrim = false, fuelById = new Map() } = options;
-  const bySpecKey = new Map<string, SpecValueRow[]>();
-  for (const row of rows) {
-    const list = bySpecKey.get(row.spec_key) ?? [];
-    list.push(row);
-    bySpecKey.set(row.spec_key, list);
-  }
-
   const resolved: Record<string, CatalogSpecValue> = {};
-  for (const [specKey, specRows] of bySpecKey.entries()) {
-    const isEquipment = equipmentKeys.has(specKey);
-
-    if (resolvedTrim && isEquipment) {
-      const trueRow = specRows.find((row) => row.value_boolean === true);
-      if (trueRow) {
-        resolved[specKey] = toCatalogValue(trueRow);
-        continue;
-      }
-
-      const withData = specRows.filter(
-        (row) =>
-          row.value_boolean === true ||
-          row.value_text !== null ||
-          row.value_numeric !== null,
-      );
-      if (withData.length > 0) {
-        const distinct = new Set(withData.map(serializeValue));
-        if (distinct.size === 1) {
-          resolved[specKey] = toCatalogValue(withData[0]);
-        }
-      }
+  for (const row of rows) {
+    if (row.vehicle_configuration_id !== configId) {
       continue;
     }
-
-    if (resolvedTrim && !isEquipment && fuelById.size > 0) {
-      const hybridRows = specRows.filter((row) =>
-        isHybridFuel(fuelById.get(row.vehicle_configuration_id)),
-      );
-      const petrolRows = specRows.filter((row) =>
-        isPetrolFuel(fuelById.get(row.vehicle_configuration_id)),
-      );
-
-      for (const pool of [hybridRows, petrolRows, specRows]) {
-        if (pool.length === 0) {
-          continue;
-        }
-        const distinct = new Set(pool.map(serializeValue));
-        if (distinct.size === 1) {
-          resolved[specKey] = toCatalogValue(pool[0]);
-          break;
-        }
-      }
-      continue;
-    }
-
-    const distinct = new Set(specRows.map(serializeValue));
-    if (distinct.size !== 1) {
-      continue;
-    }
-
-    const presentInAll = specRows.length === matchedCount;
-    if (isEquipment && !presentInAll) {
-      continue;
-    }
-
-    resolved[specKey] = toCatalogValue(specRows[0]);
+    resolved[row.spec_key] = toCatalogValue(row);
   }
-
   return resolved;
 }
 
-async function loadEquipmentSpecKeys(
-  supabase: ReturnType<typeof createSupabaseServerClient>,
-): Promise<Set<string>> {
-  const { data, error } = await supabase
-    .from("specifications")
-    .select("spec_key, value_source")
-    .eq("value_source", "equipment");
+function serializeSpecValue(row: SpecValueRow): string {
+  return JSON.stringify([
+    row.value_text,
+    row.value_numeric,
+    row.value_boolean,
+  ]);
+}
 
-  if (error) {
-    throw new Error(`Failed to load equipment spec keys: ${error.message}`);
+function siblingsAgreeOnSpec(
+  specKey: string,
+  siblingIds: string[],
+  rows: SpecValueRow[],
+): SpecValueRow | null {
+  let agreed: SpecValueRow | null = null;
+
+  for (const configId of siblingIds) {
+    const row = rows.find(
+      (entry) =>
+        entry.vehicle_configuration_id === configId &&
+        entry.spec_key === specKey,
+    );
+    if (!row) {
+      continue;
+    }
+
+    if (!agreed) {
+      agreed = row;
+      continue;
+    }
+
+    if (serializeSpecValue(row) !== serializeSpecValue(agreed)) {
+      return null;
+    }
   }
 
-  return new Set((data ?? []).map((row) => row.spec_key));
+  return agreed;
 }
+
+/**
+ * Add specs missing on the primary row when we are confident they apply to this
+ * plate: trim equipment from siblings, and other trim-level values only when
+ * every sibling that has the key agrees.
+ */
+function fillGapsFromTrimSiblings(
+  primaryId: string,
+  primarySpecs: Record<string, CatalogSpecValue>,
+  rows: SpecValueRow[],
+  siblingIds: string[],
+): Record<string, CatalogSpecValue> {
+  const enriched = { ...primarySpecs };
+  const donors = siblingIds.filter((id) => id !== primaryId);
+  if (donors.length === 0) {
+    return enriched;
+  }
+
+  for (const specKey of EQUIPMENT_SPEC_KEYS) {
+    if (enriched[specKey]) {
+      continue;
+    }
+
+    for (const configId of donors) {
+      const row = rows.find(
+        (entry) =>
+          entry.vehicle_configuration_id === configId &&
+          entry.spec_key === specKey,
+      );
+      if (!row) {
+        continue;
+      }
+
+      if (specKey === "trim_package") {
+        enriched[specKey] = toCatalogValue(row);
+        break;
+      }
+
+      if (row.value_boolean === true) {
+        enriched[specKey] = toCatalogValue(row);
+        break;
+      }
+    }
+  }
+
+  const donorKeys = new Set<string>();
+  for (const configId of donors) {
+    for (const row of rows) {
+      if (row.vehicle_configuration_id === configId) {
+        donorKeys.add(row.spec_key);
+      }
+    }
+  }
+
+  for (const specKey of donorKeys) {
+    if (enriched[specKey] || EQUIPMENT_SPEC_KEYS.has(specKey)) {
+      continue;
+    }
+    if (ENGINE_BOUND_SPEC_KEYS.has(specKey)) {
+      continue;
+    }
+
+    const agreed = siblingsAgreeOnSpec(specKey, donors, rows);
+    if (agreed) {
+      enriched[specKey] = toCatalogValue(agreed);
+    }
+  }
+
+  return enriched;
+}
+
+type CatalogContext = {
+  primaryId: string | null;
+  modelMatches: ConfigurationRow[];
+  rows: SpecValueRow[];
+  catalogKeyById: Map<string, string>;
+};
 
 async function loadLinkedConfigurationIds(
   supabase: ReturnType<typeof createSupabaseServerClient>,
@@ -397,98 +735,51 @@ function fuelsMatch(rdwFuel: string, catalogFuel: string): boolean {
   return rdw === catalog || rdw.includes(catalogToken);
 }
 
-/** Prefer the most specific fuel family when RDW reports a hybrid drivetrain. */
-function filterByFuel(
-  candidateIds: string[],
-  rdwFuel: string | null,
-  fuelById: Map<string, string>,
-  displacementCc: number | null,
-  displacementById: Map<string, number>,
-): string[] {
-  if (!rdwFuel) return candidateIds;
-
-  const rdw = normalize(rdwFuel);
-  const isHybrid = rdw.includes("hybride") || rdw.includes("hybrid");
-
-  if (isHybrid) {
-    const hybridMatches = candidateIds.filter((id) => {
-      const fuel = fuelById.get(id);
-      return fuel !== undefined && normalize(fuel).includes("hybride");
-    });
-
-    const petrolSiblings =
-      displacementCc === null
-        ? []
-        : candidateIds.filter((id) => {
-            const fuel = fuelById.get(id);
-            const displacement = displacementById.get(id);
-            if (fuel === undefined || displacement === undefined) return false;
-            const normalized = normalize(fuel);
-            return (
-              normalized.includes("benzine") &&
-              !normalized.includes("hybride") &&
-              Math.abs(displacement - displacementCc) <= DISPLACEMENT_TOLERANCE_CC
-            );
-          });
-
-    const merged = [...new Set([...hybridMatches, ...petrolSiblings])];
-    if (merged.length > 0) return merged;
-  }
-
-  for (const token of ["benzine", "diesel", "elektrisch", "lpg"]) {
-    if (!rdw.includes(token)) continue;
-    const matches = candidateIds.filter((id) => {
-      const fuel = fuelById.get(id);
-      if (fuel === undefined) return false;
-      const normalized = normalize(fuel);
-      return normalized.includes(token) && !normalized.includes("hybride");
-    });
-    if (matches.length > 0) return matches;
-  }
-
-  const loose = candidateIds.filter((id) => {
-    const fuel = fuelById.get(id);
-    return fuel !== undefined && fuelsMatch(rdwFuel, fuel);
-  });
-  return loose.length > 0 ? loose : candidateIds;
-}
-
 function resolveTrimSlug(
   snapshot: VehicleSnapshot,
   trimGroups: Map<string, string[]>,
+  modelMatches: ConfigurationRow[],
   specRows: SpecValueRow[],
   fuelById: Map<string, string>,
-): string | null {
+  catalogKeyById: Map<string, string>,
+): { trimSlug: string | null; confidence: number } {
   if (trimGroups.size === 0) {
-    return null;
+    return { trimSlug: null, confidence: 0 };
   }
 
   if (trimGroups.size === 1) {
-    return [...trimGroups.keys()][0];
+    return { trimSlug: [...trimGroups.keys()][0], confidence: 1 };
   }
 
   const modelTrim = trimSlugFromModelName(snapshot.modelName);
   if (modelTrim && trimGroups.has(modelTrim)) {
-    return modelTrim;
+    return { trimSlug: modelTrim, confidence: 1 };
   }
 
   let bestSlug: string | null = null;
   let bestScore = -1;
 
   for (const [trimSlug, configIds] of trimGroups.entries()) {
-    const score = scoreTrimForSnapshot(snapshot, configIds, specRows, fuelById);
+    const score = scoreTrimForSnapshot(
+      snapshot,
+      configIds,
+      modelMatches,
+      specRows,
+      fuelById,
+      catalogKeyById,
+    );
     if (score > bestScore) {
       bestScore = score;
       bestSlug = trimSlug;
     }
   }
 
-  return bestSlug;
+  return { trimSlug: bestSlug, confidence: bestScore };
 }
 
-async function resolveConfigurationIds(
+async function resolveCatalogContext(
   snapshot: VehicleSnapshot,
-): Promise<{ matchedIds: string[]; trimResolved: boolean }> {
+): Promise<CatalogContext> {
   const supabase = createSupabaseServerClient();
 
   const { data: configs, error: configError } = await supabase
@@ -511,7 +802,12 @@ async function resolveConfigurationIds(
   );
 
   if (modelMatches.length === 0) {
-    return { matchedIds: [], trimResolved: false };
+    return {
+      primaryId: null,
+      modelMatches: [],
+      rows: [],
+      catalogKeyById: new Map(),
+    };
   }
 
   const candidateIds = modelMatches.map((row) => row.id);
@@ -529,6 +825,7 @@ async function resolveConfigurationIds(
   const rows = (specRows ?? []) as SpecValueRow[];
   const displacementById = new Map<string, number>();
   const fuelById = new Map<string, string>();
+  const catalogKeyById = catalogKeyByIdFromMatches(modelMatches);
 
   for (const row of rows) {
     if (row.spec_key === "engine_displacement_cc" && row.value_numeric !== null) {
@@ -554,12 +851,11 @@ async function resolveConfigurationIds(
   }
 
   if (snapshot.fuelType) {
-    const next = filterByFuel(
+    const next = filterByExactFuel(
       matchedIds,
       snapshot.fuelType,
       fuelById,
-      snapshot.engineDisplacementCc,
-      displacementById,
+      catalogKeyById,
     );
     if (next.length > 0) matchedIds = next;
   }
@@ -569,95 +865,91 @@ async function resolveConfigurationIds(
     snapshot.configurationKey,
   );
   const linkedMatches = matchedIds.filter((id) => linkedIds.includes(id));
+  let primaryId: string | null;
+
   if (linkedMatches.length > 0) {
-    const linkedRow = modelMatches.find((row) => row.id === linkedMatches[0]);
-    const trimSlug = linkedRow
-      ? trimSlugFromCatalogKey(linkedRow.catalog_key)
-      : null;
-    if (trimSlug) {
-      return {
-        matchedIds: applyTrimFilter(
-          matchedIds,
-          candidateIds,
-          modelMatches,
-          trimSlug,
-          snapshot.fuelType,
-          snapshot.engineDisplacementCc,
-          fuelById,
-          displacementById,
-        ),
-        trimResolved: true,
-      };
+    primaryId = pickExactConfigurationId(
+      snapshot,
+      linkedMatches,
+      modelMatches,
+      rows,
+      fuelById,
+      catalogKeyById,
+      null,
+    );
+  } else {
+    const trimGroups = groupIdsByTrim(matchedIds, modelMatches);
+    const { trimSlug, confidence } = resolveTrimSlug(
+      snapshot,
+      trimGroups,
+      modelMatches,
+      rows,
+      fuelById,
+      catalogKeyById,
+    );
+
+    if (!trimSlug || confidence < MIN_TRIM_CONFIDENCE_SCORE) {
+      primaryId = pickExactConfigurationId(
+        snapshot,
+        matchedIds,
+        modelMatches,
+        rows,
+        fuelById,
+        catalogKeyById,
+        null,
+      );
+    } else {
+      primaryId = pickExactConfigurationId(
+        snapshot,
+        matchedIds,
+        modelMatches,
+        rows,
+        fuelById,
+        catalogKeyById,
+        trimSlug,
+      );
     }
   }
 
-  const trimGroups = groupIdsByTrim(matchedIds, modelMatches);
-  const trimSlug = resolveTrimSlug(snapshot, trimGroups, rows, fuelById);
+  return { primaryId, modelMatches, rows, catalogKeyById };
+}
 
-  if (!trimSlug) {
-    return { matchedIds, trimResolved: false };
-  }
-
-  return {
-    matchedIds: applyTrimFilter(
-      matchedIds,
-      candidateIds,
-      modelMatches,
-      trimSlug,
-      snapshot.fuelType,
-      snapshot.engineDisplacementCc,
-      fuelById,
-      displacementById,
-    ),
-    trimResolved: true,
-  };
+async function resolveConfigurationId(
+  snapshot: VehicleSnapshot,
+): Promise<string | null> {
+  const context = await resolveCatalogContext(snapshot);
+  return context.primaryId;
 }
 
 /**
- * Match a plate's live RDW attributes to the best catalog configuration and
- * return its spec values.
+ * Resolve the best-matching catalog configuration for a plate, then return as
+ * many accurate specs as possible. Engine-bound values stay on the primary row;
+ * trim equipment and agreed trim-level specs may gap-fill from same-trim siblings.
  */
 async function fetchCatalogForSnapshot(
   snapshot: VehicleSnapshot,
 ): Promise<Record<string, CatalogSpecValue>> {
-  const supabase = createSupabaseServerClient();
-  const { matchedIds, trimResolved } = await resolveConfigurationIds(snapshot);
+  const { primaryId, modelMatches, rows, catalogKeyById } =
+    await resolveCatalogContext(snapshot);
 
-  if (matchedIds.length === 0) {
+  if (!primaryId) {
     return {};
   }
 
-  const [{ data: specRows, error: valueError }, equipmentKeys] = await Promise.all([
-    supabase
-      .from("vehicle_configuration_specification_values")
-      .select(
-        "vehicle_configuration_id, spec_key, value_text, value_numeric, value_boolean",
-      )
-      .in("vehicle_configuration_id", matchedIds),
-    loadEquipmentSpecKeys(supabase),
-  ]);
+  const trimSlug = trimSlugFromCatalogKey(catalogKeyById.get(primaryId) ?? "");
+  const trimSiblingIds = trimSlug
+    ? modelMatches
+        .filter((row) => trimSlugFromCatalogKey(row.catalog_key) === trimSlug)
+        .map((row) => row.id)
+    : [primaryId];
 
-  if (valueError) {
-    throw new Error(`Failed to load catalog spec values: ${valueError.message}`);
-  }
-
-  const rows = (specRows ?? []) as SpecValueRow[];
-  const matchedIdSet = new Set(matchedIds);
-  const matchedRows = rows.filter((row) =>
-    matchedIdSet.has(row.vehicle_configuration_id),
+  const primarySpecs = specsFromSingleConfiguration(primaryId, rows);
+  return fillGapsFromTrimSiblings(
+    primaryId,
+    primarySpecs,
+    rows,
+    trimSiblingIds,
   );
-
-  const fuelById = new Map<string, string>();
-  for (const row of rows) {
-    if (row.spec_key === "fuel_type" && row.value_text) {
-      fuelById.set(row.vehicle_configuration_id, row.value_text);
-    }
-  }
-
-  return combineAgreeingSpecs(matchedRows, matchedIds.length, equipmentKeys, {
-    resolvedTrim: trimResolved,
-    fuelById,
-  });
 }
 
 async function loadCatalogForSnapshot(
