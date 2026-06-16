@@ -442,7 +442,8 @@ function extractVehicleJsonLd(html: string): Record<string, unknown> | null {
     for (const node of nodes) {
       if (!node || typeof node !== "object") continue;
       const record = node as Record<string, unknown>;
-      if (record["@type"] === "Car") {
+      const types = (Array.isArray(record["@type"]) ? record["@type"] : [record["@type"]]) as string[];
+      if (types.includes("Car")) {
         result = record;
         return;
       }

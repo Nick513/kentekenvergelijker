@@ -42,16 +42,18 @@ function extractJsonLdVehicles(html: string): Record<string, unknown>[] {
     for (const node of nodes) {
       if (!node || typeof node !== "object") continue;
       const record = node as Record<string, unknown>;
+      const nodeTypes = (Array.isArray(record["@type"]) ? record["@type"] : [record["@type"]]) as string[];
 
-      if (record["@type"] === "Car") {
+      if (nodeTypes.includes("Car")) {
         vehicles.push(record);
       }
 
-      if (record["@type"] === "ItemList" && Array.isArray(record.itemListElement)) {
+      if (nodeTypes.includes("ItemList") && Array.isArray(record.itemListElement)) {
         for (const entry of record.itemListElement as Record<string, unknown>[]) {
           const item = entry.item as Record<string, unknown> | undefined;
-          if (item?.["@type"] === "Car") {
-            vehicles.push(item);
+          const itemTypes = (Array.isArray(item?.["@type"]) ? item?.["@type"] : [item?.["@type"]]) as string[];
+          if (itemTypes.includes("Car")) {
+            vehicles.push(item!);
           }
         }
       }
@@ -152,8 +154,11 @@ async function searchGaspedaal(licensePlate: string): Promise<ListingSearchResul
     let title =
       typeof matchedVehicle?.name === "string" ? matchedVehicle.name : null;
     let descriptionText = matchedVehicle ? vehicleToText(matchedVehicle) : "";
-    let mileageKm = matchedVehicle ? extractMileageKm(matchedVehicle) : null;
-    let askingPriceEur = matchedVehicle ? extractPriceEur(matchedVehicle) : null;
+    // Use the first Car node for market data — the kenteken search guarantees it's the right car,
+    // even if the plate text doesn't appear in the vehicle name/description fields.
+    const marketVehicle = matchedVehicle ?? vehicles[0] ?? null;
+    let mileageKm = marketVehicle ? extractMileageKm(marketVehicle) : null;
+    let askingPriceEur = marketVehicle ? extractPriceEur(marketVehicle) : null;
 
     if (listingUrl) {
       const detailHtml = await fetchHtml(listingUrl, { referer: url });

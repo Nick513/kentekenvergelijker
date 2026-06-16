@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { KentekenPlateChip } from "@/components/kenteken-plate-chip";
 import { SpecVerificationModal } from "@/components/spec-verification-modal";
 import type { SpecVerification } from "@/lib/enrichment/types";
@@ -33,10 +33,19 @@ const SPEC_COLUMN_WIDTH = "11rem";
 /** Minimum per kenteken column before the table scrolls horizontally. */
 const PLATE_COLUMN_MIN_WIDTH = "7rem";
 
-const SPEC_COLUMN_CLASS =
-  "sticky left-0 z-10 w-[11rem] max-w-[11rem] border-r border-kv-border/40 bg-inherit px-3 shadow-[4px_0_8px_-4px_rgb(17_17_17_/_10%)]";
+const SPEC_COLUMN_STICKY =
+  "sticky left-0 z-10 w-[11rem] max-w-[11rem] px-3 shadow-[4px_0_8px_-4px_rgb(17_17_17_/_10%)]";
+const SPEC_COLUMN_BODY_CLASS = `${SPEC_COLUMN_STICKY} border-r border-kv-border/40 bg-inherit`;
 const PLATE_COLUMN_CLASS =
   "min-w-0 px-3 align-top break-words [overflow-wrap:anywhere]";
+
+function readSiteHeaderHeight(): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(
+    "--kv-header-height",
+  );
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) ? parsed : 80;
+}
 
 function UnverifiedValueHint() {
   const [open, setOpen] = useState(false);
@@ -96,16 +105,143 @@ function rowBackgroundClass(rowIndex: number): string {
   return rowIndex % 2 === 0 ? "bg-kv-surface" : "bg-kv-bg/60";
 }
 
+type StickyPlateBarProps = {
+  kentekens: string[];
+  tableMinWidth: string;
+  scrollLeft: number;
+  geometry: { left: number; width: number };
+};
+
+function StickyPlateBar({
+  kentekens,
+  tableMinWidth,
+  scrollLeft,
+  geometry,
+}: StickyPlateBarProps) {
+  return (
+    <div
+      className="kv-comparison-sticky-plates fixed z-40"
+      style={{
+        top: "var(--kv-header-height)",
+        left: geometry.left,
+        width: geometry.width,
+      }}
+      aria-hidden="true"
+    >
+      <div
+        className="kv-comparison-sticky-plates-track"
+        style={{ minWidth: tableMinWidth, transform: `translateX(-${scrollLeft}px)` }}
+      >
+        <div className="kv-comparison-sticky-plates-spacer" />
+        {kentekens.map((kenteken) => (
+          <div key={kenteken} className="kv-comparison-sticky-plates-cell">
+            <KentekenPlateChip kenteken={kenteken} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableProps) {
   const columnCount = kentekens.length + 1;
   const tableMinWidth = `max(100%, calc(${SPEC_COLUMN_WIDTH} + ${kentekens.length} * ${PLATE_COLUMN_MIN_WIDTH}))`;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const headerRowRef = useRef<HTMLTableRowElement>(null);
+  const [showStickyPlates, setShowStickyPlates] = useState(false);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [barGeometry, setBarGeometry] = useState({ left: 0, width: 0 });
+
+  useLayoutEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) {
+      return;
+    }
+
+    const updateGeometry = () => {
+      const rect = scrollContainer.getBoundingClientRect();
+      setBarGeometry({ left: rect.left, width: rect.width });
+    };
+
+    updateGeometry();
+
+    const resizeObserver = new ResizeObserver(updateGeometry);
+    resizeObserver.observe(scrollContainer);
+    window.addEventListener("resize", updateGeometry);
+    window.addEventListener("scroll", updateGeometry, { passive: true });
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateGeometry);
+      window.removeEventListener("scroll", updateGeometry);
+    };
+  }, []);
+
+  useEffect(() => {
+    const headerRow = headerRowRef.current;
+    if (!headerRow) {
+      return;
+    }
+
+    let observer: IntersectionObserver | null = null;
+
+    const connect = () => {
+      observer?.disconnect();
+
+      const siteHeaderHeight = readSiteHeaderHeight();
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry) {
+            setShowStickyPlates(!entry.isIntersecting);
+          }
+        },
+        {
+          root: null,
+          rootMargin: `-${siteHeaderHeight}px 0px 0px 0px`,
+          threshold: 0,
+        },
+      );
+      observer.observe(headerRow);
+    };
+
+    connect();
+    window.addEventListener("resize", connect);
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", connect);
+    };
+  }, [groups, kentekens]);
+
+  const handleTableScroll = () => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) {
+      return;
+    }
+
+    setScrollLeft(scrollContainer.scrollLeft);
+  };
 
   return (
-    <div className="kv-comparison-table-scroll w-full overflow-x-auto rounded-xl border border-kv-border">
-      <table
-        className="w-full table-fixed border-collapse text-left text-sm"
-        style={{ minWidth: tableMinWidth }}
+    <>
+      {showStickyPlates && barGeometry.width > 0 ? (
+        <StickyPlateBar
+          kentekens={kentekens}
+          tableMinWidth={tableMinWidth}
+          scrollLeft={scrollLeft}
+          geometry={barGeometry}
+        />
+      ) : null}
+
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleTableScroll}
+        className="kv-comparison-table-scroll w-full overflow-x-auto rounded-xl border border-kv-border"
       >
+        <table
+          className="w-full table-fixed border-collapse text-left text-sm"
+          style={{ minWidth: tableMinWidth }}
+        >
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <colgroup>
           <col style={{ width: SPEC_COLUMN_WIDTH }} />
@@ -113,20 +249,13 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
             <col key={kenteken} />
           ))}
         </colgroup>
-        <thead>
-          <tr className="bg-kv-navy-bg text-white">
-            <th
-              scope="col"
-              className={`${SPEC_COLUMN_CLASS} z-20 bg-kv-navy-bg py-3.5 font-semibold text-white/70`}
-            >
+        <thead className="kv-comparison-thead">
+          <tr ref={headerRowRef}>
+            <th scope="col" className="kv-comparison-thead-spec relative">
               Specificatie
             </th>
             {kentekens.map((kenteken) => (
-              <th
-                key={kenteken}
-                scope="col"
-                className={`${PLATE_COLUMN_CLASS} py-3.5 font-semibold`}
-              >
+              <th key={kenteken} scope="col" className="kv-comparison-thead-plate">
                 <KentekenPlateChip kenteken={kenteken} />
               </th>
             ))}
@@ -138,7 +267,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
               <th
                 colSpan={columnCount}
                 scope="colgroup"
-                className="border-t border-kv-border px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-kv-teal"
+                className="border-t border-kv-teal/20 px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-kv-teal"
               >
                 {group.title}
               </th>
@@ -150,7 +279,7 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
                 <tr key={row.label} className={rowClass}>
                   <th
                     scope="row"
-                    className={`${SPEC_COLUMN_CLASS} ${rowClass} border-t border-kv-border py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
+                    className={`${SPEC_COLUMN_BODY_CLASS} ${rowClass} border-t border-kv-border py-3 pl-5 font-medium break-words text-kv-navy [overflow-wrap:anywhere]`}
                   >
                     {row.label}
                   </th>
@@ -168,7 +297,8 @@ export function ComparisonTable({ kentekens, groups, caption }: ComparisonTableP
           </tbody>
         ))}
       </table>
-    </div>
+      </div>
+    </>
   );
 }
 

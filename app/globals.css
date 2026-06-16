@@ -362,6 +362,78 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+.kv-comparison-thead {
+  background: var(--kv-navy-bg);
+  color: #fff;
+}
+
+.kv-comparison-thead th {
+  border: none;
+  padding: 0.875rem 0.75rem;
+  vertical-align: middle;
+  background: transparent;
+}
+
+.kv-comparison-thead-spec {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  width: 11rem;
+  max-width: 11rem;
+  padding-left: 1.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 58%);
+}
+
+.kv-comparison-thead-spec::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  right: 0;
+  bottom: 20%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(255 255 255 / 20%) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.kv-comparison-thead-plate {
+  text-align: left;
+}
+
+.kv-comparison-sticky-plates {
+  overflow: hidden;
+  border-bottom: 1px solid rgb(0 128 144 / 28%);
+  background: var(--kv-navy-bg);
+  box-shadow: 0 4px 14px rgb(24 56 120 / 16%);
+}
+
+.kv-comparison-sticky-plates-track {
+  display: flex;
+  font-size: 0.875rem;
+  color: #fff;
+}
+
+.kv-comparison-sticky-plates-spacer {
+  width: 11rem;
+  max-width: 11rem;
+  flex-shrink: 0;
+}
+
+.kv-comparison-sticky-plates-cell {
+  min-width: 0;
+  flex: 1;
+  padding: 0.875rem 0.75rem;
+  text-align: left;
+}
+
 .kv-search-input::-webkit-search-cancel-button {
   cursor: pointer;
 }
