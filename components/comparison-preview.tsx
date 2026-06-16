@@ -7,13 +7,11 @@ import { SearchableComparisonTable } from "@/components/searchable-comparison-ta
 type ComparisonPreviewProps = {
   kentekens: string[];
   groups: ComparisonGroup[];
-  isEnriching?: boolean;
 };
 
 export function ComparisonPreview({
   kentekens,
   groups,
-  isEnriching = false,
 }: ComparisonPreviewProps) {
   return (
     <section
@@ -42,7 +40,6 @@ export function ComparisonPreview({
           kentekens={kentekens}
           groups={groups}
           caption={`Vergelijkingstabel voor ${kentekens.join(", ")}`}
-          isLoading={isEnriching}
           stickyPlates
         />
       </div>

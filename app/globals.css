@@ -42,7 +42,9 @@
 @media (max-width: 639px) {
   :root {
     --kv-comparison-spec-width: 7.5rem;
-    --kv-comparison-plate-min-width: 5.75rem;
+    --kv-comparison-plate-min-width: 6.75rem;
+    --kv-comparison-mobile-column-gap: 0.75rem;
+    --kv-comparison-mobile-grid-padding: 1.5rem;
   }
 }
 
@@ -444,6 +446,24 @@ body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   isolation: isolate;
+}
+
+@media (max-width: 639px) {
+  .kv-comparison-mobile-scroll-wrap {
+    position: relative;
+  }
+
+  .kv-comparison-mobile-scroll-wrap::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    width: 1.75rem;
+    background: linear-gradient(to left, var(--kv-bg) 15%, transparent);
+    pointer-events: none;
+  }
 }
 
 .kv-comparison-spec-col {

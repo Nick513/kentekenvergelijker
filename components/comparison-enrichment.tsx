@@ -18,7 +18,7 @@ type ComparisonEnrichmentProps = {
   hasErrors?: boolean;
 };
 
-type SsePayload = { groups: ComparisonGroup[]; done: boolean };
+type SsePayload = { groups: ComparisonGroup[]; done: boolean; readyForDisplay: boolean };
 
 export function ComparisonEnrichment({
   kentekens,
@@ -28,7 +28,6 @@ export function ComparisonEnrichment({
 }: ComparisonEnrichmentProps) {
   const [groups, setGroups] = useState(initialGroups);
   const [showModal, setShowModal] = useState(!initiallyEnriched);
-  const [isEnriching, setIsEnriching] = useState(!initiallyEnriched);
   const hasRun = useRef(false);
   const dataErrorShown = useRef(false);
   const retryEnrichmentRef = useRef<() => void>(() => {});
@@ -50,8 +49,6 @@ export function ComparisonEnrichment({
               onClick: () => retryEnrichmentRef.current(),
             },
           });
-          setShowModal(false);
-          setIsEnriching(false);
           return;
         }
 
@@ -78,13 +75,13 @@ export function ComparisonEnrichment({
               continue;
             }
 
-            // First event: remove modal and show table (even if no extra specs yet)
-            setShowModal(false);
+            if (payload.readyForDisplay) {
+              setShowModal(false);
+            }
             if (payload.groups.length > 0) {
               setGroups(payload.groups);
             }
             if (payload.done) {
-              setIsEnriching(false);
               return;
             }
           }
@@ -98,14 +95,13 @@ export function ComparisonEnrichment({
         });
       } finally {
         setShowModal(false);
-        setIsEnriching(false);
       }
     },
     [kentekens, showToast],
   );
 
   const retryEnrichment = useCallback(() => {
-    setIsEnriching(true);
+    setShowModal(true);
     void runStream(true);
   }, [runStream]);
 
@@ -147,7 +143,6 @@ export function ComparisonEnrichment({
       <ComparisonPreview
         kentekens={kentekens}
         groups={groups}
-        isEnriching={isEnriching && !showModal}
       />
     </>
   );

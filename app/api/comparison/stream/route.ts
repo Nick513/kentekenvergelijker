@@ -11,7 +11,7 @@ import { fetchPlate } from "@/lib/vehicles/compare";
 import type { ComparisonGroup } from "@/components/comparison-table";
 import type { PlateFetchResult, VehicleSnapshot } from "@/lib/rdw/types";
 
-type SsePayload = { groups: ComparisonGroup[]; done: boolean };
+type SsePayload = { groups: ComparisonGroup[]; done: boolean; readyForDisplay: boolean };
 
 function sseChunk(payload: SsePayload, encoder: TextEncoder): Uint8Array {
   return encoder.encode(`data: ${JSON.stringify(payload)}\n\n`);
@@ -50,8 +50,8 @@ export async function POST(request: Request) {
 
   const stream = new ReadableStream({
     async start(controller) {
-      const emit = (groups: ComparisonGroup[], done: boolean) => {
-        controller.enqueue(sseChunk({ groups, done }, encoder));
+      const emit = (groups: ComparisonGroup[], done: boolean, readyForDisplay: boolean) => {
+        controller.enqueue(sseChunk({ groups, done, readyForDisplay }, encoder));
       };
 
       try {
@@ -92,6 +92,9 @@ export async function POST(request: Request) {
 
         const totalSources = okPlates.length * 3;
         let sourcesCompleted = 0;
+        // Tracks which plates have had at least one source complete; used to
+        // signal the client it can dismiss the loading modal and show the table.
+        const firstSourceDoneForPlate = new Set<string>();
 
         const onSourceComplete = (lp: string, specs: EnrichedSpecMap) => {
           if (specs.size > 0) {
@@ -99,8 +102,10 @@ export async function POST(request: Request) {
             // accumulated wins ties (first-come for equal priority)
             accumulated.set(lp, mergeEnrichedSpecs(prev, specs));
           }
+          firstSourceDoneForPlate.add(lp);
           sourcesCompleted++;
           const isDone = sourcesCompleted === totalSources;
+          const readyForDisplay = firstSourceDoneForPlate.size === okPlates.length;
           const specGroups = buildGroups(specifications, plates, accumulated);
 
           if (isDone) {
@@ -117,9 +122,9 @@ export async function POST(request: Request) {
               };
             });
             const marketGroup = buildMarketGroup(plates, alignedSnapshots);
-            emit(marketGroup ? [marketGroup, ...specGroups] : specGroups, true);
+            emit(marketGroup ? [marketGroup, ...specGroups] : specGroups, true, true);
           } else {
-            emit(specGroups, false);
+            emit(specGroups, false, readyForDisplay);
           }
         };
 
@@ -171,8 +176,7 @@ export async function POST(request: Request) {
           }),
         ]);
       } catch {
-        // Emit a done event so the client unblocks even on errors
-        emit([], true);
+        emit([], true, true);
       } finally {
         controller.close();
       }

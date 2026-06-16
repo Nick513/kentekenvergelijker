@@ -64,12 +64,12 @@ function UnverifiedValueHint({
   if (stacked) {
     return (
       <>
-        <span className="mt-2 block text-xs leading-relaxed font-normal text-kv-muted">
+        <span className="mt-2 block text-left text-xs leading-relaxed font-normal text-kv-muted">
           <span className="block">Mogelijk onjuist.</span>
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="mt-1 underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
+            className="mt-1 block text-left underline decoration-kv-teal/60 underline-offset-2 hover:text-kv-teal"
           >
             Wat betekent dit?
           </button>
@@ -157,11 +157,12 @@ function rowBackgroundClass(rowIndex: number): string {
 }
 
 function mobileColumnTemplate(kentekenCount: number): string {
-  return `repeat(${kentekenCount}, minmax(4.75rem, 1fr))`;
+  return `repeat(${kentekenCount}, var(--kv-comparison-plate-min-width))`;
 }
 
 function mobileGridMinWidth(kentekenCount: number): string {
-  return `max(100%, calc(${kentekenCount} * 4.75rem + ${Math.max(0, kentekenCount - 1)} * 0.5rem))`;
+  const gaps = Math.max(0, kentekenCount - 1);
+  return `calc(${kentekenCount} * var(--kv-comparison-plate-min-width) + ${gaps} * var(--kv-comparison-mobile-column-gap, 0.75rem))`;
 }
 
 type ComparisonMobileCardsProps = {
@@ -205,9 +206,15 @@ function MobileStickyPlateBar({
             }}
           >
             <div className="px-3 py-1">
-              <div className="grid gap-2" style={{ gridTemplateColumns: columnTemplate }}>
+              <div
+                className="grid gap-[var(--kv-comparison-mobile-column-gap,0.75rem)]"
+                style={{ gridTemplateColumns: columnTemplate }}
+              >
                 {kentekens.map((kenteken) => (
-                  <div key={kenteken} className="min-w-0">
+                  <div
+                    key={kenteken}
+                    className="flex min-w-[var(--kv-comparison-plate-min-width)] justify-start"
+                  >
                     <KentekenPlateChip kenteken={kenteken} compact />
                   </div>
                 ))}
@@ -328,16 +335,23 @@ function ComparisonMobileCards({
       ) : null}
 
       <div className="px-3 sm:hidden">
-        <div
-          ref={scrollContainerRef}
-          onScroll={handleMobileScroll}
-          className="kv-comparison-table-scroll overflow-x-auto"
-        >
-          <div ref={alignRef} className="space-y-2" style={{ minWidth }}>
-            <div ref={plateHeaderRef} className="px-3 py-1">
-              <div className="grid gap-2" style={{ gridTemplateColumns: columnTemplate }}>
+        <div className="kv-comparison-mobile-scroll-wrap">
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleMobileScroll}
+            className="kv-comparison-table-scroll overflow-x-auto"
+          >
+            <div ref={alignRef} className="space-y-2" style={{ minWidth }}>
+              <div ref={plateHeaderRef} className="px-3 py-1">
+              <div
+                className="grid gap-[var(--kv-comparison-mobile-column-gap,0.75rem)]"
+                style={{ gridTemplateColumns: columnTemplate }}
+              >
                 {kentekens.map((kenteken) => (
-                  <div key={kenteken} className="min-w-0">
+                  <div
+                    key={kenteken}
+                    className="flex min-w-[var(--kv-comparison-plate-min-width)] justify-start"
+                  >
                     <KentekenPlateChip kenteken={kenteken} compact />
                   </div>
                 ))}
@@ -350,7 +364,7 @@ function ComparisonMobileCards({
           return (
             <section
               key={group.title}
-              className="overflow-hidden rounded-xl border border-kv-border bg-kv-surface"
+              className="rounded-xl border border-kv-border bg-kv-surface"
             >
               <h3
                 className={
@@ -375,13 +389,13 @@ function ComparisonMobileCards({
                   >
                     <h4 className="px-3 text-sm font-semibold text-kv-navy">{row.label}</h4>
                     <div
-                      className="mt-2 grid gap-2 px-3"
+                      className="mt-2 grid gap-[var(--kv-comparison-mobile-column-gap,0.75rem)] px-3"
                       style={{ gridTemplateColumns: columnTemplate }}
                     >
                       {row.values.map((cell, valueIndex) => (
                         <div
                           key={`${row.label}-${kentekens[valueIndex]}`}
-                          className="min-w-0 text-sm text-kv-navy"
+                          className="min-w-[var(--kv-comparison-plate-min-width)] text-left text-sm text-kv-navy"
                         >
                           <ComparisonCellContent
                             cell={cell}
@@ -396,6 +410,7 @@ function ComparisonMobileCards({
             </section>
           );
         })}
+            </div>
           </div>
         </div>
       </div>

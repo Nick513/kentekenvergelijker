@@ -12,7 +12,6 @@ type SearchableComparisonTableProps = {
   kentekens: string[];
   groups: ComparisonGroup[];
   caption?: string;
-  isLoading?: boolean;
   stickyPlates?: boolean;
 };
 
@@ -39,7 +38,6 @@ export function SearchableComparisonTable({
   kentekens,
   groups,
   caption,
-  isLoading = false,
   stickyPlates = false,
 }: SearchableComparisonTableProps) {
   const searchId = useId();
@@ -141,14 +139,12 @@ export function SearchableComparisonTable({
             : "Geen ingevulde specificaties gevonden. Zet de filter uit om alle rijen te tonen."}
         </p>
       ) : (
-        <div className={isLoading ? "opacity-70 transition-opacity" : undefined}>
-          <ComparisonTable
-            kentekens={kentekens}
-            groups={filteredGroups}
-            caption={caption}
-            stickyPlates={stickyPlates}
-          />
-        </div>
+        <ComparisonTable
+          kentekens={kentekens}
+          groups={filteredGroups}
+          caption={caption}
+          stickyPlates={stickyPlates}
+        />
       )}
     </div>
   );
