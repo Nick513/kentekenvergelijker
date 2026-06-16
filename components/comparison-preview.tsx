@@ -7,7 +7,6 @@ import { SearchableComparisonTable } from "@/components/searchable-comparison-ta
 type ComparisonPreviewProps = {
   kentekens: string[];
   groups: ComparisonGroup[];
-  hasNotFound?: boolean;
   hasErrors?: boolean;
   isEnriching?: boolean;
   enrichError?: boolean;
@@ -17,7 +16,6 @@ type ComparisonPreviewProps = {
 export function ComparisonPreview({
   kentekens,
   groups,
-  hasNotFound = false,
   hasErrors = false,
   isEnriching = false,
   enrichError = false,
@@ -60,11 +58,6 @@ export function ComparisonPreview({
                 Opnieuw proberen
               </button>
             ) : null}
-          </p>
-        ) : null}
-        {hasNotFound ? (
-          <p className="text-sm text-kv-muted" role="status">
-            Een of meer kentekens zijn niet gevonden.
           </p>
         ) : null}
         {hasErrors ? (

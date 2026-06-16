@@ -162,7 +162,7 @@ function resolvePlateValue(
 ): ComparisonCell {
   if (plate.status === "not_found") {
     return cellFromValue(
-      spec.displayType === "boolean" ? UNAVAILABLE : "Niet gevonden",
+      spec.displayType === "boolean" ? UNAVAILABLE : "-",
     );
   }
 

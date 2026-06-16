@@ -9,7 +9,6 @@ type ComparisonEnrichmentProps = {
   kentekens: string[];
   initialGroups: ComparisonGroup[];
   initiallyEnriched: boolean;
-  hasNotFound?: boolean;
   hasErrors?: boolean;
 };
 
@@ -22,7 +21,6 @@ export function ComparisonEnrichment({
   kentekens,
   initialGroups,
   initiallyEnriched,
-  hasNotFound = false,
   hasErrors = false,
 }: ComparisonEnrichmentProps) {
   const [groups, setGroups] = useState(initialGroups);
@@ -83,7 +81,6 @@ export function ComparisonEnrichment({
       <ComparisonPreview
         kentekens={kentekens}
         groups={groups}
-        hasNotFound={hasNotFound}
         hasErrors={hasErrors}
         isEnriching={isEnriching && !showModal}
         enrichError={enrichError}
